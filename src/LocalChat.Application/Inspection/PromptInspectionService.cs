@@ -3,19 +3,19 @@ using LocalChat.Application.Abstractions.Persistence;
 using LocalChat.Application.Abstractions.Prompting;
 using LocalChat.Application.Abstractions.Retrieval;
 using LocalChat.Application.Prompting.Composition;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Models;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Domain.Entities.UserProfiles;
 
 namespace LocalChat.Application.Inspection;
 
 public sealed class PromptInspectionService : IPromptInspectionService
 {
-    private readonly ICharacterRepository _characterRepository;
-    private readonly IUserPersonaRepository _userPersonaRepository;
+    private readonly IAgentRepository _agentRepository;
+    private readonly IUserProfileRepository _userProfileRepository;
     private readonly IModelProfileRepository _modelProfileRepository;
     private readonly IGenerationPresetRepository _generationPresetRepository;
     private readonly IConversationRepository _conversationRepository;
@@ -24,17 +24,18 @@ public sealed class PromptInspectionService : IPromptInspectionService
     private readonly IPromptComposer _promptComposer;
 
     public PromptInspectionService(
-        ICharacterRepository characterRepository,
-        IUserPersonaRepository userPersonaRepository,
+        IAgentRepository agentRepository,
+        IUserProfileRepository userProfileRepository,
         IModelProfileRepository modelProfileRepository,
         IGenerationPresetRepository generationPresetRepository,
         IConversationRepository conversationRepository,
         IRetrievalService retrievalService,
         IModelContextService modelContextService,
-        IPromptComposer promptComposer)
+        IPromptComposer promptComposer
+    )
     {
-        _characterRepository = characterRepository;
-        _userPersonaRepository = userPersonaRepository;
+        _agentRepository = agentRepository;
+        _userProfileRepository = userProfileRepository;
         _modelProfileRepository = modelProfileRepository;
         _generationPresetRepository = generationPresetRepository;
         _conversationRepository = conversationRepository;
@@ -44,109 +45,138 @@ public sealed class PromptInspectionService : IPromptInspectionService
     }
 
     public async Task<ContextInspectionResult> InspectAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
-        Guid? userPersonaId,
+        Guid? userProfileId,
         string currentUserMessage,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         if (string.IsNullOrWhiteSpace(currentUserMessage))
         {
-            throw new ArgumentException("Inspection query cannot be empty.", nameof(currentUserMessage));
+            throw new ArgumentException(
+                "Inspection query cannot be empty.",
+                nameof(currentUserMessage)
+            );
         }
 
-        var character = await _characterRepository.GetByIdAsync(characterId, cancellationToken)
-            ?? throw new InvalidOperationException($"Character '{characterId}' was not found.");
+        var agent =
+            await _agentRepository.GetByIdAsync(agentId, cancellationToken)
+            ?? throw new InvalidOperationException($"Agent '{agentId}' was not found.");
 
         Conversation conversation;
-        UserPersona? userPersona = null;
+        UserProfile? userProfile = null;
 
         if (conversationId.HasValue)
         {
-            conversation = await _conversationRepository.GetByIdWithMessagesAsync(conversationId.Value, cancellationToken)
-                ?? throw new InvalidOperationException($"Conversation '{conversationId.Value}' was not found.");
+            conversation =
+                await _conversationRepository.GetByIdWithMessagesAsync(
+                    conversationId.Value,
+                    cancellationToken
+                )
+                ?? throw new InvalidOperationException(
+                    $"Conversation '{conversationId.Value}' was not found."
+                );
 
-            userPersona = conversation.UserPersona;
+            userProfile = conversation.UserProfile;
         }
         else
         {
-            if (userPersonaId.HasValue)
+            if (userProfileId.HasValue)
             {
-                userPersona = await _userPersonaRepository.GetByIdAsync(userPersonaId.Value, cancellationToken)
-                    ?? throw new InvalidOperationException($"User persona '{userPersonaId.Value}' was not found.");
+                userProfile =
+                    await _userProfileRepository.GetByIdAsync(
+                        userProfileId.Value,
+                        cancellationToken
+                    )
+                    ?? throw new InvalidOperationException(
+                        $"User profile '{userProfileId.Value}' was not found."
+                    );
             }
 
             conversation = new Conversation
             {
                 Id = Guid.NewGuid(),
-                CharacterId = character.Id,
-                UserPersonaId = userPersona?.Id,
-                UserPersona = userPersona,
+                AgentId = agent.Id,
+                UserProfileId = userProfile?.Id,
+                UserProfile = userProfile,
                 Title = "Inspection Preview",
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
             };
         }
 
         ModelProfile? modelProfile = null;
-        if (character.DefaultModelProfileId.HasValue)
+        if (agent.DefaultModelProfileId.HasValue)
         {
-            modelProfile = await _modelProfileRepository.GetByIdAsync(character.DefaultModelProfileId.Value, cancellationToken);
+            modelProfile = await _modelProfileRepository.GetByIdAsync(
+                agent.DefaultModelProfileId.Value,
+                cancellationToken
+            );
         }
 
         GenerationPreset? generationPreset = null;
-        if (character.DefaultGenerationPresetId.HasValue)
+        if (agent.DefaultGenerationPresetId.HasValue)
         {
-            generationPreset = await _generationPresetRepository.GetByIdAsync(character.DefaultGenerationPresetId.Value, cancellationToken);
+            generationPreset = await _generationPresetRepository.GetByIdAsync(
+                agent.DefaultGenerationPresetId.Value,
+                cancellationToken
+            );
         }
 
         var contextInfo = await _modelContextService.GetForModelAsync(
             modelProfile?.ModelIdentifier,
             modelProfile?.ContextWindow,
-            cancellationToken);
+            cancellationToken
+        );
 
         var retrievalInspection = await _retrievalService.InspectAsync(
-            character.Id,
+            agent.Id,
             conversationId,
             currentUserMessage,
-            cancellationToken);
+            cancellationToken
+        );
 
         var latestSummary = conversationId.HasValue
-            ? await _conversationRepository.GetLatestSummaryAsync(conversation.Id, cancellationToken)
+            ? await _conversationRepository.GetLatestSummaryAsync(
+                conversation.Id,
+                cancellationToken
+            )
             : null;
 
-        var orderedPriorMessages = conversation.Messages
-            .OrderBy(x => x.SequenceNumber)
-            .ToList();
+        var orderedPriorMessages = conversation.Messages.OrderBy(x => x.SequenceNumber).ToList();
 
         var rawMessages = GetRawMessagesAfterSummary(orderedPriorMessages, latestSummary);
 
         var trimmedRawMessages = TrimRawHistoryToFit(
-            character,
-            userPersona,
+            agent,
+            userProfile,
             conversation,
             retrievalInspection.SelectedMemories,
             retrievalInspection.SelectedLoreEntries,
             latestSummary?.SummaryText,
             rawMessages,
             currentUserMessage,
-            contextInfo.MaxPromptTokens);
+            contextInfo.MaxPromptTokens
+        );
 
-        var prompt = _promptComposer.Compose(new PromptCompositionContext
-        {
-            Character = character,
-            UserPersona = userPersona,
-            Conversation = conversation,
-            PriorMessages = trimmedRawMessages,
-            CurrentUserMessage = currentUserMessage,
-            RollingSummary = latestSummary?.SummaryText,
-            ExplicitMemories = retrievalInspection.SelectedMemories,
-            RelevantLoreEntries = retrievalInspection.SelectedLoreEntries
-        });
+        var prompt = _promptComposer.Compose(
+            new PromptCompositionContext
+            {
+                Agent = agent,
+                UserProfile = userProfile,
+                Conversation = conversation,
+                PriorMessages = trimmedRawMessages,
+                CurrentUserMessage = currentUserMessage,
+                RollingSummary = latestSummary?.SummaryText,
+                ExplicitMemories = retrievalInspection.SelectedMemories,
+                RelevantLoreEntries = retrievalInspection.SelectedLoreEntries,
+            }
+        );
 
         var summaryUsedInPrompt = prompt.Sections.Any(x =>
-            x.Name == "Rolling Summary" &&
-            !string.IsNullOrWhiteSpace(x.Content));
+            x.Name == "Rolling Summary" && !string.IsNullOrWhiteSpace(x.Content)
+        );
 
         var totalPriorMessageCount = orderedPriorMessages.Count;
         var includedRawMessageCount = trimmedRawMessages.Count;
@@ -168,8 +198,8 @@ public sealed class PromptInspectionService : IPromptInspectionService
             FitsWithinBudget = prompt.EstimatedTokens <= contextInfo.MaxPromptTokens,
             FinalPrompt = prompt.Prompt,
             Sections = prompt.Sections,
-            SelectedSceneState = prompt.SelectedSceneState,
-            SuppressedSceneState = prompt.SuppressedSceneState,
+            SelectedSessionState = prompt.SelectedSessionState,
+            SuppressedSessionState = prompt.SuppressedSessionState,
             SelectedDurableMemory = prompt.SelectedDurableMemory,
             SuppressedDurableMemory = prompt.SuppressedDurableMemory,
             SelectedMemories = retrievalInspection.SelectedMemories,
@@ -183,36 +213,39 @@ public sealed class PromptInspectionService : IPromptInspectionService
             SummaryCoveredMessageCount = summaryCoveredMessageCount,
             TotalPriorMessageCount = totalPriorMessageCount,
             IncludedRawMessageCount = includedRawMessageCount,
-            ExcludedRawMessageCount = excludedRawMessageCount
+            ExcludedRawMessageCount = excludedRawMessageCount,
         };
     }
 
     private IReadOnlyList<Message> TrimRawHistoryToFit(
-        Character character,
-        UserPersona? userPersona,
+        Agent agent,
+        UserProfile? userProfile,
         Conversation conversation,
         IReadOnlyList<MemoryItem> explicitMemories,
         IReadOnlyList<LoreEntry> relevantLoreEntries,
         string? rollingSummary,
         IReadOnlyList<Message> rawMessages,
         string currentUserMessage,
-        int maxPromptTokens)
+        int maxPromptTokens
+    )
     {
         var workingMessages = rawMessages.OrderBy(x => x.SequenceNumber).ToList();
 
         while (true)
         {
-            var prompt = _promptComposer.Compose(new PromptCompositionContext
-            {
-                Character = character,
-                UserPersona = userPersona,
-                Conversation = conversation,
-                PriorMessages = workingMessages,
-                CurrentUserMessage = currentUserMessage,
-                RollingSummary = rollingSummary,
-                ExplicitMemories = explicitMemories,
-                RelevantLoreEntries = relevantLoreEntries
-            });
+            var prompt = _promptComposer.Compose(
+                new PromptCompositionContext
+                {
+                    Agent = agent,
+                    UserProfile = userProfile,
+                    Conversation = conversation,
+                    PriorMessages = workingMessages,
+                    CurrentUserMessage = currentUserMessage,
+                    RollingSummary = rollingSummary,
+                    ExplicitMemories = explicitMemories,
+                    RelevantLoreEntries = relevantLoreEntries,
+                }
+            );
 
             if (prompt.EstimatedTokens <= maxPromptTokens)
             {
@@ -230,7 +263,8 @@ public sealed class PromptInspectionService : IPromptInspectionService
 
     private static List<Message> GetRawMessagesAfterSummary(
         IReadOnlyList<Message> priorMessages,
-        SummaryCheckpoint? latestSummary)
+        SummaryCheckpoint? latestSummary
+    )
     {
         if (latestSummary is null)
         {

@@ -3,9 +3,9 @@ using LocalChat.Application.Abstractions.Persistence;
 using LocalChat.Application.Abstractions.Retrieval;
 using LocalChat.Application.ImageGeneration;
 using LocalChat.Application.Inspection;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Enums;
 
@@ -16,18 +16,18 @@ public sealed class ConversationVisualPromptServiceTests
     [Fact]
     public async Task GenerateAsync_UsesConversationContext_AndParsesCodeFencedJson()
     {
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
         var conversationId = Guid.NewGuid();
 
         var conversation = new Conversation
         {
             Id = conversationId,
-            CharacterId = characterId,
+            AgentId = agentId,
             Title = "Visual Prompt Test",
             SceneContext = "A quiet balcony at sunset.",
-            Character = new Character
+            Agent = new Agent
             {
-                Id = characterId,
+                Id = agentId,
                 Name = "Elena",
                 Description = "A graceful woman with long silver hair.",
                 Greeting = "Hello.",
@@ -35,12 +35,12 @@ public sealed class ConversationVisualPromptServiceTests
                 Scenario = "Romantic fantasy setting.",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                SampleDialogues = new List<CharacterSampleDialogue>
+                SampleDialogues = new List<AgentSampleDialogue>
                 {
                     new()
                     {
                         Id = Guid.NewGuid(),
-                        CharacterId = characterId,
+                        AgentId = agentId,
                         UserMessage = "How are you?",
                         AssistantMessage = "I am well.",
                         SortOrder = 0
@@ -126,7 +126,7 @@ public sealed class ConversationVisualPromptServiceTests
         public Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default)
             => Task.FromResult<Conversation?>(null);
 
-        public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<Conversation>>(new[] { _conversation });
 
         public Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default)
@@ -170,7 +170,7 @@ public sealed class ConversationVisualPromptServiceTests
             => Task.CompletedTask;
 
         public Task IndexLoreEntryAsync(
-            Guid characterId,
+            Guid agentId,
             LoreEntry loreEntry,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
@@ -182,7 +182,7 @@ public sealed class ConversationVisualPromptServiceTests
             => Task.CompletedTask;
 
         public Task<RetrievalInspectionResult> InspectAsync(
-            Guid characterId,
+            Guid agentId,
             Guid? conversationId,
             string query,
             CancellationToken cancellationToken = default)
@@ -195,7 +195,7 @@ public sealed class ConversationVisualPromptServiceTests
                     new MemoryItem
                     {
                         Id = Guid.NewGuid(),
-                        Category = MemoryCategory.CharacterFact,
+                        Category = MemoryCategory.AgentFact,
                         Content = "Elena is wearing a yellow sundress.",
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow

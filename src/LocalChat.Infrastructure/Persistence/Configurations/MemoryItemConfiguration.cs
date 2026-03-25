@@ -74,7 +74,7 @@ public sealed class MemoryItemConfiguration : IEntityTypeConfiguration<MemoryIte
         builder.Property(x => x.UpdatedAt)
             .IsRequired();
 
-        builder.HasIndex(x => x.CharacterId);
+        builder.HasIndex(x => x.AgentId);
         builder.HasIndex(x => x.ConversationId);
         builder.HasIndex(x => x.ReviewStatus);
         builder.HasIndex(x => x.Kind);
@@ -85,9 +85,9 @@ public sealed class MemoryItemConfiguration : IEntityTypeConfiguration<MemoryIte
         builder.HasIndex(x => x.SourceMessageSequenceNumber);
         builder.HasIndex(x => x.LastObservedSequenceNumber);
         builder.HasIndex(x => x.SupersededAtSequenceNumber);
-        builder.HasIndex(x => new { x.CharacterId, x.ConversationId, x.Kind, x.NormalizedKey });
-        builder.HasIndex(x => new { x.CharacterId, x.ConversationId, x.Kind, x.SlotKey });
-        builder.HasIndex(x => new { x.CharacterId, x.ConversationId, x.Kind, x.SlotFamily });
+        builder.HasIndex(x => new { x.AgentId, x.ConversationId, x.Kind, x.NormalizedKey });
+        builder.HasIndex(x => new { x.AgentId, x.ConversationId, x.Kind, x.SlotKey });
+        builder.HasIndex(x => new { x.AgentId, x.ConversationId, x.Kind, x.SlotFamily });
 
         builder.HasOne<MemoryItem>()
             .WithMany()

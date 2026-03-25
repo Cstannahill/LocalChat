@@ -22,7 +22,7 @@ public sealed class MemoryOperationAuditService : IMemoryOperationAuditService
         Guid? sourceMemoryItemId = null,
         Guid? targetMemoryItemId = null,
         Guid? conversationId = null,
-        Guid? characterId = null,
+        Guid? agentId = null,
         int? messageSequenceNumber = null,
         string? note = null,
         CancellationToken cancellationToken = default)
@@ -35,7 +35,7 @@ public sealed class MemoryOperationAuditService : IMemoryOperationAuditService
             TargetMemoryItemId = targetMemoryItemId,
             OperationType = operationType,
             ConversationId = conversationId,
-            CharacterId = characterId,
+            AgentId = agentId,
             MessageSequenceNumber = messageSequenceNumber,
             BeforeStateJson = beforeState is null ? null : JsonSerializer.Serialize(beforeState),
             AfterStateJson = afterState is null ? null : JsonSerializer.Serialize(afterState),

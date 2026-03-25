@@ -8,18 +8,18 @@ namespace LocalChat.Infrastructure.Tests;
 public sealed class MemoryCandidateRankerTests
 {
     [Fact]
-    public void Rank_PrefersActiveSceneState_OverDurableFact_InSameSlot_AndExplainsSuppression()
+    public void Rank_PrefersActiveSessionState_OverDurableFact_InSameSlot_AndExplainsSuppression()
     {
         var conversationId = Guid.NewGuid();
 
         var durable = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            Category = MemoryCategory.CharacterFact,
+            Category = MemoryCategory.AgentFact,
             Kind = MemoryKind.DurableFact,
-            Content = "The character usually dresses elegantly.",
+            Content = "The agent usually dresses elegantly.",
             ReviewStatus = MemoryReviewStatus.Accepted,
-            SlotKey = "scene.character.outfit",
+            SlotKey = "scene.agent.outfit",
             UpdatedAt = DateTime.UtcNow.AddDays(-2),
             CreatedAt = DateTime.UtcNow.AddDays(-2)
         };
@@ -27,12 +27,12 @@ public sealed class MemoryCandidateRankerTests
         var scene = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            Category = MemoryCategory.SceneState,
-            Kind = MemoryKind.SceneState,
-            Content = "The character is currently wearing a yellow sundress.",
+            Category = MemoryCategory.SessionState,
+            Kind = MemoryKind.SessionState,
+            Content = "The agent is currently wearing a yellow sundress.",
             ReviewStatus = MemoryReviewStatus.Accepted,
             ConversationId = conversationId,
-            SlotKey = "scene.character.outfit",
+            SlotKey = "scene.agent.outfit",
             ExpiresAt = DateTime.UtcNow.AddHours(2),
             UpdatedAt = DateTime.UtcNow.AddMinutes(-5),
             CreatedAt = DateTime.UtcNow.AddMinutes(-5)
@@ -54,26 +54,26 @@ public sealed class MemoryCandidateRankerTests
 
         var selected = ranking.Selected[0];
         Assert.Equal(scene.Id, selected.Memory.Id);
-        Assert.Equal("scene.character.outfit", selected.Memory.SlotKey);
+        Assert.Equal("scene.agent.outfit", selected.Memory.SlotKey);
         Assert.Contains("Suppressed 1 lower-ranked memory item", selected.WhySelected);
         Assert.Single(selected.SuppressedMemories);
         Assert.Equal(durable.Id, selected.SuppressedMemories[0].Memory.Id);
     }
 
     [Fact]
-    public void Rank_ChoosesNewestSceneState_ForSameSlot()
+    public void Rank_ChoosesNewestSessionState_ForSameSlot()
     {
         var conversationId = Guid.NewGuid();
 
         var olderScene = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            Category = MemoryCategory.SceneState,
-            Kind = MemoryKind.SceneState,
-            Content = "The character is currently wearing a yellow sundress.",
+            Category = MemoryCategory.SessionState,
+            Kind = MemoryKind.SessionState,
+            Content = "The agent is currently wearing a yellow sundress.",
             ReviewStatus = MemoryReviewStatus.Accepted,
             ConversationId = conversationId,
-            SlotKey = "scene.character.outfit",
+            SlotKey = "scene.agent.outfit",
             SupersededAtSequenceNumber = 18,
             ExpiresAt = DateTime.UtcNow.AddHours(2),
             UpdatedAt = DateTime.UtcNow.AddHours(-2),
@@ -83,12 +83,12 @@ public sealed class MemoryCandidateRankerTests
         var newerScene = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            Category = MemoryCategory.SceneState,
-            Kind = MemoryKind.SceneState,
-            Content = "The character is currently wearing a black evening gown.",
+            Category = MemoryCategory.SessionState,
+            Kind = MemoryKind.SessionState,
+            Content = "The agent is currently wearing a black evening gown.",
             ReviewStatus = MemoryReviewStatus.Accepted,
             ConversationId = conversationId,
-            SlotKey = "scene.character.outfit",
+            SlotKey = "scene.agent.outfit",
             ExpiresAt = DateTime.UtcNow.AddHours(2),
             UpdatedAt = DateTime.UtcNow.AddMinutes(-2),
             CreatedAt = DateTime.UtcNow.AddMinutes(-2)
@@ -111,7 +111,7 @@ public sealed class MemoryCandidateRankerTests
     }
 
     [Fact]
-    public void Rank_KeepsPinnedDurableFact_WhenNoSceneStateClaimsItsSlot()
+    public void Rank_KeepsPinnedDurableFact_WhenNoSessionStateClaimsItsSlot()
     {
         var conversationId = Guid.NewGuid();
 
@@ -131,8 +131,8 @@ public sealed class MemoryCandidateRankerTests
         var scene = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            Category = MemoryCategory.SceneState,
-            Kind = MemoryKind.SceneState,
+            Category = MemoryCategory.SessionState,
+            Kind = MemoryKind.SessionState,
             Content = "They are currently standing on a balcony.",
             ReviewStatus = MemoryReviewStatus.Accepted,
             ConversationId = conversationId,

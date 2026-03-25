@@ -1,4 +1,4 @@
-﻿namespace LocalChat.Application.Features.Summaries;
+namespace LocalChat.Application.Features.Summaries;
 
 public sealed class SummaryOptions
 {
@@ -12,5 +12,5 @@ public sealed class SummaryOptions
 
     public int MaxMessagesPerPass { get; set; } = 20;
 
-    public int MaxSummaryCharacters { get; set; } = 2000;
+    public int MaxSummaryAgents { get; set; } = 2000;
 }

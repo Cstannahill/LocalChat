@@ -13,12 +13,12 @@ public sealed class MemoryPolicyService : IMemoryPolicyService
     public void ApplyAutomaticDefaults(
         MemoryItem item,
         Guid conversationId,
-        Guid characterId,
+        Guid agentId,
         int sourceMessageSequenceNumber)
     {
         item.ScopeType = ResolveAutomaticScope();
         item.ConversationId = conversationId;
-        item.CharacterId = characterId;
+        item.AgentId = agentId;
         item.SourceMessageSequenceNumber = sourceMessageSequenceNumber;
         item.LastObservedSequenceNumber = sourceMessageSequenceNumber;
         item.SupersededAtSequenceNumber = null;
@@ -48,7 +48,7 @@ public sealed class MemoryPolicyService : IMemoryPolicyService
         Guid activeConversationId,
         int currentSequenceNumber)
     {
-        if (item.Kind != MemoryKind.SceneState)
+        if (item.Kind != MemoryKind.SessionState)
         {
             return false;
         }
@@ -70,12 +70,12 @@ public sealed class MemoryPolicyService : IMemoryPolicyService
         {
             score += 0.22;
         }
-        else if (item.ScopeType == MemoryScopeType.Character)
+        else if (item.ScopeType == MemoryScopeType.Agent)
         {
             score += 0.03;
         }
 
-        if (item.Kind != MemoryKind.SceneState)
+        if (item.Kind != MemoryKind.SessionState)
         {
             return score;
         }
@@ -84,13 +84,13 @@ public sealed class MemoryPolicyService : IMemoryPolicyService
                          ?? item.SourceMessageSequenceNumber
                          ?? currentSequenceNumber;
         var turnsSinceObserved = Math.Max(0, currentSequenceNumber - observedAt);
-        var turnWindow = GetSceneStateTurnWindow(item.SlotFamily);
+        var turnWindow = GetSessionStateTurnWindow(item.SlotFamily);
         score -= ComputeTurnDistancePenalty(turnsSinceObserved, turnWindow);
 
         return score;
     }
 
-    private static int GetSceneStateTurnWindow(MemorySlotFamily family)
+    private static int GetSessionStateTurnWindow(MemorySlotFamily family)
     {
         return family switch
         {

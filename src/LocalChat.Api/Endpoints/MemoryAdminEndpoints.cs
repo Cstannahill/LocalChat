@@ -45,8 +45,8 @@ public static class MemoryAdminEndpoints
                 beforeState: beforeSnapshot,
                 afterState: MemoryAuditSnapshot.From(memoryItem),
                 conversationId: conversationId,
-                characterId: memoryItem.CharacterId,
-                note: "Demoted from character scope to conversation scope",
+                agentId: memoryItem.AgentId,
+                note: "Demoted from agent scope to conversation scope",
                 cancellationToken: cancellationToken);
 
             return Results.Ok();
@@ -149,7 +149,7 @@ public static class MemoryAdminEndpoints
                 sourceMemoryItemId: source.Id,
                 targetMemoryItemId: target.Id,
                 conversationId: target.ConversationId,
-                characterId: target.CharacterId,
+                agentId: target.AgentId,
                 note: $"Merged source memory {source.Id} into target memory {target.Id}",
                 cancellationToken: cancellationToken);
 
@@ -162,7 +162,7 @@ public static class MemoryAdminEndpoints
 
         group.MapGet("/conflicts", async (
             Guid? conversationId,
-            Guid? characterId,
+            Guid? agentId,
             int? maxCount,
             ApplicationDbContext dbContext,
             CancellationToken cancellationToken) =>
@@ -170,7 +170,7 @@ public static class MemoryAdminEndpoints
             var suggestions = await BuildConflictSuggestionsAsync(
                 dbContext,
                 conversationId,
-                characterId,
+                agentId,
                 maxCount,
                 cancellationToken);
 
@@ -188,7 +188,7 @@ public static class MemoryAdminEndpoints
             var suggestions = await BuildConflictSuggestionsAsync(
                 dbContext,
                 request.ConversationId,
-                request.CharacterId,
+                request.AgentId,
                 request.MaxCount,
                 cancellationToken);
 
@@ -254,7 +254,7 @@ public static class MemoryAdminEndpoints
                     sourceMemoryItemId: source.Id,
                     targetMemoryItemId: target.Id,
                     conversationId: target.ConversationId,
-                    characterId: target.CharacterId,
+                    agentId: target.AgentId,
                     note: $"Bulk-merged source memory {source.Id} into target memory {target.Id}",
                     cancellationToken: cancellationToken);
             }
@@ -299,7 +299,7 @@ public static class MemoryAdminEndpoints
                 ScopeType = memoryItem.ScopeType.ToString(),
                 Kind = memoryItem.Kind.ToString(),
                 ConversationId = memoryItem.ConversationId,
-                CharacterId = memoryItem.CharacterId,
+                AgentId = memoryItem.AgentId,
                 Category = memoryItem.Category.ToString(),
                 Content = memoryItem.Content,
                 NormalizedKey = memoryItem.NormalizedKey,
@@ -333,7 +333,7 @@ public static class MemoryAdminEndpoints
 
             switch (audit.OperationType)
             {
-                case MemoryOperationType.PromotedToCharacter:
+                case MemoryOperationType.PromotedToAgent:
                 case MemoryOperationType.DemotedToConversation:
                 {
                     if (string.IsNullOrWhiteSpace(audit.BeforeStateJson))
@@ -364,7 +364,7 @@ public static class MemoryAdminEndpoints
                         beforeState: audit.AfterStateJson,
                         afterState: MemoryAuditSnapshot.From(memoryItem),
                         conversationId: memoryItem.ConversationId,
-                        characterId: memoryItem.CharacterId,
+                        agentId: memoryItem.AgentId,
                         note: $"Undo of {audit.OperationType}",
                         cancellationToken: cancellationToken);
 
@@ -429,7 +429,7 @@ public static class MemoryAdminEndpoints
                         sourceMemoryItemId: source.Id,
                         targetMemoryItemId: target.Id,
                         conversationId: target.ConversationId,
-                        characterId: target.CharacterId,
+                        agentId: target.AgentId,
                         note: $"Undo of {audit.OperationType}",
                         cancellationToken: cancellationToken);
 
@@ -451,7 +451,7 @@ public static class MemoryAdminEndpoints
             string? format,
             string? strategy,
             Guid? conversationIdOverride,
-            Guid? characterIdOverride,
+            Guid? agentIdOverride,
             ApplicationDbContext dbContext,
             IMemoryOperationAuditService memoryOperationAuditService,
             CancellationToken cancellationToken) =>
@@ -492,13 +492,13 @@ public static class MemoryAdminEndpoints
                 }
 
                 var resolvedConversationId = conversationIdOverride ?? row.ConversationId;
-                var resolvedCharacterId = characterIdOverride ?? row.CharacterId;
+                var resolvedAgentId = agentIdOverride ?? row.AgentId;
 
-                if (!resolvedCharacterId.HasValue)
+                if (!resolvedAgentId.HasValue)
                 {
                     skippedCount++;
                     var preview = row.Content[..Math.Min(row.Content.Length, 40)];
-                    warnings.Add($"Skipped memory without character id. Content preview: {preview}");
+                    warnings.Add($"Skipped memory without agent id. Content preview: {preview}");
                     continue;
                 }
 
@@ -515,7 +515,7 @@ public static class MemoryAdminEndpoints
                         dbContext,
                         row.ScopeType,
                         resolvedConversationId,
-                        resolvedCharacterId.Value,
+                        resolvedAgentId.Value,
                         row.Kind,
                         row.NormalizedKey!,
                         cancellationToken);
@@ -551,7 +551,7 @@ public static class MemoryAdminEndpoints
                             beforeState: beforeSnapshot,
                             afterState: MemoryAuditSnapshot.From(existing),
                             conversationId: existing.ConversationId,
-                            characterId: existing.CharacterId,
+                            agentId: existing.AgentId,
                             note: "Memory import upsert",
                             cancellationToken: cancellationToken);
                         updatedCount++;
@@ -565,7 +565,7 @@ public static class MemoryAdminEndpoints
                     ScopeType = row.ScopeType,
                     Kind = row.Kind,
                     ConversationId = row.ScopeType == MemoryScopeType.Conversation ? resolvedConversationId : null,
-                    CharacterId = resolvedCharacterId.Value,
+                    AgentId = resolvedAgentId.Value,
                     Category = row.Category,
                     Content = row.Content,
                     ReviewStatus = MemoryReviewStatus.Accepted,
@@ -593,7 +593,7 @@ public static class MemoryAdminEndpoints
                     beforeState: null,
                     afterState: MemoryAuditSnapshot.From(created),
                     conversationId: created.ConversationId,
-                    characterId: created.CharacterId,
+                    agentId: created.AgentId,
                     note: "Memory import insert",
                     cancellationToken: cancellationToken);
                 importedCount++;
@@ -614,7 +614,7 @@ public static class MemoryAdminEndpoints
 
         group.MapGet("/export", async (
             Guid? conversationId,
-            Guid? characterId,
+            Guid? agentId,
             string? scope,
             string? kind,
             string? categoryContains,
@@ -680,9 +680,9 @@ public static class MemoryAdminEndpoints
                 query = query.Where(x => x.ConversationId == conversationId.Value);
             }
 
-            if (characterId.HasValue)
+            if (agentId.HasValue)
             {
-                query = query.Where(x => x.CharacterId == characterId.Value);
+                query = query.Where(x => x.AgentId == agentId.Value);
             }
 
             if (scopeFilter.HasValue)
@@ -731,7 +731,7 @@ public static class MemoryAdminEndpoints
                     x.ScopeType.ToString(),
                     x.Kind.ToString(),
                     x.ConversationId,
-                    x.CharacterId,
+                    x.AgentId,
                     x.Category.ToString(),
                     x.Content,
                     x.NormalizedKey,
@@ -754,7 +754,7 @@ public static class MemoryAdminEndpoints
                     new
                     {
                         conversationId,
-                        characterId,
+                        agentId,
                         scope = scopeFilter?.ToString(),
                         kind = kindFilter?.ToString(),
                         categoryContains,
@@ -778,7 +778,7 @@ public static class MemoryAdminEndpoints
     private static async Task<List<MemoryConflictSuggestionResponse>> BuildConflictSuggestionsAsync(
         ApplicationDbContext dbContext,
         Guid? conversationId,
-        Guid? characterId,
+        Guid? agentId,
         int? maxCount,
         CancellationToken cancellationToken)
     {
@@ -803,12 +803,12 @@ public static class MemoryAdminEndpoints
         {
             query = query.Where(x =>
                 (x.ScopeType == MemoryScopeType.Conversation && x.ConversationId == conversationId.Value) ||
-                x.ScopeType == MemoryScopeType.Character);
+                x.ScopeType == MemoryScopeType.Agent);
         }
 
-        if (characterId.HasValue)
+        if (agentId.HasValue)
         {
-            query = query.Where(x => x.CharacterId == characterId.Value);
+            query = query.Where(x => x.AgentId == agentId.Value);
         }
 
         var rows = await query
@@ -821,7 +821,7 @@ public static class MemoryAdminEndpoints
             .GroupBy(x => new
             {
                 Key = (x.NormalizedKey ?? string.Empty).Trim().ToLowerInvariant(),
-                x.CharacterId
+                x.AgentId
             })
             .Where(g => g.Count() > 1)
             .SelectMany(g =>
@@ -918,7 +918,7 @@ public static class MemoryAdminEndpoints
         ApplicationDbContext dbContext,
         MemoryScopeType scopeType,
         Guid? conversationId,
-        Guid characterId,
+        Guid agentId,
         MemoryKind kind,
         string normalizedKey,
         CancellationToken cancellationToken)
@@ -926,7 +926,7 @@ public static class MemoryAdminEndpoints
         var query = dbContext.MemoryItems
             .Where(x => x.Kind == kind)
             .Where(x => x.ScopeType == scopeType)
-            .Where(x => x.CharacterId == characterId)
+            .Where(x => x.AgentId == agentId)
             .Where(x => x.NormalizedKey == normalizedKey);
 
         if (scopeType == MemoryScopeType.Conversation)
@@ -1073,7 +1073,7 @@ public static class MemoryAdminEndpoints
             ScopeType: scopeType,
             Kind: kind,
             ConversationId: ReadGuid(element, "conversationId"),
-            CharacterId: ReadGuid(element, "characterId"),
+            AgentId: ReadGuid(element, "agentId"),
             Category: category,
             Content: content,
             NormalizedKey: ReadString(element, "normalizedKey"),
@@ -1151,8 +1151,8 @@ public static class MemoryAdminEndpoints
             return parsed;
         }
 
-        return kind == MemoryKind.SceneState
-            ? MemoryCategory.SceneState
+        return kind == MemoryKind.SessionState
+            ? MemoryCategory.SessionState
             : MemoryCategory.UserFact;
     }
 
@@ -1177,7 +1177,7 @@ public static class MemoryAdminEndpoints
             NormalizedKey = memoryItem.NormalizedKey,
             Content = memoryItem.Content,
             ConversationId = memoryItem.ConversationId,
-            CharacterId = memoryItem.CharacterId,
+            AgentId = memoryItem.AgentId,
             SourceMessageSequenceNumber = memoryItem.SourceMessageSequenceNumber,
             LastObservedSequenceNumber = memoryItem.LastObservedSequenceNumber,
             CreatedAt = memoryItem.CreatedAt,
@@ -1195,7 +1195,7 @@ public static class MemoryAdminEndpoints
             Note = audit.Note,
             IsUndone = audit.IsUndone,
             CanUndo = !audit.IsUndone && (
-                audit.OperationType == MemoryOperationType.PromotedToCharacter ||
+                audit.OperationType == MemoryOperationType.PromotedToAgent ||
                 audit.OperationType == MemoryOperationType.DemotedToConversation ||
                 audit.OperationType == MemoryOperationType.MergedIntoTarget),
             CreatedAt = audit.CreatedAt,
@@ -1339,7 +1339,7 @@ public static class MemoryAdminEndpoints
                     scope = x.Scope,
                     kind = x.Kind,
                     x.ConversationId,
-                    x.CharacterId,
+                    x.AgentId,
                     x.Category,
                     x.Content,
                     x.NormalizedKey,
@@ -1504,7 +1504,7 @@ public static class MemoryAdminEndpoints
         string Scope,
         string Kind,
         Guid? ConversationId,
-        Guid? CharacterId,
+        Guid? AgentId,
         string? Category,
         string Content,
         string? NormalizedKey,
@@ -1520,7 +1520,7 @@ public static class MemoryAdminEndpoints
         MemoryScopeType ScopeType,
         MemoryKind Kind,
         Guid? ConversationId,
-        Guid? CharacterId,
+        Guid? AgentId,
         MemoryCategory Category,
         string Content,
         string? NormalizedKey,

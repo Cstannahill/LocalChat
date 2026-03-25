@@ -61,7 +61,7 @@ public sealed class VectorIndexingService
             {
                 SourceId = message.Id,
                 SourceType = "ConversationMessage",
-                CharacterId = conversation.CharacterId,
+                AgentId = conversation.AgentId,
                 ConversationId = conversation.Id,
                 Content = content,
                 Embedding = embedding,
@@ -74,7 +74,7 @@ public sealed class VectorIndexingService
             .Where(x =>
                 x.ConversationId == conversationId &&
                 x.ReviewStatus == MemoryReviewStatus.Accepted &&
-                (x.Kind != MemoryKind.SceneState || x.SupersededAtSequenceNumber == null))
+                (x.Kind != MemoryKind.SessionState || x.SupersededAtSequenceNumber == null))
             .ToListAsync(cancellationToken);
 
         foreach (var memory in acceptedConversationMemories)
@@ -90,7 +90,7 @@ public sealed class VectorIndexingService
             {
                 SourceId = memory.Id,
                 SourceType = "Memory",
-                CharacterId = memory.CharacterId,
+                AgentId = memory.AgentId,
                 ConversationId = memory.ConversationId,
                 Content = memory.Content,
                 Embedding = embedding,
@@ -129,7 +129,7 @@ public sealed class VectorIndexingService
                 {
                     SourceId = message.Id,
                     SourceType = "ConversationMessage",
-                    CharacterId = conversation.CharacterId,
+                    AgentId = conversation.AgentId,
                     ConversationId = conversation.Id,
                     Content = content,
                     Embedding = embedding,
@@ -142,7 +142,7 @@ public sealed class VectorIndexingService
         var acceptedMemories = await _dbContext.MemoryItems
             .Where(x =>
                 x.ReviewStatus == MemoryReviewStatus.Accepted &&
-                (x.Kind != MemoryKind.SceneState || x.SupersededAtSequenceNumber == null))
+                (x.Kind != MemoryKind.SessionState || x.SupersededAtSequenceNumber == null))
             .ToListAsync(cancellationToken);
 
         foreach (var memory in acceptedMemories)
@@ -158,7 +158,7 @@ public sealed class VectorIndexingService
             {
                 SourceId = memory.Id,
                 SourceType = "Memory",
-                CharacterId = memory.CharacterId,
+                AgentId = memory.AgentId,
                 ConversationId = memory.ConversationId,
                 Content = memory.Content,
                 Embedding = embedding,
@@ -185,7 +185,7 @@ public sealed class VectorIndexingService
             {
                 SourceId = lore.Id,
                 SourceType = "Lore",
-                CharacterId = null,
+                AgentId = null,
                 ConversationId = null,
                 Content = content,
                 Embedding = embedding,

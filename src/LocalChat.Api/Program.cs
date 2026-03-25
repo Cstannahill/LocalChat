@@ -103,11 +103,11 @@ var memoryProposalOptions =
 
 builder.Services.AddSingleton(memoryProposalOptions);
 
-var sceneStateCleanupOptions =
-    builder.Configuration.GetSection("SceneStateCleanup").Get<SceneStateCleanupOptions>()
-    ?? new SceneStateCleanupOptions();
+var sessionStateCleanupOptions =
+    builder.Configuration.GetSection("SessionStateCleanup").Get<SessionStateCleanupOptions>()
+    ?? new SessionStateCleanupOptions();
 
-builder.Services.AddSingleton(sceneStateCleanupOptions);
+builder.Services.AddSingleton(sessionStateCleanupOptions);
 
 var inspectionOptions =
     builder.Configuration.GetSection(InspectionOptions.SectionName).Get<InspectionOptions>()
@@ -217,8 +217,8 @@ builder.Services.AddHttpClient<ComfyUiImageGenerationProvider>(client =>
     client.Timeout = TimeSpan.FromSeconds(comfyUiOptions.TimeoutSeconds);
 });
 
-builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
-builder.Services.AddScoped<IUserPersonaRepository, UserPersonaRepository>();
+builder.Services.AddScoped<IAgentRepository, AgentRepository>();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IModelProfileRepository, ModelProfileRepository>();
 builder.Services.AddScoped<IGenerationPresetRepository, GenerationPresetRepository>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
@@ -226,9 +226,9 @@ builder.Services.AddScoped<IAppRuntimeDefaultsRepository, AppRuntimeDefaultsRepo
 builder.Services.AddScoped<IGenerationPromptSnapshotRepository, GenerationPromptSnapshotRepository>();
 builder.Services.AddScoped<IMemoryRepository, MemoryRepository>();
 builder.Services.AddScoped<IMemoryOperationAuditService, MemoryOperationAuditService>();
-builder.Services.AddScoped<ISceneStateExtractionEventRepository, SceneStateExtractionEventRepository>();
+builder.Services.AddScoped<ISessionStateExtractionEventRepository, SessionStateExtractionEventRepository>();
 builder.Services.AddScoped<IMemoryExtractionAuditEventRepository, MemoryExtractionAuditEventRepository>();
-builder.Services.AddScoped<ILorebookRepository, LorebookRepository>();
+builder.Services.AddScoped<IKnowledgeBaseRepository, KnowledgeBaseRepository>();
 builder.Services.AddScoped<ISpeechClipRepository, SpeechClipRepository>();
 builder.Services.AddScoped<IImageGenerationJobRepository, ImageGenerationJobRepository>();
 builder.Services.AddScoped<IAuthoringAssistantService, AuthoringAssistantService>();
@@ -242,9 +242,9 @@ builder.Services.AddScoped<IEmbeddingProvider, OllamaEmbeddingProvider>();
 builder.Services.AddScoped<ITokenEstimator, BasicTokenEstimator>();
 builder.Services.AddScoped<IModelContextService, RoutedModelContextService>();
 builder.Services.AddScoped<IPromptInspectionService, PromptInspectionService>();
-builder.Services.AddScoped<ISceneStateInspectionService, SceneStateInspectionService>();
+builder.Services.AddScoped<ISessionStateInspectionService, SessionStateInspectionService>();
 builder.Services.AddScoped<IMemoryExtractionInspectionService, MemoryExtractionInspectionService>();
-builder.Services.AddScoped<ISceneStateCleanupService, SceneStateCleanupService>();
+builder.Services.AddScoped<ISessionStateCleanupService, SessionStateCleanupService>();
 builder.Services.AddScoped<IMemoryPolicyService, MemoryPolicyService>();
 builder.Services.AddScoped<MemoryProposalQualityEvaluator>();
 builder.Services.AddScoped<MemoryExtractionClassifier>();
@@ -302,7 +302,7 @@ using (var scope = app.Services.CreateScope())
 
     await DefaultModelProfileSeeder.SeedAsync(dbContext);
     await DefaultGenerationPresetSeeder.SeedAsync(dbContext);
-    await DefaultCharacterSeeder.SeedAsync(dbContext);
+    await DefaultAgentSeeder.SeedAsync(dbContext);
 }
 
 if (app.Environment.IsDevelopment())
@@ -316,18 +316,18 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
-app.MapCharactersEndpoints();
-app.MapPersonasEndpoints();
+app.MapAgentsEndpoints();
+app.MapUserProfilesEndpoints();
 app.MapModelProfilesEndpoints();
 app.MapConversationsEndpoints();
 app.MapAppRuntimeDefaultsEndpoints();
 app.MapGenerationPromptSnapshotEndpoints();
 app.MapMemoryEndpoints();
 app.MapMemoryAdminEndpoints();
-app.MapLorebookEndpoints();
+app.MapKnowledgeBaseEndpoints();
 app.MapInspectionEndpoints();
 app.MapAuthoringAssistantEndpoints();
-app.MapSceneStateInspectionEndpoints();
+app.MapSessionStateInspectionEndpoints();
 app.MapMemoryExtractionInspectionEndpoints();
 app.MapImportExportEndpoints();
 app.MapCommandsEndpoints();
@@ -354,8 +354,8 @@ static async Task EnsureLegacyBaselineMigrationAsync(ApplicationDbContext dbCont
     }
 
     var hasGenerationPresetsTable = await TableExistsAsync(dbContext, "GenerationPresets");
-    var hasCharactersTable = await TableExistsAsync(dbContext, "Characters");
-    if (!hasGenerationPresetsTable || !hasCharactersTable)
+    var hasAgentsTable = await TableExistsAsync(dbContext, "Agents");
+    if (!hasGenerationPresetsTable || !hasAgentsTable)
     {
         return;
     }

@@ -24,7 +24,7 @@ public sealed class RetrievalChunkConfiguration : IEntityTypeConfiguration<Retri
 
         builder.Property(x => x.UpdatedAt).IsRequired();
 
-        builder.HasIndex(x => x.CharacterId);
+        builder.HasIndex(x => x.AgentId);
         builder.HasIndex(x => x.ConversationId);
         builder.HasIndex(x => new { x.SourceType, x.SourceEntityId }).IsUnique();
     }

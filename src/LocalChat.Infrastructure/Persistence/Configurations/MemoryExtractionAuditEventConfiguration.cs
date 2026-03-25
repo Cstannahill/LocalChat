@@ -49,7 +49,7 @@ public sealed class MemoryExtractionAuditEventConfiguration : IEntityTypeConfigu
             .IsRequired();
 
         builder.HasIndex(x => x.ConversationId);
-        builder.HasIndex(x => x.CharacterId);
+        builder.HasIndex(x => x.AgentId);
         builder.HasIndex(x => x.Kind);
         builder.HasIndex(x => x.SlotFamily);
         builder.HasIndex(x => x.Action);

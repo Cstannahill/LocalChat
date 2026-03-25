@@ -10,7 +10,7 @@ public interface IMemoryPolicyService
     void ApplyAutomaticDefaults(
         MemoryItem item,
         Guid conversationId,
-        Guid characterId,
+        Guid agentId,
         int sourceMessageSequenceNumber);
 
     void ReinforceObservation(

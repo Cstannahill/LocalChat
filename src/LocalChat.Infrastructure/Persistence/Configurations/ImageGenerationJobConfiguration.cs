@@ -40,12 +40,12 @@ public sealed class ImageGenerationJobConfiguration : IEntityTypeConfiguration<I
             .IsRequired(false);
 
         builder.HasIndex(x => x.ConversationId);
-        builder.HasIndex(x => x.CharacterId);
+        builder.HasIndex(x => x.AgentId);
         builder.HasIndex(x => x.Status);
 
-        builder.HasOne(x => x.Character)
+        builder.HasOne(x => x.Agent)
             .WithMany()
-            .HasForeignKey(x => x.CharacterId)
+            .HasForeignKey(x => x.AgentId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Conversation)

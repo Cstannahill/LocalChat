@@ -1,4 +1,4 @@
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,7 +22,7 @@ public sealed class LoreEntryConfiguration : IEntityTypeConfiguration<LoreEntry>
 
         builder.Property(x => x.UpdatedAt).IsRequired();
 
-        builder.HasIndex(x => x.LorebookId);
+        builder.HasIndex(x => x.KnowledgeBaseId);
         builder.HasIndex(x => x.IsEnabled);
     }
 }

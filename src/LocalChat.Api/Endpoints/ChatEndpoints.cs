@@ -37,7 +37,7 @@ public static class ChatEndpoints
                     new ChatStreamStartedEvent
                     {
                         Type = SseEventNames.Started,
-                        CharacterId = request.CharacterId,
+                        AgentId = request.AgentId,
                         ConversationId = request.ConversationId,
                         StartedAt = DateTime.UtcNow
                     },
@@ -49,9 +49,9 @@ public static class ChatEndpoints
                     var result = await orchestrator.SendAsync(
                         new SendChatMessageCommand
                         {
-                            CharacterId = request.CharacterId,
+                            AgentId = request.AgentId,
                             ConversationId = request.ConversationId,
-                            UserPersonaId = request.UserPersonaId,
+                            UserProfileId = request.UserProfileId,
                             Message = request.Message,
                         },
                         async (delta, ct) =>

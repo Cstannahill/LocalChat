@@ -44,11 +44,11 @@ public sealed class SpeechClipConfiguration : IEntityTypeConfiguration<SpeechCli
 
         builder.HasIndex(x => x.MessageId);
         builder.HasIndex(x => x.ConversationId);
-        builder.HasIndex(x => x.CharacterId);
+        builder.HasIndex(x => x.AgentId);
 
-        builder.HasOne(x => x.Character)
+        builder.HasOne(x => x.Agent)
             .WithMany()
-            .HasForeignKey(x => x.CharacterId)
+            .HasForeignKey(x => x.AgentId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Conversation)

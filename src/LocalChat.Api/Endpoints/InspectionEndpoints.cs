@@ -1,9 +1,9 @@
 using LocalChat.Application.Abstractions.Prompting;
 using LocalChat.Application.Abstractions.Retrieval;
 using LocalChat.Contracts.Inspection;
-using LocalChat.Contracts.Lorebooks;
+using LocalChat.Contracts.KnowledgeBases;
 using LocalChat.Contracts.Memory;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 
 namespace LocalChat.Api.Endpoints;
@@ -28,7 +28,7 @@ public static class InspectionEndpoints
                 }
 
                 var inspection = await retrievalService.InspectAsync(
-                    request.CharacterId,
+                    request.AgentId,
                     request.ConversationId,
                     request.Query,
                     cancellationToken
@@ -43,42 +43,44 @@ public static class InspectionEndpoints
                     SelectedLoreEntries = inspection
                         .SelectedLoreEntries.Select(ToLoreEntryResponse)
                         .ToList(),
-                    SelectedMemoryExplanations = inspection.SelectedMemoryExplanations
-                        .Select(x => new SelectedMemoryExplanationResponse
-                        {
-                            MemoryId = x.MemoryId,
-                            Category = x.Category,
-                            Kind = x.Kind,
-                            Content = x.Content,
-                            SlotKey = x.SlotKey,
-                            SemanticScore = x.SemanticScore,
-                            FinalScore = x.FinalScore,
-                            WhySelected = x.WhySelected,
-                            SuppressedMemories = x.SuppressedMemories
-                                .Select(s => new SuppressedMemoryResponse
-                                {
-                                    MemoryId = s.MemoryId,
-                                    Category = s.Category,
-                                    Kind = s.Kind,
-                                    Content = s.Content,
-                                    SlotKey = s.SlotKey,
-                                    FinalScore = s.FinalScore,
-                                    Reason = s.Reason
-                                })
-                                .ToList()
-                        })
+                    SelectedMemoryExplanations = inspection
+                        .SelectedMemoryExplanations.Select(
+                            x => new SelectedMemoryExplanationResponse
+                            {
+                                MemoryId = x.MemoryId,
+                                Category = x.Category,
+                                Kind = x.Kind,
+                                Content = x.Content,
+                                SlotKey = x.SlotKey,
+                                SemanticScore = x.SemanticScore,
+                                FinalScore = x.FinalScore,
+                                WhySelected = x.WhySelected,
+                                SuppressedMemories = x
+                                    .SuppressedMemories.Select(s => new SuppressedMemoryResponse
+                                    {
+                                        MemoryId = s.MemoryId,
+                                        Category = s.Category,
+                                        Kind = s.Kind,
+                                        Content = s.Content,
+                                        SlotKey = s.SlotKey,
+                                        FinalScore = s.FinalScore,
+                                        Reason = s.Reason,
+                                    })
+                                    .ToList(),
+                            }
+                        )
                         .ToList(),
-                    SelectedLoreExplanations = inspection.SelectedLoreExplanations
-                        .Select(x => new SelectedLoreExplanationResponse
+                    SelectedLoreExplanations = inspection
+                        .SelectedLoreExplanations.Select(x => new SelectedLoreExplanationResponse
                         {
                             LoreEntryId = x.LoreEntryId,
                             Title = x.Title,
                             Content = x.Content,
                             SemanticScore = x.SemanticScore,
                             FinalScore = x.FinalScore,
-                            WhySelected = x.WhySelected
+                            WhySelected = x.WhySelected,
                         })
-                        .ToList()
+                        .ToList(),
                 };
 
                 return Results.Ok(response);
@@ -99,9 +101,9 @@ public static class InspectionEndpoints
                 }
 
                 var inspection = await promptInspectionService.InspectAsync(
-                    request.CharacterId,
+                    request.AgentId,
                     request.ConversationId,
-                    request.UserPersonaId,
+                    request.UserProfileId,
                     request.Query,
                     cancellationToken
                 );
@@ -117,19 +119,13 @@ public static class InspectionEndpoints
                     EstimatedPromptTokens = inspection.EstimatedPromptTokens,
                     FitsWithinBudget = inspection.FitsWithinBudget,
                     FinalPrompt = inspection.FinalPrompt,
-                    CharacterDefinitionSection = FindSection(
-                        inspection.Sections,
-                        "Character Definition"
-                    ),
-                    CharacterScenarioSection = FindSection(
-                        inspection.Sections,
-                        "Character Scenario"
-                    ),
+                    AgentDefinitionSection = FindSection(inspection.Sections, "Agent Definition"),
+                    AgentScenarioSection = FindSection(inspection.Sections, "Agent Scenario"),
                     SampleDialogueSection = FindSection(
                         inspection.Sections,
                         "Sample Dialogue Examples"
                     ),
-                    UserPersonaSection = FindSection(inspection.Sections, "User Persona"),
+                    UserProfileSection = FindSection(inspection.Sections, "User Profile"),
                     DirectorSection = FindSection(inspection.Sections, "Director Instructions"),
                     SceneContextSection = FindSection(inspection.Sections, "Scene Context"),
                     OocModeSection = FindSection(inspection.Sections, "OOC Mode"),
@@ -141,43 +137,51 @@ public static class InspectionEndpoints
                             EstimatedTokens = x.EstimatedTokens,
                         })
                         .ToList(),
-                    SelectedSceneState = inspection.SelectedSceneState
-                        .Select(x => new PromptSceneStateSelectedDebugResponse
-                        {
-                            MemoryId = x.MemoryId,
-                            SlotFamily = x.SlotFamily,
-                            SlotKey = x.SlotKey,
-                            Content = x.Content,
-                            PromptContent = x.PromptContent
-                        })
+                    SelectedSessionState = inspection
+                        .SelectedSessionState.Select(
+                            x => new PromptSessionStateSelectedDebugResponse
+                            {
+                                MemoryId = x.MemoryId,
+                                SlotFamily = x.SlotFamily,
+                                SlotKey = x.SlotKey,
+                                Content = x.Content,
+                                PromptContent = x.PromptContent,
+                            }
+                        )
                         .ToList(),
-                    SuppressedSceneState = inspection.SuppressedSceneState
-                        .Select(x => new PromptSceneStateSuppressedDebugResponse
-                        {
-                            MemoryId = x.MemoryId,
-                            SlotFamily = x.SlotFamily,
-                            Content = x.Content,
-                            Reason = x.Reason
-                        })
+                    SuppressedSessionState = inspection
+                        .SuppressedSessionState.Select(
+                            x => new PromptSessionStateSuppressedDebugResponse
+                            {
+                                MemoryId = x.MemoryId,
+                                SlotFamily = x.SlotFamily,
+                                Content = x.Content,
+                                Reason = x.Reason,
+                            }
+                        )
                         .ToList(),
-                    SelectedDurableMemory = inspection.SelectedDurableMemory
-                        .Select(x => new PromptDurableMemorySelectedDebugResponse
-                        {
-                            MemoryId = x.MemoryId,
-                            Category = x.Category,
-                            Content = x.Content,
-                            PromptContent = x.PromptContent
-                        })
+                    SelectedDurableMemory = inspection
+                        .SelectedDurableMemory.Select(
+                            x => new PromptDurableMemorySelectedDebugResponse
+                            {
+                                MemoryId = x.MemoryId,
+                                Category = x.Category,
+                                Content = x.Content,
+                                PromptContent = x.PromptContent,
+                            }
+                        )
                         .ToList(),
-                    SuppressedDurableMemory = inspection.SuppressedDurableMemory
-                        .Select(x => new PromptDurableMemorySuppressedDebugResponse
-                        {
-                            MemoryId = x.MemoryId,
-                            Category = x.Category,
-                            Content = x.Content,
-                            Reason = x.Reason
-                        })
-                        .ToList()
+                    SuppressedDurableMemory = inspection
+                        .SuppressedDurableMemory.Select(
+                            x => new PromptDurableMemorySuppressedDebugResponse
+                            {
+                                MemoryId = x.MemoryId,
+                                Category = x.Category,
+                                Content = x.Content,
+                                Reason = x.Reason,
+                            }
+                        )
+                        .ToList(),
                 };
 
                 return Results.Ok(response);
@@ -197,7 +201,7 @@ public static class InspectionEndpoints
                     : request.Query;
 
                 var inspection = await promptInspectionService.InspectAsync(
-                    request.CharacterId,
+                    request.AgentId,
                     request.ConversationId,
                     null,
                     query,
@@ -258,7 +262,7 @@ public static class InspectionEndpoints
             SupersededAtSequenceNumber = memory.SupersededAtSequenceNumber,
             ExpiresAt = memory.ExpiresAt,
             CreatedAt = memory.CreatedAt,
-            UpdatedAt = memory.UpdatedAt
+            UpdatedAt = memory.UpdatedAt,
         };
     }
 
@@ -267,12 +271,12 @@ public static class InspectionEndpoints
         return new LoreEntryResponse
         {
             Id = loreEntry.Id,
-            LorebookId = loreEntry.LorebookId,
+            KnowledgeBaseId = loreEntry.KnowledgeBaseId,
             Title = loreEntry.Title,
             Content = loreEntry.Content,
             IsEnabled = loreEntry.IsEnabled,
             CreatedAt = loreEntry.CreatedAt,
-            UpdatedAt = loreEntry.UpdatedAt
+            UpdatedAt = loreEntry.UpdatedAt,
         };
     }
 }

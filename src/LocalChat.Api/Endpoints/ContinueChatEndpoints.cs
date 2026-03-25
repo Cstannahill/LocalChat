@@ -42,7 +42,7 @@ public static class ContinueChatEndpoints
                 new
                 {
                     type = "started",
-                    characterId = conversation.CharacterId,
+                    agentId = conversation.AgentId,
                     conversationId = conversation.Id,
                     startedAt = DateTimeOffset.UtcNow
                 },

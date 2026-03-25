@@ -6,10 +6,10 @@ using LocalChat.Application.Features.Memory;
 using LocalChat.Application.Memory;
 using LocalChat.Contracts.Memory;
 using LocalChat.Contracts.Models;
-using LocalChat.Contracts.Personas;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Contracts.UserProfiles;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Enums;
 using LocalChat.Infrastructure.Persistence;
@@ -30,10 +30,10 @@ public sealed class BackendApiIntegrationTests
     {
         await using var harness = await TestHarness.CreateAsync();
 
-        var character = new Character
+        var agent = new Agent
         {
             Id = Guid.NewGuid(),
-            Name = "Memory Character",
+            Name = "Memory Agent",
             Description = "Desc",
             Greeting = "Hi",
             PersonalityDefinition = "Calm",
@@ -45,7 +45,7 @@ public sealed class BackendApiIntegrationTests
         var conversation = new Conversation
         {
             Id = Guid.NewGuid(),
-            CharacterId = character.Id,
+            AgentId = agent.Id,
             Title = "Memory Flow",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -54,7 +54,7 @@ public sealed class BackendApiIntegrationTests
         var promotedMemory = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            CharacterId = character.Id,
+            AgentId = agent.Id,
             ConversationId = conversation.Id,
             ScopeType = MemoryScopeType.Conversation,
             Category = MemoryCategory.UserFact,
@@ -68,7 +68,7 @@ public sealed class BackendApiIntegrationTests
         var mergeTarget = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            CharacterId = character.Id,
+            AgentId = agent.Id,
             ConversationId = conversation.Id,
             ScopeType = MemoryScopeType.Conversation,
             Category = MemoryCategory.UserFact,
@@ -82,7 +82,7 @@ public sealed class BackendApiIntegrationTests
         var mergeSource = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            CharacterId = character.Id,
+            AgentId = agent.Id,
             ConversationId = conversation.Id,
             ScopeType = MemoryScopeType.Conversation,
             Category = MemoryCategory.UserFact,
@@ -95,19 +95,19 @@ public sealed class BackendApiIntegrationTests
 
         await harness.WithDbAsync(async db =>
         {
-            db.Characters.Add(character);
+            db.Agents.Add(agent);
             db.Conversations.Add(conversation);
             db.MemoryItems.AddRange(promotedMemory, mergeTarget, mergeSource);
             await db.SaveChangesAsync();
         });
 
-        var promoteResponse = await harness.Client.PostAsync($"/api/memory/{promotedMemory.Id}/promote-to-character", null);
+        var promoteResponse = await harness.Client.PostAsync($"/api/memory/{promotedMemory.Id}/promote-to-agent", null);
         await EnsureSuccessAsync(promoteResponse);
 
         await harness.WithDbAsync(async db =>
         {
             var item = await db.MemoryItems.FirstAsync(x => x.Id == promotedMemory.Id);
-            Assert.Equal(MemoryScopeType.Character, item.ScopeType);
+            Assert.Equal(MemoryScopeType.Agent, item.ScopeType);
             Assert.Null(item.ConversationId);
         });
 
@@ -159,13 +159,13 @@ public sealed class BackendApiIntegrationTests
     }
 
     [Fact]
-    public async Task PersonaDefaults_FirstSetDeletePromotionAndClear_WorkAsExpected()
+    public async Task UserProfileDefaults_FirstSetDeletePromotionAndClear_WorkAsExpected()
     {
         await using var harness = await TestHarness.CreateAsync();
 
-        async Task<Guid> CreatePersonaAsync(string name)
+        async Task<Guid> CreateUserProfileAsync(string name)
         {
-            var response = await harness.Client.PostAsJsonAsync("/api/personas", new CreateUserPersonaRequest
+            var response = await harness.Client.PostAsJsonAsync("/api/user-profiles", new CreateUserProfileRequest
             {
                 Name = name,
                 DisplayName = name,
@@ -176,54 +176,54 @@ public sealed class BackendApiIntegrationTests
             });
 
             await EnsureSuccessAsync(response);
-            var created = await response.Content.ReadFromJsonAsync<CreatedPersona>();
+            var created = await response.Content.ReadFromJsonAsync<CreatedUserProfile>();
             Assert.NotNull(created);
             return created!.Id;
         }
 
-        var firstPersonaId = await CreatePersonaAsync("First");
+        var firstUserProfileId = await CreateUserProfileAsync("First");
 
         await harness.WithDbAsync(async db =>
         {
-            var personas = await db.UserPersonas.OrderBy(x => x.CreatedAt).ToListAsync();
-            Assert.Single(personas);
-            Assert.True(personas[0].IsDefault);
-            Assert.Equal(firstPersonaId, personas[0].Id);
+            var userProfiles = await db.UserProfiles.OrderBy(x => x.CreatedAt).ToListAsync();
+            Assert.Single(userProfiles);
+            Assert.True(userProfiles[0].IsDefault);
+            Assert.Equal(firstUserProfileId, userProfiles[0].Id);
         });
 
-        var secondPersonaId = await CreatePersonaAsync("Second");
+        var secondUserProfileId = await CreateUserProfileAsync("Second");
 
-        var setDefaultResponse = await harness.Client.PostAsync($"/api/personas/{secondPersonaId}/set-default", null);
+        var setDefaultResponse = await harness.Client.PostAsync($"/api/user-profiles/{secondUserProfileId}/set-default", null);
         await EnsureSuccessAsync(setDefaultResponse);
 
         await harness.WithDbAsync(async db =>
         {
-            var personas = await db.UserPersonas.OrderBy(x => x.CreatedAt).ToListAsync();
-            Assert.Equal(2, personas.Count);
-            Assert.False(personas.First(x => x.Id == firstPersonaId).IsDefault);
-            Assert.True(personas.First(x => x.Id == secondPersonaId).IsDefault);
+            var userProfiles = await db.UserProfiles.OrderBy(x => x.CreatedAt).ToListAsync();
+            Assert.Equal(2, userProfiles.Count);
+            Assert.False(userProfiles.First(x => x.Id == firstUserProfileId).IsDefault);
+            Assert.True(userProfiles.First(x => x.Id == secondUserProfileId).IsDefault);
         });
 
-        var deleteDefaultResponse = await harness.Client.DeleteAsync($"/api/personas/{secondPersonaId}");
+        var deleteDefaultResponse = await harness.Client.DeleteAsync($"/api/user-profiles/{secondUserProfileId}");
         await EnsureSuccessAsync(deleteDefaultResponse);
 
         await harness.WithDbAsync(async db =>
         {
-            var remaining = await db.UserPersonas.ToListAsync();
+            var remaining = await db.UserProfiles.ToListAsync();
             Assert.Single(remaining);
-            Assert.Equal(firstPersonaId, remaining[0].Id);
+            Assert.Equal(firstUserProfileId, remaining[0].Id);
             Assert.True(remaining[0].IsDefault);
         });
 
-        var deleteLastResponse = await harness.Client.DeleteAsync($"/api/personas/{firstPersonaId}");
+        var deleteLastResponse = await harness.Client.DeleteAsync($"/api/user-profiles/{firstUserProfileId}");
         await EnsureSuccessAsync(deleteLastResponse);
 
         await harness.WithDbAsync(async db =>
         {
-            Assert.False(await db.UserPersonas.AnyAsync());
+            Assert.False(await db.UserProfiles.AnyAsync());
             var defaults = await db.AppRuntimeDefaults.FirstOrDefaultAsync();
             Assert.NotNull(defaults);
-            Assert.Null(defaults!.DefaultPersonaId);
+            Assert.Null(defaults!.DefaultUserProfileId);
         });
     }
 
@@ -248,7 +248,7 @@ public sealed class BackendApiIntegrationTests
         Assert.Equal("llamacpp:local-gguf-model", created.ModelIdentifier);
     }
 
-    private sealed class CreatedPersona
+    private sealed class CreatedUserProfile
     {
         public Guid Id { get; set; }
     }
@@ -304,7 +304,7 @@ public sealed class BackendApiIntegrationTests
             builder.Services.AddScoped<IMemoryOperationAuditService, MemoryOperationAuditService>();
             builder.Services.AddScoped<IModelProfileRepository, ModelProfileRepository>();
             builder.Services.AddScoped<IGenerationPresetRepository, GenerationPresetRepository>();
-            builder.Services.AddScoped<ICharacterRepository, NoopCharacterRepository>();
+            builder.Services.AddScoped<IAgentRepository, NoopAgentRepository>();
             builder.Services.AddScoped<IConversationRepository, NoopConversationRepository>();
             builder.Services.AddScoped<IRetrievalService, NoopRetrievalService>();
             builder.Services.AddScoped<IMemoryProposalService, NoopMemoryProposalService>();
@@ -313,7 +313,7 @@ public sealed class BackendApiIntegrationTests
             var app = builder.Build();
             app.MapMemoryEndpoints();
             app.MapMemoryAdminEndpoints();
-            app.MapPersonasEndpoints();
+            app.MapUserProfilesEndpoints();
             app.MapModelProfilesEndpoints();
 
             await app.StartAsync();
@@ -374,23 +374,23 @@ public sealed class BackendApiIntegrationTests
             }
         }
 
-        private sealed class NoopCharacterRepository : ICharacterRepository
+        private sealed class NoopAgentRepository : IAgentRepository
         {
-            public Task<Character?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) => Task.FromResult<Character?>(null);
+            public Task<Agent?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) => Task.FromResult<Agent?>(null);
 
-            public Task<Character?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default) => Task.FromResult<Character?>(null);
+            public Task<Agent?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default) => Task.FromResult<Agent?>(null);
 
-            public Task<Character?> GetDefaultAsync(CancellationToken cancellationToken = default) => Task.FromResult<Character?>(null);
+            public Task<Agent?> GetDefaultAsync(CancellationToken cancellationToken = default) => Task.FromResult<Agent?>(null);
 
-            public Task<IReadOnlyList<Character>> ListAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<Character>>([]);
+            public Task<IReadOnlyList<Agent>> ListAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<Agent>>([]);
 
-            public Task<Character> AddAsync(Character character, CancellationToken cancellationToken = default) => Task.FromResult(character);
+            public Task<Agent> AddAsync(Agent agent, CancellationToken cancellationToken = default) => Task.FromResult(agent);
 
-            public Task<bool> HasConversationsAsync(Guid characterId, CancellationToken cancellationToken = default) => Task.FromResult(false);
+            public Task<bool> HasConversationsAsync(Guid agentId, CancellationToken cancellationToken = default) => Task.FromResult(false);
 
             public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-            public void Remove(Character character)
+            public void Remove(Agent agent)
             {
             }
         }
@@ -401,7 +401,7 @@ public sealed class BackendApiIntegrationTests
 
             public Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default) => Task.FromResult<Conversation?>(null);
 
-            public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<Conversation>>([]);
+            public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<Conversation>>([]);
 
             public Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default) => Task.FromResult<SummaryCheckpoint?>(null);
 
@@ -428,11 +428,11 @@ public sealed class BackendApiIntegrationTests
         {
             public Task IndexMemoryAsync(MemoryItem memoryItem, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-            public Task IndexLoreEntryAsync(Guid characterId, LoreEntry loreEntry, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            public Task IndexLoreEntryAsync(Guid agentId, LoreEntry loreEntry, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
             public Task RemoveSourceAsync(string sourceType, Guid sourceEntityId, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-            public Task<RetrievalInspectionResult> InspectAsync(Guid characterId, Guid? conversationId, string query, CancellationToken cancellationToken = default)
+            public Task<RetrievalInspectionResult> InspectAsync(Guid agentId, Guid? conversationId, string query, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(new RetrievalInspectionResult
                 {
@@ -453,9 +453,9 @@ public sealed class BackendApiIntegrationTests
                 {
                     AttemptedCandidates = 0,
                     CreatedProposalCount = 0,
-                    AutoSavedSceneStateCount = 0,
+                    AutoSavedSessionStateCount = 0,
                     AutoAcceptedDurableCount = 0,
-                    SceneStateReplacedCount = 0,
+                    SessionStateReplacedCount = 0,
                     MergedDurableProposalCount = 0,
                     ConflictingDurableProposalCount = 0,
                     SkippedLowConfidenceCount = 0,

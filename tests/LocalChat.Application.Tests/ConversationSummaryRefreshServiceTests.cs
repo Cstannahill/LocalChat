@@ -1,7 +1,7 @@
 using LocalChat.Application.Abstractions.Inference;
 using LocalChat.Application.Abstractions.Persistence;
 using LocalChat.Application.Background;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Enums;
 
@@ -13,9 +13,9 @@ public sealed class ConversationSummaryRefreshServiceTests
     public async Task RefreshAsync_CreatesSummary_WhenEnoughMessagesExist()
     {
         var conversationId = Guid.NewGuid();
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
 
-        var conversation = BuildConversation(conversationId, characterId, 12);
+        var conversation = BuildConversation(conversationId, agentId, 12);
 
         var repo = new FakeConversationRepository(conversation);
         var service = new ConversationSummaryRefreshService(
@@ -40,9 +40,9 @@ public sealed class ConversationSummaryRefreshServiceTests
     public async Task RefreshAsync_Skips_WhenTooFewNewMessagesSinceLastRefresh()
     {
         var conversationId = Guid.NewGuid();
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
 
-        var conversation = BuildConversation(conversationId, characterId, 12);
+        var conversation = BuildConversation(conversationId, agentId, 12);
 
         conversation.SummaryCheckpoints.Add(new SummaryCheckpoint
         {
@@ -73,18 +73,18 @@ public sealed class ConversationSummaryRefreshServiceTests
         Assert.Empty(repo.AddedCheckpoints);
     }
 
-    private static Conversation BuildConversation(Guid conversationId, Guid characterId, int count)
+    private static Conversation BuildConversation(Guid conversationId, Guid agentId, int count)
     {
         var conversation = new Conversation
         {
             Id = conversationId,
-            CharacterId = characterId,
+            AgentId = agentId,
             Title = "Test",
-            Character = new Character
+            Agent = new Agent
             {
-                Id = characterId,
+                Id = agentId,
                 Name = "Elena",
-                Description = "Test character",
+                Description = "Test agent",
                 Greeting = "Hi",
                 PersonalityDefinition = "Warm",
                 Scenario = "Balcony scene",
@@ -128,7 +128,7 @@ public sealed class ConversationSummaryRefreshServiceTests
         public Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default)
             => Task.FromResult<Conversation?>(null);
 
-        public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<Conversation>>(new[] { _conversation });
 
         public Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default)

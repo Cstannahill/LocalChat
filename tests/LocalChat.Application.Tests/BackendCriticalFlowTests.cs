@@ -9,13 +9,13 @@ using LocalChat.Application.Features.Summaries;
 using LocalChat.Application.Inspection;
 using LocalChat.Application.Prompting.Composition;
 using LocalChat.Application.Runtime;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Entities.Generation;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Models;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Domain.Entities.UserProfiles;
 using LocalChat.Domain.Entities.Settings;
 using LocalChat.Domain.Enums;
 
@@ -26,16 +26,16 @@ public sealed class BackendCriticalFlowTests
     [Fact]
     public async Task SendAsync_NewConversation_SeedsGreeting_AndPreservesGreetingUserAssistantOrder()
     {
-        var character = BuildCharacter();
+        var agent = BuildAgent();
         var repository = new InMemoryConversationRepository();
         var snapshots = new RecordingGenerationPromptSnapshotRepository();
 
-        var orchestrator = BuildChatOrchestrator(character, repository, snapshots, "Assistant reply");
+        var orchestrator = BuildChatOrchestrator(agent, repository, snapshots, "Assistant reply");
 
         var result = await orchestrator.SendAsync(
             new SendChatMessageCommand
             {
-                CharacterId = character.Id,
+                AgentId = agent.Id,
                 Message = "First user message"
             },
             static (_, _) => Task.CompletedTask);
@@ -62,7 +62,7 @@ public sealed class BackendCriticalFlowTests
     }
 
     [Fact]
-    public async Task RuntimeSelectionResolver_Resolves_OneTurn_ThenSticky_ThenCharacter_ThenApp_ThenProviderDefault()
+    public async Task RuntimeSelectionResolver_Resolves_OneTurn_ThenSticky_ThenAgent_ThenApp_ThenProviderDefault()
     {
         var appProfile = new ModelProfile
         {
@@ -75,12 +75,12 @@ public sealed class BackendCriticalFlowTests
             UpdatedAt = DateTime.UtcNow
         };
 
-        var characterProfile = new ModelProfile
+        var agentProfile = new ModelProfile
         {
             Id = Guid.NewGuid(),
-            Name = "Character",
+            Name = "Agent",
             ProviderType = ProviderType.OpenRouter,
-            ModelIdentifier = "openrouter:character/model",
+            ModelIdentifier = "openrouter:agent/model",
             ContextWindow = 8192,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -121,46 +121,46 @@ public sealed class BackendCriticalFlowTests
 
         var resolver = new RuntimeSelectionResolver(
             new StaticAppRuntimeDefaultsRepository(appDefaults),
-            new StaticModelProfileRepository(appProfile, characterProfile, stickyProfile),
+            new StaticModelProfileRepository(appProfile, agentProfile, stickyProfile),
             new StaticGenerationPresetRepository(generationPreset));
 
-        var character = BuildCharacter();
-        character.DefaultModelProfileId = characterProfile.Id;
-        character.DefaultGenerationPresetId = generationPreset.Id;
+        var agent = BuildAgent();
+        agent.DefaultModelProfileId = agentProfile.Id;
+        agent.DefaultGenerationPresetId = generationPreset.Id;
 
         var conversation = new Conversation
         {
             Id = Guid.NewGuid(),
-            CharacterId = character.Id,
+            AgentId = agent.Id,
             RuntimeModelProfileOverrideId = stickyProfile.Id,
             RuntimeGenerationPresetOverrideId = generationPreset.Id,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
 
-        var oneTurn = await resolver.ResolveAsync(character, conversation, "ollama", "one-turn-model");
+        var oneTurn = await resolver.ResolveAsync(agent, conversation, "ollama", "one-turn-model");
         Assert.Equal(RuntimeSourceType.OneTurnOverride, oneTurn.SourceType);
         Assert.Equal("ollama:one-turn-model", oneTurn.ModelIdentifier);
 
-        var sticky = await resolver.ResolveAsync(character, conversation, null, null);
+        var sticky = await resolver.ResolveAsync(agent, conversation, null, null);
         Assert.Equal(RuntimeSourceType.ConversationStickyOverride, sticky.SourceType);
         Assert.Equal(stickyProfile.ModelIdentifier, sticky.ModelIdentifier);
 
         conversation.RuntimeModelProfileOverrideId = null;
         conversation.RuntimeGenerationPresetOverrideId = null;
-        var characterDefault = await resolver.ResolveAsync(character, conversation, null, null);
-        Assert.Equal(RuntimeSourceType.CharacterDefault, characterDefault.SourceType);
-        Assert.Equal(characterProfile.ModelIdentifier, characterDefault.ModelIdentifier);
+        var agentDefault = await resolver.ResolveAsync(agent, conversation, null, null);
+        Assert.Equal(RuntimeSourceType.AgentDefault, agentDefault.SourceType);
+        Assert.Equal(agentProfile.ModelIdentifier, agentDefault.ModelIdentifier);
 
-        character.DefaultModelProfileId = null;
-        character.DefaultGenerationPresetId = null;
-        var appDefault = await resolver.ResolveAsync(character, conversation, null, null);
+        agent.DefaultModelProfileId = null;
+        agent.DefaultGenerationPresetId = null;
+        var appDefault = await resolver.ResolveAsync(agent, conversation, null, null);
         Assert.Equal(RuntimeSourceType.AppDefault, appDefault.SourceType);
         Assert.Equal(appProfile.ModelIdentifier, appDefault.ModelIdentifier);
 
         appDefaults.DefaultModelProfileId = null;
         appDefaults.DefaultGenerationPresetId = null;
-        var providerDefault = await resolver.ResolveAsync(character, conversation, null, null);
+        var providerDefault = await resolver.ResolveAsync(agent, conversation, null, null);
         Assert.Equal(RuntimeSourceType.ProviderDefault, providerDefault.SourceType);
         Assert.Null(providerDefault.ModelIdentifier);
     }
@@ -168,8 +168,8 @@ public sealed class BackendCriticalFlowTests
     [Fact]
     public async Task ContinueConversationAsync_PersistsPromptSnapshot()
     {
-        var character = BuildCharacter();
-        var conversation = BuildConversationWithUserAssistant(character);
+        var agent = BuildAgent();
+        var conversation = BuildConversationWithUserAssistant(agent);
         var repository = new InMemoryConversationRepository(conversation);
         var snapshots = new RecordingGenerationPromptSnapshotRepository();
 
@@ -194,12 +194,12 @@ public sealed class BackendCriticalFlowTests
     [Fact]
     public async Task RegenerateLatestAssistantMessageAsync_PersistsPromptSnapshot()
     {
-        var character = BuildCharacter();
-        var conversation = BuildConversationWithUserAssistant(character);
+        var agent = BuildAgent();
+        var conversation = BuildConversationWithUserAssistant(agent);
         var repository = new InMemoryConversationRepository(conversation);
         var snapshots = new RecordingGenerationPromptSnapshotRepository();
 
-        var orchestrator = BuildChatOrchestrator(character, repository, snapshots, "Regenerated reply");
+        var orchestrator = BuildChatOrchestrator(agent, repository, snapshots, "Regenerated reply");
         var latestAssistant = conversation.Messages.OrderBy(x => x.SequenceNumber).Last();
 
         var result = await orchestrator.RegenerateLatestAssistantMessageAsync(conversation.Id, latestAssistant.Id);
@@ -211,14 +211,14 @@ public sealed class BackendCriticalFlowTests
     }
 
     private static ChatOrchestrator BuildChatOrchestrator(
-        Character character,
+        Agent agent,
         InMemoryConversationRepository repository,
         RecordingGenerationPromptSnapshotRepository snapshots,
         string assistantReply)
     {
         return new ChatOrchestrator(
-            new StaticCharacterRepository(character),
-            new StaticUserPersonaRepository(),
+            new StaticAgentRepository(agent),
+            new StaticUserProfileRepository(),
             new StaticModelProfileRepository(),
             new StaticGenerationPresetRepository(),
             repository,
@@ -234,9 +234,9 @@ public sealed class BackendCriticalFlowTests
             generationPromptSnapshotRepository: snapshots);
     }
 
-    private static Character BuildCharacter()
+    private static Agent BuildAgent()
     {
-        return new Character
+        return new Agent
         {
             Id = Guid.NewGuid(),
             Name = "Ava",
@@ -249,14 +249,14 @@ public sealed class BackendCriticalFlowTests
         };
     }
 
-    private static Conversation BuildConversationWithUserAssistant(Character character)
+    private static Conversation BuildConversationWithUserAssistant(Agent agent)
     {
         var conversationId = Guid.NewGuid();
         return new Conversation
         {
             Id = conversationId,
-            CharacterId = character.Id,
-            Character = character,
+            AgentId = agent.Id,
+            Agent = agent,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Messages =
@@ -311,8 +311,8 @@ public sealed class BackendCriticalFlowTests
         public Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default)
             => Task.FromResult(_conversations.Values.FirstOrDefault(x => x.Messages.Any(m => m.Id == messageId)));
 
-        public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<Conversation>>(_conversations.Values.Where(x => x.CharacterId == characterId).ToList());
+        public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<Conversation>>(_conversations.Values.Where(x => x.AgentId == agentId).ToList());
 
         public Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default)
         {
@@ -372,51 +372,51 @@ public sealed class BackendCriticalFlowTests
             => Task.CompletedTask;
     }
 
-    private sealed class StaticCharacterRepository(params Character[] characters) : ICharacterRepository
+    private sealed class StaticAgentRepository(params Agent[] agents) : IAgentRepository
     {
-        private readonly Dictionary<Guid, Character> _characters = characters.ToDictionary(x => x.Id, x => x);
+        private readonly Dictionary<Guid, Agent> _agents = agents.ToDictionary(x => x.Id, x => x);
 
-        public Task<Character?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-            => Task.FromResult(_characters.TryGetValue(id, out var character) ? character : null);
+        public Task<Agent?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+            => Task.FromResult(_agents.TryGetValue(id, out var agent) ? agent : null);
 
-        public Task<Character?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
+        public Task<Agent?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
             => GetByIdAsync(id, cancellationToken);
 
-        public Task<Character?> GetDefaultAsync(CancellationToken cancellationToken = default)
-            => Task.FromResult<Character?>(_characters.Values.FirstOrDefault());
+        public Task<Agent?> GetDefaultAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Agent?>(_agents.Values.FirstOrDefault());
 
-        public Task<IReadOnlyList<Character>> ListAsync(CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<Character>>(_characters.Values.ToList());
+        public Task<IReadOnlyList<Agent>> ListAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<Agent>>(_agents.Values.ToList());
 
-        public Task<Character> AddAsync(Character character, CancellationToken cancellationToken = default)
-            => Task.FromResult(character);
+        public Task<Agent> AddAsync(Agent agent, CancellationToken cancellationToken = default)
+            => Task.FromResult(agent);
 
-        public Task<bool> HasConversationsAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<bool> HasConversationsAsync(Guid agentId, CancellationToken cancellationToken = default)
             => Task.FromResult(false);
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
-        public void Remove(Character character)
+        public void Remove(Agent agent)
         {
         }
     }
 
-    private sealed class StaticUserPersonaRepository : IUserPersonaRepository
+    private sealed class StaticUserProfileRepository : IUserProfileRepository
     {
-        public Task<UserPersona?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-            => Task.FromResult<UserPersona?>(null);
+        public Task<UserProfile?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+            => Task.FromResult<UserProfile?>(null);
 
-        public Task<IReadOnlyList<UserPersona>> ListAsync(CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<UserPersona>>([]);
+        public Task<IReadOnlyList<UserProfile>> ListAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<UserProfile>>([]);
 
-        public Task<UserPersona> AddAsync(UserPersona persona, CancellationToken cancellationToken = default)
-            => Task.FromResult(persona);
+        public Task<UserProfile> AddAsync(UserProfile userProfile, CancellationToken cancellationToken = default)
+            => Task.FromResult(userProfile);
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
-        public void Remove(UserPersona persona)
+        public void Remove(UserProfile userProfile)
         {
         }
     }
@@ -482,13 +482,13 @@ public sealed class BackendCriticalFlowTests
         public Task IndexMemoryAsync(MemoryItem memoryItem, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
-        public Task IndexLoreEntryAsync(Guid characterId, LoreEntry loreEntry, CancellationToken cancellationToken = default)
+        public Task IndexLoreEntryAsync(Guid agentId, LoreEntry loreEntry, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
         public Task RemoveSourceAsync(string sourceType, Guid sourceEntityId, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
-        public Task<RetrievalInspectionResult> InspectAsync(Guid characterId, Guid? conversationId, string query, CancellationToken cancellationToken = default)
+        public Task<RetrievalInspectionResult> InspectAsync(Guid agentId, Guid? conversationId, string query, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new RetrievalInspectionResult
             {
@@ -517,8 +517,8 @@ public sealed class BackendCriticalFlowTests
                         EstimatedTokens = 5
                     }
                 ],
-                SelectedSceneState = [],
-                SuppressedSceneState = [],
+                SelectedSessionState = [],
+                SuppressedSessionState = [],
                 SelectedDurableMemory = [],
                 SuppressedDurableMemory = []
             };

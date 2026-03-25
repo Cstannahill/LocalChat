@@ -158,18 +158,18 @@ public static class AdminMaintenanceEndpoints
                 $"memory-extraction-audit-{conversationId}-{DateTime.UtcNow:yyyyMMddHHmmss}.json");
         });
 
-        group.MapPost("/memory/prune-stale-scene-state", async (
-            ISceneStateCleanupService cleanupService,
+        group.MapPost("/memory/prune-stale-session-state", async (
+            ISessionStateCleanupService cleanupService,
             CancellationToken cancellationToken) =>
         {
             try
             {
                 var result = await cleanupService.PruneStaleAsync(cancellationToken);
 
-                return Results.Ok(new SceneStateCleanupResponse
+                return Results.Ok(new SessionStateCleanupResponse
                 {
                     Succeeded = true,
-                    Message = "Stale scene-state cleanup completed.",
+                    Message = "Stale session-state cleanup completed.",
                     ScannedCount = result.ScannedCount,
                     RemovedCount = result.RemovedCount,
                     RemovedByFamily = result.RemovedByFamily
@@ -177,7 +177,7 @@ public static class AdminMaintenanceEndpoints
             }
             catch (Exception ex)
             {
-                return Results.Ok(new SceneStateCleanupResponse
+                return Results.Ok(new SessionStateCleanupResponse
                 {
                     Succeeded = false,
                     Message = ex.Message,

@@ -105,16 +105,16 @@ public static class AuthoringAssistantEndpoints
 
             return Results.Ok(new FullAuthoringBundleGenerationResponse
             {
-                CharacterName = result.CharacterName,
-                CharacterDescription = result.CharacterDescription,
-                CharacterPersonalityDefinition = result.CharacterPersonalityDefinition,
-                CharacterScenario = result.CharacterScenario,
-                CharacterGreeting = result.CharacterGreeting,
-                PersonaDisplayName = result.PersonaDisplayName,
-                PersonaDescription = result.PersonaDescription,
-                PersonaTraits = result.PersonaTraits,
-                PersonaPreferences = result.PersonaPreferences,
-                PersonaAdditionalInstructions = result.PersonaAdditionalInstructions,
+                AgentName = result.AgentName,
+                AgentDescription = result.AgentDescription,
+                AgentPersonalityDefinition = result.AgentPersonalityDefinition,
+                AgentScenario = result.AgentScenario,
+                AgentGreeting = result.AgentGreeting,
+                UserProfileDisplayName = result.UserProfileDisplayName,
+                UserProfileDescription = result.UserProfileDescription,
+                UserProfileTraits = result.UserProfileTraits,
+                UserProfilePreferences = result.UserProfilePreferences,
+                UserProfileAdditionalInstructions = result.UserProfileAdditionalInstructions,
                 Rationale = result.Rationale
             });
         });

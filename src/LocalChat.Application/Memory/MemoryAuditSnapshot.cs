@@ -13,7 +13,7 @@ public sealed class MemoryAuditSnapshot
 
     public Guid? ConversationId { get; init; }
 
-    public Guid? CharacterId { get; init; }
+    public Guid? AgentId { get; init; }
 
     public MemoryCategory Category { get; init; }
 
@@ -45,7 +45,7 @@ public sealed class MemoryAuditSnapshot
             ScopeType = item.ScopeType,
             Kind = item.Kind,
             ConversationId = item.ConversationId,
-            CharacterId = item.CharacterId,
+            AgentId = item.AgentId,
             Category = item.Category,
             Content = item.Content,
             NormalizedKey = item.NormalizedKey,
@@ -65,7 +65,7 @@ public sealed class MemoryAuditSnapshot
         item.ScopeType = ScopeType;
         item.Kind = Kind;
         item.ConversationId = ConversationId;
-        item.CharacterId = CharacterId;
+        item.AgentId = AgentId;
         item.Category = Category;
         item.Content = Content;
         item.NormalizedKey = NormalizedKey;

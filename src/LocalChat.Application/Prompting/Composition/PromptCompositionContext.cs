@@ -1,18 +1,18 @@
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Domain.Entities.UserProfiles;
 
 namespace LocalChat.Application.Prompting.Composition;
 
 public sealed class PromptCompositionContext
 {
-    public required Character Character { get; init; }
+    public required Agent Agent { get; init; }
 
     public required Conversation Conversation { get; init; }
 
-    public UserPersona? UserPersona { get; init; }
+    public UserProfile? UserProfile { get; init; }
 
     public IReadOnlyList<MemoryItem> ExplicitMemories { get; init; } = Array.Empty<MemoryItem>();
 

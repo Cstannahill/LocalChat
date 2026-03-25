@@ -12,7 +12,7 @@ public interface IMemoryOperationAuditService
         Guid? sourceMemoryItemId = null,
         Guid? targetMemoryItemId = null,
         Guid? conversationId = null,
-        Guid? characterId = null,
+        Guid? agentId = null,
         int? messageSequenceNumber = null,
         string? note = null,
         CancellationToken cancellationToken = default);

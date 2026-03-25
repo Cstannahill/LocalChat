@@ -1,6 +1,6 @@
 using LocalChat.Application.Abstractions.Inference;
 using LocalChat.Application.Prompting.Composition;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 
 namespace LocalChat.Application.Tests;
@@ -12,10 +12,10 @@ public sealed class PromptComposerTests
     {
         var composer = new PromptComposer(new FakeTokenEstimator());
 
-        var character = new Character
+        var agent = new Agent
         {
             Id = Guid.NewGuid(),
-            Name = "Test Character",
+            Name = "Test Agent",
             Description = "Test description",
             Greeting = "Hello there",
             PersonalityDefinition = "Stay sharp.",
@@ -25,7 +25,7 @@ public sealed class PromptComposerTests
         var conversation = new Conversation
         {
             Id = Guid.NewGuid(),
-            CharacterId = character.Id,
+            AgentId = agent.Id,
             Title = "Test",
             DirectorInstructions = "Keep the reply concise and tactical.",
             SceneContext = "Emergency alarms are active in a damaged station.",
@@ -36,7 +36,7 @@ public sealed class PromptComposerTests
 
         var result = composer.Compose(new PromptCompositionContext
         {
-            Character = character,
+            Agent = agent,
             Conversation = conversation,
             PriorMessages = [],
             CurrentUserMessage = "What do you do now?"

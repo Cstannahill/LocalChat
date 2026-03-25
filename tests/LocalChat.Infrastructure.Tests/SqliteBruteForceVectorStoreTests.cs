@@ -9,7 +9,7 @@ namespace LocalChat.Infrastructure.Tests;
 public sealed class SqliteBruteForceVectorStoreTests
 {
     [Fact]
-    public async Task SearchAsync_RespectsSourceType_Character_AndConversationFilters()
+    public async Task SearchAsync_RespectsSourceType_Agent_AndConversationFilters()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.db");
         var dataSource = $"Data Source={dbPath};Pooling=False";
@@ -27,7 +27,7 @@ public sealed class SqliteBruteForceVectorStoreTests
 
                 var store = new SqliteBruteForceVectorStore(dbContext);
 
-                var characterId = Guid.NewGuid();
+                var agentId = Guid.NewGuid();
                 var conversationId = Guid.NewGuid();
 
                 await store.UpsertAsync(
@@ -37,7 +37,7 @@ public sealed class SqliteBruteForceVectorStoreTests
                         {
                             SourceId = Guid.NewGuid(),
                             SourceType = "Memory",
-                            CharacterId = characterId,
+                            AgentId = agentId,
                             ConversationId = conversationId,
                             Content = "Yellow sundress memory",
                             Embedding = new[] { 1f, 0f, 0f },
@@ -48,7 +48,7 @@ public sealed class SqliteBruteForceVectorStoreTests
                         {
                             SourceId = Guid.NewGuid(),
                             SourceType = "Lore",
-                            CharacterId = null,
+                            AgentId = null,
                             ConversationId = null,
                             Content = "Castle balcony lore",
                             Embedding = new[] { 0f, 1f, 0f },
@@ -59,7 +59,7 @@ public sealed class SqliteBruteForceVectorStoreTests
                         {
                             SourceId = Guid.NewGuid(),
                             SourceType = "Memory",
-                            CharacterId = Guid.NewGuid(),
+                            AgentId = Guid.NewGuid(),
                             ConversationId = Guid.NewGuid(),
                             Content = "Different scope memory",
                             Embedding = new[] { 1f, 0f, 0f },
@@ -73,16 +73,16 @@ public sealed class SqliteBruteForceVectorStoreTests
                     {
                         QueryEmbedding = new[] { 1f, 0f, 0f },
                         SourceTypes = new[] { "Memory" },
-                        CharacterId = characterId,
+                        AgentId = agentId,
                         ConversationId = conversationId,
-                        IncludeGlobalCharacterItems = true,
+                        IncludeGlobalAgentItems = true,
                         IncludeGlobalConversationItems = true,
                         TopK = 10
                     });
 
                 Assert.Single(results);
                 Assert.Equal("Memory", results[0].SourceType);
-                Assert.Equal(characterId, results[0].CharacterId);
+                Assert.Equal(agentId, results[0].AgentId);
                 Assert.Equal(conversationId, results[0].ConversationId);
                 Assert.Contains("Yellow sundress", results[0].Content);
             }

@@ -19,13 +19,9 @@ public sealed class PromptComposer : IPromptComposer
     private readonly ILogger<PromptComposer> _logger;
 
     public PromptComposer(ITokenEstimator tokenEstimator)
-        : this(tokenEstimator, NullLogger<PromptComposer>.Instance)
-    {
-    }
+        : this(tokenEstimator, NullLogger<PromptComposer>.Instance) { }
 
-    public PromptComposer(
-        ITokenEstimator tokenEstimator,
-        ILogger<PromptComposer> logger)
+    public PromptComposer(ITokenEstimator tokenEstimator, ILogger<PromptComposer> logger)
     {
         _tokenEstimator = tokenEstimator;
         _logger = logger;
@@ -35,8 +31,10 @@ public sealed class PromptComposer : IPromptComposer
     {
         var stopwatch = Stopwatch.StartNew();
 
-        if (!context.ContinueWithoutUserMessage &&
-            string.IsNullOrWhiteSpace(context.CurrentUserMessage))
+        if (
+            !context.ContinueWithoutUserMessage
+            && string.IsNullOrWhiteSpace(context.CurrentUserMessage)
+        )
         {
             throw new ArgumentException("Current user message cannot be empty.", nameof(context));
         }
@@ -47,19 +45,19 @@ public sealed class PromptComposer : IPromptComposer
             sections,
             "System Rules",
             """
-            You are participating in a local character chat application.
+            You are participating in a local agent chat application.
             You must follow the precedence rules below when sections conflict.
 
             Precedence rules:
-            1. If OOC mode is enabled, respond out-of-character even if character dialogue context exists.
+            1. If OOC mode is enabled, respond out-of-agent even if agent dialogue context exists.
             2. Director instructions steer the next reply, but should not silently overwrite stable accepted facts unless explicitly framed as a change.
-            3. Active scene state represents the current moment and overrides older summary/history for temporary details such as location, posture, current action, emotion, clothing, or possessions.
+            3. Active session state represents the current moment and overrides older summary/history for temporary details such as location, posture, current action, emotion, clothing, or possessions.
             4. Durable memory is the source of truth for stable facts and overrides rolling summary when they conflict.
-            5. Scene context is current framing information, but newer active scene state and newer raw conversation take precedence over stale scene framing.
-            6. Rolling summary is compressed older context only; it must not override newer raw messages, active scene state, or durable memory.
+            5. Scene context is current framing information, but newer active session state and newer raw conversation take precedence over stale scene framing.
+            6. Rolling summary is compressed older context only; it must not override newer raw messages, active session state, or durable memory.
             7. Recent raw conversation is the source of truth for the latest turn-level details.
 
-            Active scene-state priority when the prompt budget is tight:
+            Active session-state priority when the prompt budget is tight:
             - Location
             - PoseAction
             - EmotionalState
@@ -69,7 +67,7 @@ public sealed class PromptComposer : IPromptComposer
             - Misc
 
             Additional behavior:
-            - Stay in character unless OOC mode is enabled.
+            - Stay in agent unless OOC mode is enabled.
             - Do not repeat greeting/setup text unless directly relevant.
             - Do not repeat personality text, scenario text, or instructions verbatim.
             - Never include the literal string "{answer}" anywhere in the response.
@@ -79,26 +77,26 @@ public sealed class PromptComposer : IPromptComposer
             """
         );
 
-        AddSection(sections, "Character Definition", context.Character.PersonalityDefinition);
+        AddSection(sections, "Agent Definition", context.Agent.PersonalityDefinition);
 
-        if (!string.IsNullOrWhiteSpace(context.Character.Description))
+        if (!string.IsNullOrWhiteSpace(context.Agent.Description))
         {
-            AddSection(sections, "Character Description", context.Character.Description);
+            AddSection(sections, "Agent Description", context.Agent.Description);
         }
 
-        if (!string.IsNullOrWhiteSpace(context.Character.Scenario))
+        if (!string.IsNullOrWhiteSpace(context.Agent.Scenario))
         {
-            AddSection(sections, "Character Scenario", context.Character.Scenario);
+            AddSection(sections, "Agent Scenario", context.Agent.Scenario);
         }
 
         // Greeting is seeded into conversation history as the first assistant turn.
         // Do not inject it as a separate prompt section or it will be duplicated.
 
-        if (context.Character.SampleDialogues.Count > 0)
+        if (context.Agent.SampleDialogues.Count > 0)
         {
             var sb = new StringBuilder();
 
-            foreach (var example in context.Character.SampleDialogues.OrderBy(x => x.SortOrder))
+            foreach (var example in context.Agent.SampleDialogues.OrderBy(x => x.SortOrder))
             {
                 sb.AppendLine($"User: {example.UserMessage}");
                 sb.AppendLine($"Assistant: {example.AssistantMessage}");
@@ -108,36 +106,38 @@ public sealed class PromptComposer : IPromptComposer
             AddSection(sections, "Sample Dialogue Examples", sb.ToString().Trim());
         }
 
-        if (context.UserPersona is not null)
+        if (context.UserProfile is not null)
         {
             var sb = new StringBuilder();
 
-            if (!string.IsNullOrWhiteSpace(context.UserPersona.DisplayName))
+            if (!string.IsNullOrWhiteSpace(context.UserProfile.DisplayName))
             {
-                sb.AppendLine($"Display Name: {context.UserPersona.DisplayName}");
+                sb.AppendLine($"Display Name: {context.UserProfile.DisplayName}");
             }
 
-            if (!string.IsNullOrWhiteSpace(context.UserPersona.Description))
+            if (!string.IsNullOrWhiteSpace(context.UserProfile.Description))
             {
-                sb.AppendLine($"Description: {context.UserPersona.Description}");
+                sb.AppendLine($"Description: {context.UserProfile.Description}");
             }
 
-            if (!string.IsNullOrWhiteSpace(context.UserPersona.Traits))
+            if (!string.IsNullOrWhiteSpace(context.UserProfile.Traits))
             {
-                sb.AppendLine($"Traits: {context.UserPersona.Traits}");
+                sb.AppendLine($"Traits: {context.UserProfile.Traits}");
             }
 
-            if (!string.IsNullOrWhiteSpace(context.UserPersona.Preferences))
+            if (!string.IsNullOrWhiteSpace(context.UserProfile.Preferences))
             {
-                sb.AppendLine($"Preferences: {context.UserPersona.Preferences}");
+                sb.AppendLine($"Preferences: {context.UserProfile.Preferences}");
             }
 
-            if (!string.IsNullOrWhiteSpace(context.UserPersona.AdditionalInstructions))
+            if (!string.IsNullOrWhiteSpace(context.UserProfile.AdditionalInstructions))
             {
-                sb.AppendLine($"Additional Instructions: {context.UserPersona.AdditionalInstructions}");
+                sb.AppendLine(
+                    $"Additional Instructions: {context.UserProfile.AdditionalInstructions}"
+                );
             }
 
-            AddSection(sections, "User Persona", sb.ToString().Trim());
+            AddSection(sections, "User Profile", sb.ToString().Trim());
         }
 
         if (context.Conversation.IsOocModeEnabled)
@@ -145,12 +145,17 @@ public sealed class PromptComposer : IPromptComposer
             AddSection(
                 sections,
                 "OOC Mode",
-                "Enabled. Respond out-of-character. Discuss, plan, explain, or coordinate instead of speaking as the in-scene character.");
+                "Enabled. Respond out-of-agent. Discuss, plan, explain, or coordinate instead of speaking as the in-scene agent."
+            );
         }
 
         if (!string.IsNullOrWhiteSpace(context.Conversation.DirectorInstructions))
         {
-            AddSection(sections, "Director Instructions", context.Conversation.DirectorInstructions!);
+            AddSection(
+                sections,
+                "Director Instructions",
+                context.Conversation.DirectorInstructions!
+            );
         }
 
         if (!string.IsNullOrWhiteSpace(context.Conversation.SceneContext))
@@ -158,19 +163,20 @@ public sealed class PromptComposer : IPromptComposer
             AddSection(sections, "Scene Context", context.Conversation.SceneContext!);
         }
 
-        var durableMemories = context.ExplicitMemories
-            .Where(x =>
-                x.ReviewStatus == MemoryReviewStatus.Accepted &&
-                x.Kind != MemoryKind.SceneState)
+        var durableMemories = context
+            .ExplicitMemories.Where(x =>
+                x.ReviewStatus == MemoryReviewStatus.Accepted && x.Kind != MemoryKind.SessionState
+            )
             .OrderByDescending(x => x.IsPinned)
             .ThenByDescending(x => x.UpdatedAt)
             .ToList();
 
-        var activeSceneState = context.ExplicitMemories
-            .Where(x =>
-                x.ReviewStatus == MemoryReviewStatus.Accepted &&
-                x.Kind == MemoryKind.SceneState &&
-                !x.SupersededAtSequenceNumber.HasValue)
+        var activeSessionState = context
+            .ExplicitMemories.Where(x =>
+                x.ReviewStatus == MemoryReviewStatus.Accepted
+                && x.Kind == MemoryKind.SessionState
+                && !x.SupersededAtSequenceNumber.HasValue
+            )
             .OrderByDescending(x => x.UpdatedAt)
             .ToList();
 
@@ -181,23 +187,35 @@ public sealed class PromptComposer : IPromptComposer
             AddSection(
                 sections,
                 "Durable Memory",
-                string.Join(Environment.NewLine, durableSelection.Selected.Select(x => x.PromptContent)));
+                string.Join(
+                    Environment.NewLine,
+                    durableSelection.Selected.Select(x => x.PromptContent)
+                )
+            );
         }
 
-        var sceneStateSelection = SceneStatePromptBudgeter.Select(activeSceneState, _tokenEstimator);
-        if (sceneStateSelection.Selected.Count > 0)
+        var sessionStateSelection = SessionStatePromptBudgeter.Select(
+            activeSessionState,
+            _tokenEstimator
+        );
+        if (sessionStateSelection.Selected.Count > 0)
         {
             AddSection(
                 sections,
-                "Active Scene State",
-                string.Join(Environment.NewLine, sceneStateSelection.Selected.Select(x => x.PromptContent)));
+                "Active Session State",
+                string.Join(
+                    Environment.NewLine,
+                    sessionStateSelection.Selected.Select(x => x.PromptContent)
+                )
+            );
         }
 
         AddBudgetedBulletSection(
             sections,
             "Relevant Lore",
             context.RelevantLoreEntries.Select(x => $"{x.Title}: {x.Content}"),
-            LoreBudgetTokens);
+            LoreBudgetTokens
+        );
 
         if (!string.IsNullOrWhiteSpace(context.RollingSummary))
         {
@@ -251,54 +269,57 @@ public sealed class PromptComposer : IPromptComposer
             sections.Sum(x => x.EstimatedTokens),
             durableSelection.Selected.Count,
             durableSelection.Suppressed.Count,
-            sceneStateSelection.Selected.Count,
-            sceneStateSelection.Suppressed.Count);
+            sessionStateSelection.Selected.Count,
+            sessionStateSelection.Suppressed.Count
+        );
 
         return new PromptCompositionResult
         {
             Prompt = fullPrompt,
             Sections = sections,
-            SelectedSceneState = sceneStateSelection.Selected
-                .Select(x => new PromptSceneStateSelectedDebugItem
+            SelectedSessionState = sessionStateSelection
+                .Selected.Select(x => new PromptSessionStateSelectedDebugItem
                 {
                     MemoryId = x.Memory.Id,
                     SlotFamily = x.SlotFamily.ToString(),
                     SlotKey = x.Memory.SlotKey,
                     Content = x.Memory.Content,
-                    PromptContent = x.PromptContent
+                    PromptContent = x.PromptContent,
                 })
                 .ToList(),
-            SuppressedSceneState = sceneStateSelection.Suppressed
-                .Select(x => new PromptSceneStateSuppressedDebugItem
+            SuppressedSessionState = sessionStateSelection
+                .Suppressed.Select(x => new PromptSessionStateSuppressedDebugItem
                 {
                     MemoryId = x.MemoryId,
                     SlotFamily = x.SlotFamily.ToString(),
                     Content = x.Content,
-                    Reason = x.Reason
+                    Reason = x.Reason,
                 })
                 .ToList(),
-            SelectedDurableMemory = durableSelection.Selected
-                .Select(x => new PromptDurableMemorySelectedDebugItem
+            SelectedDurableMemory = durableSelection
+                .Selected.Select(x => new PromptDurableMemorySelectedDebugItem
                 {
                     MemoryId = x.Memory.Id,
                     Category = x.Memory.Category.ToString(),
                     Content = x.Memory.Content,
-                    PromptContent = x.PromptContent
+                    PromptContent = x.PromptContent,
                 })
                 .ToList(),
-            SuppressedDurableMemory = durableSelection.Suppressed
-                .Select(x => new PromptDurableMemorySuppressedDebugItem
+            SuppressedDurableMemory = durableSelection
+                .Suppressed.Select(x => new PromptDurableMemorySuppressedDebugItem
                 {
                     MemoryId = x.MemoryId,
                     Category = x.Category,
                     Content = x.Content,
-                    Reason = x.Reason
+                    Reason = x.Reason,
                 })
-                .ToList()
+                .ToList(),
         };
     }
 
-    private DurablePromptSelectionResult SelectBudgetedDurableMemory(IReadOnlyList<MemoryItem> durableMemories)
+    private DurablePromptSelectionResult SelectBudgetedDurableMemory(
+        IReadOnlyList<MemoryItem> durableMemories
+    )
     {
         var selected = new List<DurablePromptSelectedItem>();
         var suppressed = new List<DurablePromptSuppressedItem>();
@@ -311,50 +332,47 @@ public sealed class PromptComposer : IPromptComposer
 
             if (selected.Count > 0 && usedTokens + lineTokens > DurableMemoryBudgetTokens)
             {
-                suppressed.Add(new DurablePromptSuppressedItem
-                {
-                    MemoryId = memory.Id,
-                    Category = memory.Category.ToString(),
-                    Content = memory.Content,
-                    Reason = "Suppressed because durable memory budget was exhausted."
-                });
+                suppressed.Add(
+                    new DurablePromptSuppressedItem
+                    {
+                        MemoryId = memory.Id,
+                        Category = memory.Category.ToString(),
+                        Content = memory.Content,
+                        Reason = "Suppressed because durable memory budget was exhausted.",
+                    }
+                );
 
                 continue;
             }
 
-            selected.Add(new DurablePromptSelectedItem
-            {
-                Memory = memory,
-                PromptContent = line
-            });
+            selected.Add(new DurablePromptSelectedItem { Memory = memory, PromptContent = line });
 
             usedTokens += lineTokens;
         }
 
-        return new DurablePromptSelectionResult
-        {
-            Selected = selected,
-            Suppressed = suppressed
-        };
+        return new DurablePromptSelectionResult { Selected = selected, Suppressed = suppressed };
     }
 
     private void AddSection(List<PromptSection> sections, string name, string content)
     {
         var normalized = content.Trim();
 
-        sections.Add(new PromptSection
-        {
-            Name = name,
-            Content = normalized,
-            EstimatedTokens = _tokenEstimator.EstimateTokens(normalized)
-        });
+        sections.Add(
+            new PromptSection
+            {
+                Name = name,
+                Content = normalized,
+                EstimatedTokens = _tokenEstimator.EstimateTokens(normalized),
+            }
+        );
     }
 
     private void AddBudgetedBulletSection(
         List<PromptSection> sections,
         string name,
         IEnumerable<string> items,
-        int tokenBudget)
+        int tokenBudget
+    )
     {
         var included = new List<string>();
         var usedTokens = 0;
@@ -443,7 +461,7 @@ public sealed class PromptComposer : IPromptComposer
             MessageRole.System => "System",
             MessageRole.User => "User",
             MessageRole.Assistant => "Assistant",
-            _ => "Unknown"
+            _ => "Unknown",
         };
 
     private sealed class DurablePromptSelectionResult

@@ -6,14 +6,14 @@ namespace LocalChat.Application.Tests;
 public sealed class MemoryExtractionClassifierTests
 {
     [Fact]
-    public void Classify_HighSceneBoundCandidate_BecomesAcceptedSceneState()
+    public void Classify_HighSceneBoundCandidate_BecomesAcceptedSessionState()
     {
         var classifier = new MemoryExtractionClassifier(new MemoryProposalOptions());
 
         var candidate = new ExtractedMemoryCandidate
         {
-            Category = MemoryCategory.SceneState,
-            Content = "The character is currently wearing a yellow sundress.",
+            Category = MemoryCategory.SessionState,
+            Content = "The agent is currently wearing a yellow sundress.",
             ConfidenceScore = 0.90,
             ProposalReason = "Current visible outfit.",
             SourceExcerpt = "You look beautiful in that yellow sundress.",
@@ -21,14 +21,14 @@ public sealed class MemoryExtractionClassifierTests
             PersistenceScore = 0.20,
             SceneBoundScore = 0.95,
             ConflictRiskScore = 0.05,
-            NormalizedKey = "SceneState:yellow sundress"
+            NormalizedKey = "SessionState:yellow sundress"
         };
 
         var decision = classifier.Classify(candidate, hasConflict: false);
 
-        Assert.Equal(MemoryKind.SceneState, decision.Kind);
+        Assert.Equal(MemoryKind.SessionState, decision.Kind);
         Assert.Equal(MemoryReviewStatus.Accepted, decision.ReviewStatus);
-        Assert.Equal(MemoryCategory.SceneState, decision.Category);
+        Assert.Equal(MemoryCategory.SessionState, decision.Category);
         Assert.Null(decision.ExpiresAt);
     }
 

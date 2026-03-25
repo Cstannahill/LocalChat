@@ -197,13 +197,13 @@ public sealed class SlashCommandParser
           Clear the current scene context.
 
         /ooc on
-          Enable out-of-character mode.
+          Enable out-of-agent mode.
 
         /ooc off
-          Disable out-of-character mode.
+          Disable out-of-agent mode.
 
         /ooc toggle
-          Toggle out-of-character mode.
+          Toggle out-of-agent mode.
 
         /ooc show
           Show whether OOC mode is active.

@@ -23,7 +23,7 @@ public sealed class MemoryExtractionInspectionService : IMemoryExtractionInspect
             ConversationId = conversationId,
             TotalEventCount = events.Count,
             DurableEventCount = events.Count(x => x.Kind == MemoryKind.DurableFact),
-            SceneStateEventCount = events.Count(x => x.Kind == MemoryKind.SceneState),
+            SessionStateEventCount = events.Count(x => x.Kind == MemoryKind.SessionState),
             Events = events.Select(x => new MemoryExtractionAuditItem
             {
                 EventId = x.Id,

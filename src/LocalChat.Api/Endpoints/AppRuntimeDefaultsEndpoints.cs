@@ -20,7 +20,7 @@ public static class AppRuntimeDefaultsEndpoints
 
             return Results.Ok(new AppRuntimeDefaultsResponse
             {
-                DefaultPersonaId = defaults.DefaultPersonaId,
+                DefaultUserProfileId = defaults.DefaultUserProfileId,
                 DefaultModelProfileId = defaults.DefaultModelProfileId,
                 DefaultGenerationPresetId = defaults.DefaultGenerationPresetId
             });
@@ -34,24 +34,24 @@ public static class AppRuntimeDefaultsEndpoints
         {
             var defaults = await repository.GetOrCreateAsync(cancellationToken);
 
-            defaults.DefaultPersonaId = request.DefaultPersonaId;
+            defaults.DefaultUserProfileId = request.DefaultUserProfileId;
             defaults.DefaultModelProfileId = request.DefaultModelProfileId;
             defaults.DefaultGenerationPresetId = request.DefaultGenerationPresetId;
             defaults.UpdatedAt = DateTime.UtcNow;
 
-            var personas = await dbContext.UserPersonas.ToListAsync(cancellationToken);
-            foreach (var persona in personas)
+            var userProfiles = await dbContext.UserProfiles.ToListAsync(cancellationToken);
+            foreach (var userProfile in userProfiles)
             {
-                persona.IsDefault = request.DefaultPersonaId.HasValue &&
-                                    persona.Id == request.DefaultPersonaId.Value;
-                persona.UpdatedAt = DateTime.UtcNow;
+                userProfile.IsDefault = request.DefaultUserProfileId.HasValue &&
+                                    userProfile.Id == request.DefaultUserProfileId.Value;
+                userProfile.UpdatedAt = DateTime.UtcNow;
             }
 
             await repository.SaveChangesAsync(cancellationToken);
 
             return Results.Ok(new AppRuntimeDefaultsResponse
             {
-                DefaultPersonaId = defaults.DefaultPersonaId,
+                DefaultUserProfileId = defaults.DefaultUserProfileId,
                 DefaultModelProfileId = defaults.DefaultModelProfileId,
                 DefaultGenerationPresetId = defaults.DefaultGenerationPresetId
             });

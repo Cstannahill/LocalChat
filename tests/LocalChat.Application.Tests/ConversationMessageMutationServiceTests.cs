@@ -2,7 +2,7 @@ using LocalChat.Application.Abstractions.Persistence;
 using LocalChat.Application.Abstractions.Retrieval;
 using LocalChat.Application.Background;
 using LocalChat.Application.Chat;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Enums;
 
@@ -199,17 +199,17 @@ public sealed class ConversationMessageMutationServiceTests
 
     private static TestFixture CreateFixtureWithConversation(params (string Role, string Content)[] messages)
     {
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
         var conversationId = Guid.NewGuid();
 
         var conversation = new Conversation
         {
             Id = conversationId,
-            CharacterId = characterId,
+            AgentId = agentId,
             Title = "Old title",
-            Character = new Character
+            Agent = new Agent
             {
-                Id = characterId,
+                Id = agentId,
                 Name = "Cassandra",
                 Description = "Test",
                 Greeting = "Hi",
@@ -282,7 +282,7 @@ public sealed class ConversationMessageMutationServiceTests
         public Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default)
             => Task.FromResult(_conversation.Messages.Any(x => x.Id == messageId) ? _conversation : null);
 
-        public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<Conversation>>(new[] { _conversation });
 
         public Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default)

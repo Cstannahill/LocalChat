@@ -1,12 +1,12 @@
 using LocalChat.Domain.Entities.Audio;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Entities.Generation;
 using LocalChat.Domain.Entities.Images;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Models;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Domain.Entities.UserProfiles;
 using LocalChat.Domain.Entities.Retrieval;
 using LocalChat.Domain.Entities.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +20,11 @@ public sealed class ApplicationDbContext : DbContext
     {
     }
 
-    public DbSet<Character> Characters => Set<Character>();
+    public DbSet<Agent> Agents => Set<Agent>();
 
-    public DbSet<CharacterSampleDialogue> CharacterSampleDialogues => Set<CharacterSampleDialogue>();
+    public DbSet<AgentSampleDialogue> AgentSampleDialogues => Set<AgentSampleDialogue>();
 
-    public DbSet<UserPersona> UserPersonas => Set<UserPersona>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     public DbSet<ModelProfile> ModelProfiles => Set<ModelProfile>();
 
@@ -44,11 +44,11 @@ public sealed class ApplicationDbContext : DbContext
 
     public DbSet<MemoryOperationAudit> MemoryOperationAudits => Set<MemoryOperationAudit>();
 
-    public DbSet<SceneStateExtractionEvent> SceneStateExtractionEvents => Set<SceneStateExtractionEvent>();
+    public DbSet<SessionStateExtractionEvent> SessionStateExtractionEvents => Set<SessionStateExtractionEvent>();
 
     public DbSet<MemoryExtractionAuditEvent> MemoryExtractionAuditEvents => Set<MemoryExtractionAuditEvent>();
 
-    public DbSet<Lorebook> Lorebooks => Set<Lorebook>();
+    public DbSet<KnowledgeBase> KnowledgeBases => Set<KnowledgeBase>();
 
     public DbSet<LoreEntry> LoreEntries => Set<LoreEntry>();
 

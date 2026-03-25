@@ -7,7 +7,7 @@ namespace LocalChat.Infrastructure.Retrieval.VectorStores;
 
 public sealed class SqliteBruteForceVectorStore : IVectorStore
 {
-    private static readonly Guid GlobalCharacterId = Guid.Empty;
+    private static readonly Guid GlobalAgentId = Guid.Empty;
 
     private readonly ApplicationDbContext _dbContext;
 
@@ -42,7 +42,7 @@ public sealed class SqliteBruteForceVectorStore : IVectorStore
                 Id = Guid.NewGuid(),
                 SourceType = document.SourceType,
                 SourceEntityId = document.SourceId,
-                CharacterId = document.CharacterId ?? GlobalCharacterId,
+                AgentId = document.AgentId ?? GlobalAgentId,
                 ConversationId = document.ConversationId,
                 Content = document.Content,
                 EmbeddingJson = JsonSerializer.Serialize(document.Embedding),
@@ -137,13 +137,13 @@ public sealed class SqliteBruteForceVectorStore : IVectorStore
             retrievalQuery = retrievalQuery.Where(x => query.SourceTypes.Contains(x.SourceType));
         }
 
-        if (query.CharacterId.HasValue)
+        if (query.AgentId.HasValue)
         {
-            retrievalQuery = query.IncludeGlobalCharacterItems
+            retrievalQuery = query.IncludeGlobalAgentItems
                 ? retrievalQuery.Where(x =>
-                    x.CharacterId == query.CharacterId.Value || x.CharacterId == GlobalCharacterId
+                    x.AgentId == query.AgentId.Value || x.AgentId == GlobalAgentId
                 )
-                : retrievalQuery.Where(x => x.CharacterId == query.CharacterId.Value);
+                : retrievalQuery.Where(x => x.AgentId == query.AgentId.Value);
         }
 
         if (query.ConversationId.HasValue)
@@ -172,7 +172,7 @@ public sealed class SqliteBruteForceVectorStore : IVectorStore
             {
                 SourceId = x.Chunk.SourceEntityId,
                 SourceType = x.Chunk.SourceType,
-                CharacterId = x.Chunk.CharacterId == GlobalCharacterId ? null : x.Chunk.CharacterId,
+                AgentId = x.Chunk.AgentId == GlobalAgentId ? null : x.Chunk.AgentId,
                 ConversationId = x.Chunk.ConversationId,
                 Content = x.Chunk.Content,
                 UpdatedAt = x.Chunk.UpdatedAt,

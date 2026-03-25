@@ -15,9 +15,9 @@ public static class MemoryEndpoints
         var group = app.MapGroup("/api/memory").WithTags("Memory");
 
         group.MapGet(
-            "/by-character/{characterId:guid}",
+            "/by-agent/{agentId:guid}",
             async (
-                Guid characterId,
+                Guid agentId,
                 Guid? conversationId,
                 IMemoryRepository repository,
                 CancellationToken cancellationToken
@@ -25,18 +25,18 @@ public static class MemoryEndpoints
             {
                 IReadOnlyList<MemoryItem> items = conversationId.HasValue
                     ? await repository.ListByConversationAsync(conversationId.Value, cancellationToken)
-                    : await repository.ListByCharacterAsync(characterId, cancellationToken);
+                    : await repository.ListByAgentAsync(agentId, cancellationToken);
 
-                items = items.Where(x => x.CharacterId == characterId).ToList();
+                items = items.Where(x => x.AgentId == agentId).ToList();
 
                 return Results.Ok(items.Select(ToResponse).ToList());
             }
         );
 
         group.MapGet(
-            "/proposals/by-character/{characterId:guid}",
+            "/proposals/by-agent/{agentId:guid}",
             async (
-                Guid characterId,
+                Guid agentId,
                 Guid? conversationId,
                 IMemoryRepository repository,
                 CancellationToken cancellationToken
@@ -44,10 +44,10 @@ public static class MemoryEndpoints
             {
                 IReadOnlyList<MemoryItem> items = conversationId.HasValue
                     ? await repository.ListByConversationAsync(conversationId.Value, cancellationToken)
-                    : await repository.ListByCharacterAsync(characterId, cancellationToken);
+                    : await repository.ListByAgentAsync(agentId, cancellationToken);
 
                 items = items
-                    .Where(x => x.CharacterId == characterId && x.ReviewStatus == MemoryReviewStatus.Proposed)
+                    .Where(x => x.AgentId == agentId && x.ReviewStatus == MemoryReviewStatus.Proposed)
                     .ToList();
 
                 return Results.Ok(items.Select(ToResponse).ToList());
@@ -58,7 +58,7 @@ public static class MemoryEndpoints
             "/",
             async (
                 CreateMemoryItemRequest request,
-                ICharacterRepository characterRepository,
+                IAgentRepository agentRepository,
                 IConversationRepository conversationRepository,
                 IMemoryRepository memoryRepository,
                 IRetrievalService retrievalService,
@@ -77,14 +77,14 @@ public static class MemoryEndpoints
                     );
                 }
 
-                var character = await characterRepository.GetByIdAsync(
-                    request.CharacterId,
+                var agent = await agentRepository.GetByIdAsync(
+                    request.AgentId,
                     cancellationToken
                 );
-                if (character is null)
+                if (agent is null)
                 {
                     return Results.BadRequest(
-                        new { error = $"Character '{request.CharacterId}' was not found." }
+                        new { error = $"Agent '{request.AgentId}' was not found." }
                     );
                 }
 
@@ -105,12 +105,12 @@ public static class MemoryEndpoints
                         );
                     }
 
-                    if (conversation.CharacterId != request.CharacterId)
+                    if (conversation.AgentId != request.AgentId)
                     {
                         return Results.BadRequest(
                             new
                             {
-                                error = "Conversation does not belong to the specified character.",
+                                error = "Conversation does not belong to the specified agent.",
                             }
                         );
                     }
@@ -119,11 +119,11 @@ public static class MemoryEndpoints
                 var memoryItem = new MemoryItem
                 {
                     Id = Guid.NewGuid(),
-                    CharacterId = request.CharacterId,
+                    AgentId = request.AgentId,
                     ConversationId = request.ConversationId,
-                    ScopeType = request.ConversationId.HasValue ? MemoryScopeType.Conversation : MemoryScopeType.Character,
+                    ScopeType = request.ConversationId.HasValue ? MemoryScopeType.Conversation : MemoryScopeType.Agent,
                     Category = category,
-                    Kind = category == MemoryCategory.SceneState ? MemoryKind.SceneState : MemoryKind.DurableFact,
+                    Kind = category == MemoryCategory.SessionState ? MemoryKind.SessionState : MemoryKind.DurableFact,
                     Content = request.Content.Trim(),
                     IsPinned = request.IsPinned,
                     ReviewStatus = MemoryReviewStatus.Accepted,
@@ -158,9 +158,9 @@ public static class MemoryEndpoints
             {
                 AttemptedCandidates = result.AttemptedCandidates,
                 CreatedProposalCount = result.CreatedProposalCount,
-                AutoSavedSceneStateCount = result.AutoSavedSceneStateCount,
+                AutoSavedSessionStateCount = result.AutoSavedSessionStateCount,
                 AutoAcceptedDurableCount = result.AutoAcceptedDurableCount,
-                SceneStateReplacedCount = result.SceneStateReplacedCount,
+                SessionStateReplacedCount = result.SessionStateReplacedCount,
                 MergedDurableProposalCount = result.MergedDurableProposalCount,
                 ConflictingDurableProposalCount = result.ConflictingDurableProposalCount,
                 SkippedLowConfidenceCount = result.SkippedLowConfidenceCount,
@@ -220,12 +220,12 @@ public static class MemoryEndpoints
             return Results.Ok(responses);
         });
 
-        group.MapGet("/conflicts/by-character/{characterId:guid}", async (
-            Guid characterId,
+        group.MapGet("/conflicts/by-agent/{agentId:guid}", async (
+            Guid agentId,
             IMemoryRepository memoryRepository,
             CancellationToken cancellationToken) =>
         {
-            var memories = await memoryRepository.ListByCharacterAsync(characterId, cancellationToken);
+            var memories = await memoryRepository.ListByAgentAsync(agentId, cancellationToken);
 
             var conflictingProposals = memories
                 .Where(x => x.ReviewStatus == MemoryReviewStatus.Proposed &&
@@ -495,8 +495,8 @@ public static class MemoryEndpoints
                 return Results.NotFound();
             }
 
-            if ((source.Kind == MemoryKind.SceneState ||
-                 target.Kind == MemoryKind.SceneState) &&
+            if ((source.Kind == MemoryKind.SessionState ||
+                 target.Kind == MemoryKind.SessionState) &&
                 source.Kind != target.Kind)
             {
                 return Results.BadRequest(new MergeMemoryItemsResponse
@@ -504,7 +504,7 @@ public static class MemoryEndpoints
                     SourceMemoryId = sourceMemoryId,
                     TargetMemoryId = targetMemoryId,
                     Succeeded = false,
-                    Message = "Scene-state and durable memory cannot be merged together.",
+                    Message = "Session-state and durable memory cannot be merged together.",
                     TargetSlotKey = target.SlotKey,
                     TargetReviewStatus = target.ReviewStatus.ToString(),
                     SourceRejected = false,
@@ -522,8 +522,8 @@ public static class MemoryEndpoints
                 overrideFamily = parsedOverrideFamily;
             }
 
-            if (source.Kind == MemoryKind.SceneState &&
-                target.Kind == MemoryKind.SceneState)
+            if (source.Kind == MemoryKind.SessionState &&
+                target.Kind == MemoryKind.SessionState)
             {
                 var sourceConcrete = effectiveSourceFamily != MemorySlotFamily.None &&
                                      effectiveSourceFamily != MemorySlotFamily.Misc;
@@ -541,7 +541,7 @@ public static class MemoryEndpoints
                         SourceMemoryId = sourceMemoryId,
                         TargetMemoryId = targetMemoryId,
                         Succeeded = false,
-                        Message = $"Scene-state merge blocked because families differ ({effectiveSourceFamily} vs {effectiveTargetFamily}). Provide a SlotFamilyOverride to force it.",
+                        Message = $"Session-state merge blocked because families differ ({effectiveSourceFamily} vs {effectiveTargetFamily}). Provide a SlotFamilyOverride to force it.",
                         TargetSlotKey = target.SlotKey,
                         TargetReviewStatus = target.ReviewStatus.ToString(),
                         SourceRejected = false,
@@ -579,7 +579,7 @@ public static class MemoryEndpoints
                 target.ReviewStatus = source.ReviewStatus;
             }
 
-            if (target.Kind == MemoryKind.SceneState)
+            if (target.Kind == MemoryKind.SessionState)
             {
                 target.ExpiresAt = null;
             }
@@ -672,7 +672,7 @@ public static class MemoryEndpoints
             }
         );
 
-        group.MapPost("/{memoryId:guid}/promote-to-character", async (
+        group.MapPost("/{memoryId:guid}/promote-to-agent", async (
             Guid memoryId,
             IMemoryRepository memoryRepository,
             IMemoryOperationAuditService memoryOperationAuditService,
@@ -684,14 +684,14 @@ public static class MemoryEndpoints
                 return Results.NotFound();
             }
 
-            if (memoryItem.ScopeType == MemoryScopeType.Character)
+            if (memoryItem.ScopeType == MemoryScopeType.Agent)
             {
                 return Results.Ok();
             }
 
             var beforeSnapshot = MemoryAuditSnapshot.From(memoryItem);
 
-            memoryItem.ScopeType = MemoryScopeType.Character;
+            memoryItem.ScopeType = MemoryScopeType.Agent;
             memoryItem.ConversationId = null;
             memoryItem.ExpiresAt = null;
             memoryItem.UpdatedAt = DateTime.UtcNow;
@@ -700,12 +700,12 @@ public static class MemoryEndpoints
 
             await memoryOperationAuditService.RecordAsync(
                 memoryItem.Id,
-                MemoryOperationType.PromotedToCharacter,
+                MemoryOperationType.PromotedToAgent,
                 beforeState: beforeSnapshot,
                 afterState: MemoryAuditSnapshot.From(memoryItem),
                 conversationId: beforeSnapshot.ConversationId,
-                characterId: memoryItem.CharacterId,
-                note: "Promoted from conversation scope to character scope",
+                agentId: memoryItem.AgentId,
+                note: "Promoted from conversation scope to agent scope",
                 cancellationToken: cancellationToken);
 
             return Results.Ok();

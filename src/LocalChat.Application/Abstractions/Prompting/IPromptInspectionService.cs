@@ -5,9 +5,9 @@ namespace LocalChat.Application.Abstractions.Prompting;
 public interface IPromptInspectionService
 {
     Task<ContextInspectionResult> InspectAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
-        Guid? userPersonaId,
+        Guid? userProfileId,
         string currentUserMessage,
         CancellationToken cancellationToken = default
     );

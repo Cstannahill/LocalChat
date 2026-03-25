@@ -1,4 +1,4 @@
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -35,10 +35,10 @@ public sealed class SqliteMigrationSmokeTests
                 await dbContext.Database.EnsureCreatedAsync();
             }
 
-            dbContext.Characters.Add(new Character
+            dbContext.Agents.Add(new Agent
             {
                 Id = Guid.NewGuid(),
-                Name = "Smoke Test Character",
+                Name = "Smoke Test Agent",
                 Description = "Created by migration smoke test.",
                 Greeting = "Hello",
                 PersonalityDefinition = "Be helpful.",
@@ -49,7 +49,7 @@ public sealed class SqliteMigrationSmokeTests
 
             await dbContext.SaveChangesAsync();
 
-            var count = await dbContext.Characters.CountAsync();
+            var count = await dbContext.Agents.CountAsync();
             Assert.Equal(1, count);
         }
         finally

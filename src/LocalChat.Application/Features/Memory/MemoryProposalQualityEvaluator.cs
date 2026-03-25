@@ -63,18 +63,18 @@ public sealed class MemoryProposalQualityEvaluator
             MemorySlotFamily.Possession => $"scene.{actor}.possession",
             MemorySlotFamily.EmotionalState => $"scene.{actor}.emotion",
             MemorySlotFamily.Preference when category == MemoryCategory.UserFact => "user.preference",
-            MemorySlotFamily.Preference when category == MemoryCategory.CharacterFact => "character.preference",
+            MemorySlotFamily.Preference when category == MemoryCategory.AgentFact => "agent.preference",
             MemorySlotFamily.RelationshipState => "relationship.status",
             MemorySlotFamily.Identity when category == MemoryCategory.UserFact => "user.identity",
-            MemorySlotFamily.Identity when category == MemoryCategory.CharacterFact => "character.identity",
+            MemorySlotFamily.Identity when category == MemoryCategory.AgentFact => "agent.identity",
             MemorySlotFamily.WorldState => "world.state",
             _ => category switch
             {
                 MemoryCategory.UserFact => "user.fact",
-                MemoryCategory.CharacterFact => "character.fact",
+                MemoryCategory.AgentFact => "agent.fact",
                 MemoryCategory.RelationshipFact => "relationship.status",
                 MemoryCategory.WorldFact => "world.fact",
-                MemoryCategory.SceneState => "scene.misc",
+                MemoryCategory.SessionState => "scene.misc",
                 _ => "memory.misc"
             }
         };
@@ -94,7 +94,7 @@ public sealed class MemoryProposalQualityEvaluator
 
         var lower = content.ToLowerInvariant();
 
-        if (category == MemoryCategory.SceneState)
+        if (category == MemoryCategory.SessionState)
         {
             if (ContainsAny(lower, OutfitWords)) return MemorySlotFamily.Outfit;
             if (ContainsAny(lower, LocationWords)) return MemorySlotFamily.Location;
@@ -104,7 +104,7 @@ public sealed class MemoryProposalQualityEvaluator
             return MemorySlotFamily.Misc;
         }
 
-        if (category == MemoryCategory.UserFact || category == MemoryCategory.CharacterFact)
+        if (category == MemoryCategory.UserFact || category == MemoryCategory.AgentFact)
         {
             if (ContainsAny(lower, PreferenceWords)) return MemorySlotFamily.Preference;
             return MemorySlotFamily.Identity;
@@ -168,9 +168,9 @@ public sealed class MemoryProposalQualityEvaluator
             return "user";
         }
 
-        if (lower.Contains("character") || lower.Contains("she") || lower.Contains("he"))
+        if (lower.Contains("agent") || lower.Contains("she") || lower.Contains("he"))
         {
-            return "character";
+            return "agent";
         }
 
         return "shared";

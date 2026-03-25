@@ -16,7 +16,7 @@ public static class MemoryCandidateRanker
     {
         var scored = memories
             .Where(x => x.ReviewStatus == MemoryReviewStatus.Accepted)
-            .Where(x => !x.ConversationId.HasValue || !activeConversationId.HasValue || x.ConversationId.Value == activeConversationId.Value || x.ScopeType == MemoryScopeType.Character)
+            .Where(x => !x.ConversationId.HasValue || !activeConversationId.HasValue || x.ConversationId.Value == activeConversationId.Value || x.ScopeType == MemoryScopeType.Agent)
             .Where(x => !activeConversationId.HasValue || !memoryPolicyService.ShouldExcludeFromRetrieval(x, activeConversationId.Value, currentSequenceNumber))
             .Select(x => CreateScoredMemory(x, semanticScores, activeConversationId, currentSequenceNumber, memoryPolicyService))
             .OrderByDescending(x => x.FinalScore)
@@ -27,13 +27,13 @@ public static class MemoryCandidateRanker
         var selectedBySlot = new Dictionary<string, SelectedMemoryBuilder>(StringComparer.Ordinal);
 
         SelectLane(
-            scored.Where(x => x.Memory.Kind == MemoryKind.SceneState),
+            scored.Where(x => x.Memory.Kind == MemoryKind.SessionState),
             selectedBuilders,
             selectedBySlot,
             maxCount);
 
         SelectLane(
-            scored.Where(x => x.Memory.Kind != MemoryKind.SceneState),
+            scored.Where(x => x.Memory.Kind != MemoryKind.SessionState),
             selectedBuilders,
             selectedBySlot,
             maxCount);
@@ -126,7 +126,7 @@ public static class MemoryCandidateRanker
                 currentSequenceNumber);
         }
 
-        if (memory.Kind == MemoryKind.SceneState)
+        if (memory.Kind == MemoryKind.SessionState)
         {
             sceneBias = 0.30;
             score += sceneBias;
@@ -177,13 +177,13 @@ public static class MemoryCandidateRanker
             $"Final score: {builder.Scored.FinalScore:0.000}."
         };
 
-        if (builder.Scored.Memory.Kind == MemoryKind.SceneState)
+        if (builder.Scored.Memory.Kind == MemoryKind.SessionState)
         {
-            parts.Add("Active scene-state received a priority boost so current temporary context wins over older durable context when they compete.");
+            parts.Add("Active session-state received a priority boost so current temporary context wins over older durable context when they compete.");
         }
         else
         {
-            parts.Add("Durable fact remained eligible because no higher-priority scene-state suppressed its slot.");
+            parts.Add("Durable fact remained eligible because no higher-priority session-state suppressed its slot.");
         }
 
         if (!string.IsNullOrWhiteSpace(builder.Scored.Memory.SlotKey))

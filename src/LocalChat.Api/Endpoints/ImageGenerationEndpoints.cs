@@ -82,7 +82,7 @@ public static class ImageGenerationEndpoints
         new()
         {
             Id = x.Id,
-            CharacterId = x.CharacterId,
+            AgentId = x.AgentId,
             ConversationId = x.ConversationId,
             Provider = x.Provider,
             PromptText = x.PromptText,

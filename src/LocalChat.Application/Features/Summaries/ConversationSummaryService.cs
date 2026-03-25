@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LocalChat.Application.Abstractions.Inference;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Enums;
@@ -60,7 +60,7 @@ public sealed class ConversationSummaryService : IConversationSummaryService
         sb.AppendLine("- important technical details, constraints, or instructions");
         sb.AppendLine("- current state of the conversation");
         sb.AppendLine("Do not include fluff.");
-        sb.AppendLine($"Return plain text only, under {_options.MaxSummaryCharacters} characters.");
+        sb.AppendLine($"Return plain text only, under {_options.MaxSummaryAgents} agents.");
         sb.AppendLine();
 
         if (!string.IsNullOrWhiteSpace(existingSummary))
@@ -86,12 +86,12 @@ public sealed class ConversationSummaryService : IConversationSummaryService
     {
         var normalized = text.Trim();
 
-        if (normalized.Length <= _options.MaxSummaryCharacters)
+        if (normalized.Length <= _options.MaxSummaryAgents)
         {
             return normalized;
         }
 
-        return normalized[.._options.MaxSummaryCharacters].Trim();
+        return normalized[.._options.MaxSummaryAgents].Trim();
     }
 
     private static string MapRole(MessageRole role) =>

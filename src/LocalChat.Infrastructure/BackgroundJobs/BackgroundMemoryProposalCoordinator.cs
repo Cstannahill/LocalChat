@@ -85,7 +85,7 @@ public sealed class BackgroundMemoryProposalCoordinator
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var memoryRepository = scope.ServiceProvider.GetRequiredService<IMemoryRepository>();
 
-            var expiredSceneStateCount = await memoryRepository.DeleteExpiredSceneStateAsync(
+            var expiredSessionStateCount = await memoryRepository.DeleteExpiredSessionStateAsync(
                 DateTime.UtcNow,
                 cancellationToken);
 
@@ -105,11 +105,11 @@ public sealed class BackgroundMemoryProposalCoordinator
                 .ToListAsync(cancellationToken);
 
             _logger.LogInformation(
-                "Background proposal sweep started. CandidateCount={CandidateCount}, RecentCutoff={RecentCutoff}, MaxConversationsPerSweep={MaxConversationsPerSweep}, ExpiredSceneStateDeleted={ExpiredSceneStateDeleted}",
+                "Background proposal sweep started. CandidateCount={CandidateCount}, RecentCutoff={RecentCutoff}, MaxConversationsPerSweep={MaxConversationsPerSweep}, ExpiredSessionStateDeleted={ExpiredSessionStateDeleted}",
                 candidates.Count,
                 recentCutoff,
                 _options.MaxConversationsPerSweep,
-                expiredSceneStateCount);
+                expiredSessionStateCount);
 
             var triggeredCount = 0;
             var skippedForMessageCount = 0;
@@ -205,7 +205,7 @@ public sealed class BackgroundMemoryProposalCoordinator
                     Message = $"Skipped due to cooldown. Last run at {lastRunUtc:u}.",
                     AttemptedCandidates = 0,
                     CreatedProposalCount = 0,
-                    AutoSavedSceneStateCount = 0,
+                    AutoSavedSessionStateCount = 0,
                     AutoAcceptedDurableCount = 0,
                     SkippedLowConfidenceCount = 0,
                     SkippedDuplicateCount = 0,
@@ -223,7 +223,7 @@ public sealed class BackgroundMemoryProposalCoordinator
         {
             var result = await proposalService.GenerateForConversationAsync(conversationId, cancellationToken);
 
-            if (result.AutoSavedSceneStateCount > 0 || result.AutoAcceptedDurableCount > 0)
+            if (result.AutoSavedSessionStateCount > 0 || result.AutoAcceptedDurableCount > 0)
             {
                 await retrievalSyncService.ReindexConversationAsync(conversationId, cancellationToken);
             }
@@ -231,12 +231,12 @@ public sealed class BackgroundMemoryProposalCoordinator
             _state.MarkRun(conversationId, DateTime.UtcNow);
 
             _logger.LogInformation(
-                "Background memory proposal run succeeded. ConversationId={ConversationId}, InitiatedBy={InitiatedBy}, Attempted={AttemptedCandidates}, CreatedProposals={CreatedProposalCount}, AutoSavedSceneState={AutoSavedSceneStateCount}, AutoAcceptedDurable={AutoAcceptedDurableCount}, SkippedLowConfidence={SkippedLowConfidenceCount}, SkippedDuplicates={SkippedDuplicateCount}, ConflictsAnnotated={ConflictAnnotatedCount}, Invalid={InvalidCandidateCount}",
+                "Background memory proposal run succeeded. ConversationId={ConversationId}, InitiatedBy={InitiatedBy}, Attempted={AttemptedCandidates}, CreatedProposals={CreatedProposalCount}, AutoSavedSessionState={AutoSavedSessionStateCount}, AutoAcceptedDurable={AutoAcceptedDurableCount}, SkippedLowConfidence={SkippedLowConfidenceCount}, SkippedDuplicates={SkippedDuplicateCount}, ConflictsAnnotated={ConflictAnnotatedCount}, Invalid={InvalidCandidateCount}",
                 conversationId,
                 initiatedBy,
                 result.AttemptedCandidates,
                 result.CreatedProposalCount,
-                result.AutoSavedSceneStateCount,
+                result.AutoSavedSessionStateCount,
                 result.AutoAcceptedDurableCount,
                 result.SkippedLowConfidenceCount,
                 result.SkippedDuplicateCount,
@@ -250,7 +250,7 @@ public sealed class BackgroundMemoryProposalCoordinator
                 Message = $"{initiatedBy} completed for conversation '{conversationId}'.",
                 AttemptedCandidates = result.AttemptedCandidates,
                 CreatedProposalCount = result.CreatedProposalCount,
-                AutoSavedSceneStateCount = result.AutoSavedSceneStateCount,
+                AutoSavedSessionStateCount = result.AutoSavedSessionStateCount,
                 AutoAcceptedDurableCount = result.AutoAcceptedDurableCount,
                 SkippedLowConfidenceCount = result.SkippedLowConfidenceCount,
                 SkippedDuplicateCount = result.SkippedDuplicateCount,
@@ -273,7 +273,7 @@ public sealed class BackgroundMemoryProposalCoordinator
                 Message = $"Background proposal generation failed: {ex.Message}",
                 AttemptedCandidates = 0,
                 CreatedProposalCount = 0,
-                AutoSavedSceneStateCount = 0,
+                AutoSavedSessionStateCount = 0,
                 AutoAcceptedDurableCount = 0,
                 SkippedLowConfidenceCount = 0,
                 SkippedDuplicateCount = 0,

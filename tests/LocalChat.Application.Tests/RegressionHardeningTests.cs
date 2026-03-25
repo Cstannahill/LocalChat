@@ -9,12 +9,12 @@ using LocalChat.Application.Features.Summaries;
 using LocalChat.Application.ImageGeneration;
 using LocalChat.Application.Inspection;
 using LocalChat.Application.Prompting.Composition;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Models;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Domain.Entities.UserProfiles;
 using LocalChat.Domain.Enums;
 
 namespace LocalChat.Application.Tests;
@@ -27,8 +27,8 @@ public sealed class RegressionHardeningTests
         var conversation = new Conversation
         {
             Id = Guid.NewGuid(),
-            CharacterId = Guid.NewGuid(),
-            Character = new Character
+            AgentId = Guid.NewGuid(),
+            Agent = new Agent
             {
                 Id = Guid.NewGuid(),
                 Name = "Ava",
@@ -71,14 +71,14 @@ public sealed class RegressionHardeningTests
     [Fact]
     public async Task RegenerateLatestAssistantMessageAsync_AllowsContinuationChains()
     {
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
         var conversation = new Conversation
         {
             Id = Guid.NewGuid(),
-            CharacterId = characterId,
-            Character = new Character
+            AgentId = agentId,
+            Agent = new Agent
             {
-                Id = characterId,
+                Id = agentId,
                 Name = "Ava",
                 PersonalityDefinition = "Calm and observant.",
                 Description = "An engineer",
@@ -148,8 +148,8 @@ public sealed class RegressionHardeningTests
         var conversationRepository = new SingleConversationRepository(conversation);
         var promptComposer = new CapturingPromptComposer();
         var orchestrator = new ChatOrchestrator(
-            new StaticCharacterRepository(conversation.Character!),
-            new EmptyUserPersonaRepository(),
+            new StaticAgentRepository(conversation.Agent!),
+            new EmptyUserProfileRepository(),
             new EmptyModelProfileRepository(),
             new EmptyGenerationPresetRepository(),
             conversationRepository,
@@ -178,16 +178,16 @@ public sealed class RegressionHardeningTests
     [Fact]
     public async Task SendAsync_SchedulesBackgroundWork_WithChatTurnCompleteReason()
     {
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
         var conversationId = Guid.NewGuid();
 
         var conversation = new Conversation
         {
             Id = conversationId,
-            CharacterId = characterId,
-            Character = new Character
+            AgentId = agentId,
+            Agent = new Agent
             {
-                Id = characterId,
+                Id = agentId,
                 Name = "Ava",
                 PersonalityDefinition = "Calm and observant.",
                 Description = "An engineer",
@@ -223,8 +223,8 @@ public sealed class RegressionHardeningTests
         var conversationRepository = new SingleConversationRepository(conversation);
         var scheduler = new RecordingConversationBackgroundWorkScheduler();
         var orchestrator = new ChatOrchestrator(
-            new StaticCharacterRepository(conversation.Character!),
-            new EmptyUserPersonaRepository(),
+            new StaticAgentRepository(conversation.Agent!),
+            new EmptyUserProfileRepository(),
             new EmptyModelProfileRepository(),
             new EmptyGenerationPresetRepository(),
             conversationRepository,
@@ -240,7 +240,7 @@ public sealed class RegressionHardeningTests
         var result = await orchestrator.SendAsync(
             new SendChatMessageCommand
             {
-                CharacterId = characterId,
+                AgentId = agentId,
                 ConversationId = conversationId,
                 Message = "Next user message"
             },
@@ -300,8 +300,8 @@ public sealed class RegressionHardeningTests
                         EstimatedTokens = 1
                     }
                 ],
-                SelectedSceneState = Array.Empty<PromptSceneStateSelectedDebugItem>(),
-                SuppressedSceneState = Array.Empty<PromptSceneStateSuppressedDebugItem>(),
+                SelectedSessionState = Array.Empty<PromptSessionStateSelectedDebugItem>(),
+                SuppressedSessionState = Array.Empty<PromptSessionStateSuppressedDebugItem>(),
                 SelectedDurableMemory = Array.Empty<PromptDurableMemorySelectedDebugItem>(),
                 SuppressedDurableMemory = Array.Empty<PromptDurableMemorySuppressedDebugItem>()
             };
@@ -322,7 +322,7 @@ public sealed class RegressionHardeningTests
             return Task.FromResult<Conversation?>(null);
         }
 
-        public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult<IReadOnlyList<Conversation>>([]);
         }
@@ -399,7 +399,7 @@ public sealed class RegressionHardeningTests
             return Task.CompletedTask;
         }
 
-        public Task IndexLoreEntryAsync(Guid characterId, LoreEntry loreEntry, CancellationToken cancellationToken = default)
+        public Task IndexLoreEntryAsync(Guid agentId, LoreEntry loreEntry, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }
@@ -409,7 +409,7 @@ public sealed class RegressionHardeningTests
             return Task.CompletedTask;
         }
 
-        public Task<RetrievalInspectionResult> InspectAsync(Guid characterId, Guid? conversationId, string query, CancellationToken cancellationToken = default)
+        public Task<RetrievalInspectionResult> InspectAsync(Guid agentId, Guid? conversationId, string query, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new RetrievalInspectionResult
             {
@@ -478,34 +478,34 @@ public sealed class RegressionHardeningTests
         }
     }
 
-    private sealed class StaticCharacterRepository(Character character) : ICharacterRepository
+    private sealed class StaticAgentRepository(Agent agent) : IAgentRepository
     {
-        public Task<Character?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public Task<Agent?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(id == character.Id ? character : null);
+            return Task.FromResult(id == agent.Id ? agent : null);
         }
 
-        public Task<Character?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
+        public Task<Agent?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(id == character.Id ? character : null);
+            return Task.FromResult(id == agent.Id ? agent : null);
         }
 
-        public Task<Character?> GetDefaultAsync(CancellationToken cancellationToken = default)
+        public Task<Agent?> GetDefaultAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<Character?>(character);
+            return Task.FromResult<Agent?>(agent);
         }
 
-        public Task<IReadOnlyList<Character>> ListAsync(CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Agent>> ListAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<IReadOnlyList<Character>>([character]);
+            return Task.FromResult<IReadOnlyList<Agent>>([agent]);
         }
 
-        public Task<Character> AddAsync(Character character, CancellationToken cancellationToken = default)
+        public Task<Agent> AddAsync(Agent agent, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException();
         }
 
-        public Task<bool> HasConversationsAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<bool> HasConversationsAsync(Guid agentId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(false);
         }
@@ -515,25 +515,25 @@ public sealed class RegressionHardeningTests
             return Task.CompletedTask;
         }
 
-        public void Remove(Character character)
+        public void Remove(Agent agent)
         {
             throw new NotSupportedException();
         }
     }
 
-    private sealed class EmptyUserPersonaRepository : IUserPersonaRepository
+    private sealed class EmptyUserProfileRepository : IUserProfileRepository
     {
-        public Task<UserPersona?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public Task<UserProfile?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<UserPersona?>(null);
+            return Task.FromResult<UserProfile?>(null);
         }
 
-        public Task<IReadOnlyList<UserPersona>> ListAsync(CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<UserProfile>> ListAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<IReadOnlyList<UserPersona>>([]);
+            return Task.FromResult<IReadOnlyList<UserProfile>>([]);
         }
 
-        public Task<UserPersona> AddAsync(UserPersona persona, CancellationToken cancellationToken = default)
+        public Task<UserProfile> AddAsync(UserProfile userProfile, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException();
         }
@@ -543,7 +543,7 @@ public sealed class RegressionHardeningTests
             return Task.CompletedTask;
         }
 
-        public void Remove(UserPersona persona)
+        public void Remove(UserProfile userProfile)
         {
             throw new NotSupportedException();
         }

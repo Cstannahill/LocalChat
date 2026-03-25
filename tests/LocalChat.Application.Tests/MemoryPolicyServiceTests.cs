@@ -27,13 +27,13 @@ public sealed class MemoryPolicyServiceTests
         };
 
         var conversationId = Guid.NewGuid();
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
 
-        _service.ApplyAutomaticDefaults(memory, conversationId, characterId, 12);
+        _service.ApplyAutomaticDefaults(memory, conversationId, agentId, 12);
 
         Assert.Equal(MemoryScopeType.Conversation, memory.ScopeType);
         Assert.Equal(conversationId, memory.ConversationId);
-        Assert.Equal(characterId, memory.CharacterId);
+        Assert.Equal(agentId, memory.AgentId);
         Assert.Equal(12, memory.SourceMessageSequenceNumber);
         Assert.Equal(12, memory.LastObservedSequenceNumber);
         Assert.Null(memory.SupersededAtSequenceNumber);
@@ -41,7 +41,7 @@ public sealed class MemoryPolicyServiceTests
     }
 
     [Fact]
-    public void ConversationScopedMemory_GetsHigherScoreThanCharacterScopedMemory()
+    public void ConversationScopedMemory_GetsHigherScoreThanAgentScopedMemory()
     {
         var conversationId = Guid.NewGuid();
 
@@ -51,36 +51,36 @@ public sealed class MemoryPolicyServiceTests
             Kind = MemoryKind.DurableFact,
             ScopeType = MemoryScopeType.Conversation,
             ConversationId = conversationId,
-            CharacterId = Guid.NewGuid(),
+            AgentId = Guid.NewGuid(),
             Content = "Conversation local fact."
         };
 
-        var characterScoped = new MemoryItem
+        var agentScoped = new MemoryItem
         {
             Id = Guid.NewGuid(),
             Kind = MemoryKind.DurableFact,
-            ScopeType = MemoryScopeType.Character,
-            CharacterId = Guid.NewGuid(),
-            Content = "Character shared fact."
+            ScopeType = MemoryScopeType.Agent,
+            AgentId = Guid.NewGuid(),
+            Content = "Agent shared fact."
         };
 
         var conversationScore = _service.ApplyRetrievalPolicy(conversationScoped, 0.7, conversationId, 40);
-        var characterScore = _service.ApplyRetrievalPolicy(characterScoped, 0.7, conversationId, 40);
+        var agentScore = _service.ApplyRetrievalPolicy(agentScoped, 0.7, conversationId, 40);
 
-        Assert.True(conversationScore > characterScore);
+        Assert.True(conversationScore > agentScore);
     }
 
     [Fact]
-    public void SupersededSceneState_IsExcludedFromRetrieval()
+    public void SupersededSessionState_IsExcludedFromRetrieval()
     {
         var item = new MemoryItem
         {
             Id = Guid.NewGuid(),
-            Kind = MemoryKind.SceneState,
+            Kind = MemoryKind.SessionState,
             ScopeType = MemoryScopeType.Conversation,
             ConversationId = Guid.NewGuid(),
-            CharacterId = Guid.NewGuid(),
-            Content = "Character is wearing a red coat.",
+            AgentId = Guid.NewGuid(),
+            Content = "Agent is wearing a red coat.",
             SupersededAtSequenceNumber = 18
         };
 

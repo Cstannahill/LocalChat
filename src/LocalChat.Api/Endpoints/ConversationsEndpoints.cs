@@ -1,5 +1,5 @@
-using LocalChat.Application.Abstractions.Persistence;
 using LocalChat.Application.Abstractions.Inference;
+using LocalChat.Application.Abstractions.Persistence;
 using LocalChat.Application.Background;
 using LocalChat.Application.Chat;
 using LocalChat.Contracts.Conversations;
@@ -11,312 +11,398 @@ public static class ConversationsEndpoints
 {
     public static IEndpointRouteBuilder MapConversationsEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/conversations")
-            .WithTags("Conversations");
+        var group = app.MapGroup("/api/conversations").WithTags("Conversations");
 
-        group.MapPost("/", async (
-            CreateConversationRequest request,
-            IConversationRepository conversationRepository,
-            ICharacterRepository characterRepository,
-            IUserPersonaRepository userPersonaRepository,
-            CancellationToken cancellationToken) =>
-        {
-            var character = await characterRepository.GetByIdWithDetailsAsync(request.CharacterId, cancellationToken);
-            if (character is null)
+        group.MapPost(
+            "/",
+            async (
+                CreateConversationRequest request,
+                IConversationRepository conversationRepository,
+                IAgentRepository agentRepository,
+                IUserProfileRepository userProfileRepository,
+                CancellationToken cancellationToken
+            ) =>
             {
-                return Results.BadRequest(new { error = $"Character '{request.CharacterId}' was not found." });
-            }
-
-            if (request.UserPersonaId.HasValue)
-            {
-                var persona = await userPersonaRepository.GetByIdAsync(request.UserPersonaId.Value, cancellationToken);
-                if (persona is null)
+                var agent = await agentRepository.GetByIdWithDetailsAsync(
+                    request.AgentId,
+                    cancellationToken
+                );
+                if (agent is null)
                 {
-                    return Results.BadRequest(new { error = $"User persona '{request.UserPersonaId.Value}' was not found." });
+                    return Results.BadRequest(
+                        new { error = $"Agent '{request.AgentId}' was not found." }
+                    );
                 }
+
+                if (request.UserProfileId.HasValue)
+                {
+                    var userProfile = await userProfileRepository.GetByIdAsync(
+                        request.UserProfileId.Value,
+                        cancellationToken
+                    );
+                    if (userProfile is null)
+                    {
+                        return Results.BadRequest(
+                            new
+                            {
+                                error = $"User profile '{request.UserProfileId.Value}' was not found.",
+                            }
+                        );
+                    }
+                }
+
+                var conversation = new Conversation
+                {
+                    Id = Guid.NewGuid(),
+                    AgentId = agent.Id,
+                    Agent = agent,
+                    UserProfileId = request.UserProfileId,
+                    Title = string.IsNullOrWhiteSpace(request.Title)
+                        ? "New Conversation"
+                        : request.Title.Trim(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                };
+
+                ConversationMessageSeeder.SeedGreetingIfNeeded(conversation);
+
+                await conversationRepository.AddAsync(conversation, cancellationToken);
+                await conversationRepository.SaveChangesAsync(cancellationToken);
+
+                var created = await conversationRepository.GetByIdWithMessagesAsync(
+                    conversation.Id,
+                    cancellationToken
+                );
+                return Results.Ok(ToConversationResponse(created!));
             }
+        );
 
-            var conversation = new Conversation
+        group.MapGet(
+            "/{id:guid}",
+            async (
+                Guid id,
+                IConversationRepository repository,
+                CancellationToken cancellationToken
+            ) =>
             {
-                Id = Guid.NewGuid(),
-                CharacterId = character.Id,
-                Character = character,
-                UserPersonaId = request.UserPersonaId,
-                Title = string.IsNullOrWhiteSpace(request.Title) ? "New Conversation" : request.Title.Trim(),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            ConversationMessageSeeder.SeedGreetingIfNeeded(conversation);
-
-            await conversationRepository.AddAsync(conversation, cancellationToken);
-            await conversationRepository.SaveChangesAsync(cancellationToken);
-
-            var created = await conversationRepository.GetByIdWithMessagesAsync(conversation.Id, cancellationToken);
-            return Results.Ok(ToConversationResponse(created!));
-        });
-
-        group.MapGet("/{id:guid}", async (
-            Guid id,
-            IConversationRepository repository,
-            CancellationToken cancellationToken) =>
-        {
-            var conversation = await repository.GetByIdWithMessagesAsync(id, cancellationToken);
-            if (conversation is null)
-            {
-                return Results.NotFound();
-            }
-
-            var seeded = ConversationMessageSeeder.SeedGreetingIfNeeded(conversation);
-            if (seeded)
-            {
-                await repository.SaveChangesAsync(cancellationToken);
-                conversation = await repository.GetByIdWithMessagesAsync(id, cancellationToken);
+                var conversation = await repository.GetByIdWithMessagesAsync(id, cancellationToken);
                 if (conversation is null)
                 {
                     return Results.NotFound();
                 }
-            }
 
-            return Results.Ok(ToConversationResponse(conversation));
-        });
-
-        group.MapGet("/by-character/{characterId:guid}", async (
-            Guid characterId,
-            IConversationRepository repository,
-            CancellationToken cancellationToken) =>
-        {
-            var conversations = await repository.ListByCharacterAsync(characterId, cancellationToken);
-
-            var response = conversations
-                .Select(x => new ConversationResponse
+                var seeded = ConversationMessageSeeder.SeedGreetingIfNeeded(conversation);
+                if (seeded)
                 {
-                    Id = x.Id,
-                    CharacterId = x.CharacterId,
-                    UserPersonaId = x.UserPersonaId,
-                    RuntimeModelProfileOverrideId = x.RuntimeModelProfileOverrideId,
-                    RuntimeGenerationPresetOverrideId = x.RuntimeGenerationPresetOverrideId,
-                    ParentConversationId = x.ParentConversationId,
-                    BranchedFromMessageId = x.BranchedFromMessageId,
-                    DirectorInstructions = x.DirectorInstructions,
-                    SceneContext = x.SceneContext,
-                    IsOocModeEnabled = x.IsOocModeEnabled,
-                    Title = x.Title,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt,
-                    Messages = Array.Empty<MessageResponse>()
-                })
-                .ToList();
+                    await repository.SaveChangesAsync(cancellationToken);
+                    conversation = await repository.GetByIdWithMessagesAsync(id, cancellationToken);
+                    if (conversation is null)
+                    {
+                        return Results.NotFound();
+                    }
+                }
 
-            return Results.Ok(response);
-        });
-
-        group.MapPut("/{conversationId:guid}/messages/{messageId:guid}", async (
-            Guid conversationId,
-            Guid messageId,
-            UpdateConversationMessageRequest request,
-            ConversationMessageMutationService mutationService,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mutationService.EditAsync(
-                conversationId,
-                messageId,
-                request.Content,
-                request.RegenerateAssistant,
-                cancellationToken);
-
-            return Results.Ok(result);
-        });
-
-        group.MapPost("/{conversationId:guid}/messages/{messageId:guid}/delete", async (
-            Guid conversationId,
-            Guid messageId,
-            DeleteConversationMessageRequest request,
-            ConversationMessageMutationService mutationService,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mutationService.DeleteAsync(
-                conversationId,
-                messageId,
-                request.RegenerateAssistant,
-                cancellationToken);
-
-            return Results.Ok(result);
-        });
-
-        group.MapPost("/{id:guid}/branch/{messageId:guid}", async (
-            Guid id,
-            Guid messageId,
-            IConversationRepository repository,
-            IConversationBackgroundWorkScheduler scheduler,
-            CancellationToken cancellationToken) =>
-        {
-            var sourceConversation = await repository.GetByIdWithMessagesAsync(id, cancellationToken);
-            if (sourceConversation is null)
-            {
-                return Results.NotFound();
+                return Results.Ok(ToConversationResponse(conversation));
             }
+        );
 
-            var orderedMessages = sourceConversation.Messages
-                .OrderBy(x => x.SequenceNumber)
-                .ToList();
-
-            var branchPoint = orderedMessages.FirstOrDefault(x => x.Id == messageId);
-            if (branchPoint is null)
+        group.MapGet(
+            "/by-agent/{agentId:guid}",
+            async (
+                Guid agentId,
+                IConversationRepository repository,
+                CancellationToken cancellationToken
+            ) =>
             {
-                return Results.BadRequest(new { error = $"Message '{messageId}' was not found in the source conversation." });
+                var conversations = await repository.ListByAgentAsync(agentId, cancellationToken);
+
+                var response = conversations
+                    .Select(x => new ConversationResponse
+                    {
+                        Id = x.Id,
+                        AgentId = x.AgentId,
+                        UserProfileId = x.UserProfileId,
+                        RuntimeModelProfileOverrideId = x.RuntimeModelProfileOverrideId,
+                        RuntimeGenerationPresetOverrideId = x.RuntimeGenerationPresetOverrideId,
+                        ParentConversationId = x.ParentConversationId,
+                        BranchedFromMessageId = x.BranchedFromMessageId,
+                        DirectorInstructions = x.DirectorInstructions,
+                        SceneContext = x.SceneContext,
+                        IsOocModeEnabled = x.IsOocModeEnabled,
+                        Title = x.Title,
+                        CreatedAt = x.CreatedAt,
+                        UpdatedAt = x.UpdatedAt,
+                        Messages = Array.Empty<MessageResponse>(),
+                    })
+                    .ToList();
+
+                return Results.Ok(response);
             }
+        );
 
-            var messagesToCopy = orderedMessages
-                .Where(x => x.SequenceNumber <= branchPoint.SequenceNumber)
-                .OrderBy(x => x.SequenceNumber)
-                .ToList();
-
-            var branchedConversation = new Conversation
+        group.MapPut(
+            "/{conversationId:guid}/messages/{messageId:guid}",
+            async (
+                Guid conversationId,
+                Guid messageId,
+                UpdateConversationMessageRequest request,
+                ConversationMessageMutationService mutationService,
+                CancellationToken cancellationToken
+            ) =>
             {
-                Id = Guid.NewGuid(),
-                CharacterId = sourceConversation.CharacterId,
-                UserPersonaId = sourceConversation.UserPersonaId,
-                ParentConversationId = sourceConversation.Id,
-                BranchedFromMessageId = branchPoint.Id,
-                DirectorInstructions = sourceConversation.DirectorInstructions,
-                DirectorInstructionsUpdatedAt = sourceConversation.DirectorInstructionsUpdatedAt,
-                SceneContext = sourceConversation.SceneContext,
-                SceneContextUpdatedAt = sourceConversation.SceneContextUpdatedAt,
-                IsOocModeEnabled = sourceConversation.IsOocModeEnabled,
-                RuntimeModelProfileOverrideId = sourceConversation.RuntimeModelProfileOverrideId,
-                RuntimeGenerationPresetOverrideId = sourceConversation.RuntimeGenerationPresetOverrideId,
-                Title = $"{sourceConversation.Title} (branch)",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+                var result = await mutationService.EditAsync(
+                    conversationId,
+                    messageId,
+                    request.Content,
+                    request.RegenerateAssistant,
+                    cancellationToken
+                );
 
-            await repository.AddAsync(branchedConversation, cancellationToken);
+                return Results.Ok(result);
+            }
+        );
 
-            foreach (var sourceMessage in messagesToCopy)
+        group.MapPost(
+            "/{conversationId:guid}/messages/{messageId:guid}/delete",
+            async (
+                Guid conversationId,
+                Guid messageId,
+                DeleteConversationMessageRequest request,
+                ConversationMessageMutationService mutationService,
+                CancellationToken cancellationToken
+            ) =>
             {
-                var copiedMessage = new Message
+                var result = await mutationService.DeleteAsync(
+                    conversationId,
+                    messageId,
+                    request.RegenerateAssistant,
+                    cancellationToken
+                );
+
+                return Results.Ok(result);
+            }
+        );
+
+        group.MapPost(
+            "/{id:guid}/branch/{messageId:guid}",
+            async (
+                Guid id,
+                Guid messageId,
+                IConversationRepository repository,
+                IConversationBackgroundWorkScheduler scheduler,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                var sourceConversation = await repository.GetByIdWithMessagesAsync(
+                    id,
+                    cancellationToken
+                );
+                if (sourceConversation is null)
+                {
+                    return Results.NotFound();
+                }
+
+                var orderedMessages = sourceConversation
+                    .Messages.OrderBy(x => x.SequenceNumber)
+                    .ToList();
+
+                var branchPoint = orderedMessages.FirstOrDefault(x => x.Id == messageId);
+                if (branchPoint is null)
+                {
+                    return Results.BadRequest(
+                        new
+                        {
+                            error = $"Message '{messageId}' was not found in the source conversation.",
+                        }
+                    );
+                }
+
+                var messagesToCopy = orderedMessages
+                    .Where(x => x.SequenceNumber <= branchPoint.SequenceNumber)
+                    .OrderBy(x => x.SequenceNumber)
+                    .ToList();
+
+                var branchedConversation = new Conversation
                 {
                     Id = Guid.NewGuid(),
-                    ConversationId = branchedConversation.Id,
-                    Role = sourceMessage.Role,
-                    OriginType = sourceMessage.OriginType,
-                    Content = sourceMessage.Content,
-                    SequenceNumber = sourceMessage.SequenceNumber,
+                    AgentId = sourceConversation.AgentId,
+                    UserProfileId = sourceConversation.UserProfileId,
+                    ParentConversationId = sourceConversation.Id,
+                    BranchedFromMessageId = branchPoint.Id,
+                    DirectorInstructions = sourceConversation.DirectorInstructions,
+                    DirectorInstructionsUpdatedAt =
+                        sourceConversation.DirectorInstructionsUpdatedAt,
+                    SceneContext = sourceConversation.SceneContext,
+                    SceneContextUpdatedAt = sourceConversation.SceneContextUpdatedAt,
+                    IsOocModeEnabled = sourceConversation.IsOocModeEnabled,
+                    RuntimeModelProfileOverrideId =
+                        sourceConversation.RuntimeModelProfileOverrideId,
+                    RuntimeGenerationPresetOverrideId =
+                        sourceConversation.RuntimeGenerationPresetOverrideId,
+                    Title = $"{sourceConversation.Title} (branch)",
                     CreatedAt = DateTime.UtcNow,
-                    SelectedVariantIndex = sourceMessage.SelectedVariantIndex
+                    UpdatedAt = DateTime.UtcNow,
                 };
 
-                await repository.AddMessageAsync(copiedMessage, cancellationToken);
+                await repository.AddAsync(branchedConversation, cancellationToken);
 
-                foreach (var variant in sourceMessage.Variants.OrderBy(x => x.VariantIndex))
+                foreach (var sourceMessage in messagesToCopy)
                 {
-                    var copiedVariant = new MessageVariant
+                    var copiedMessage = new Message
                     {
                         Id = Guid.NewGuid(),
-                        MessageId = copiedMessage.Id,
-                        VariantIndex = variant.VariantIndex,
-                        Content = variant.Content,
+                        ConversationId = branchedConversation.Id,
+                        Role = sourceMessage.Role,
+                        OriginType = sourceMessage.OriginType,
+                        Content = sourceMessage.Content,
+                        SequenceNumber = sourceMessage.SequenceNumber,
                         CreatedAt = DateTime.UtcNow,
-                        ProviderType = variant.ProviderType,
-                        ModelIdentifier = variant.ModelIdentifier,
-                        ModelProfileId = variant.ModelProfileId,
-                        GenerationPresetId = variant.GenerationPresetId,
-                        RuntimeSourceType = variant.RuntimeSourceType,
-                        GenerationStartedAt = variant.GenerationStartedAt,
-                        GenerationCompletedAt = variant.GenerationCompletedAt,
-                        ResponseTimeMs = variant.ResponseTimeMs
+                        SelectedVariantIndex = sourceMessage.SelectedVariantIndex,
                     };
 
-                    await repository.AddMessageVariantAsync(copiedVariant, cancellationToken);
+                    await repository.AddMessageAsync(copiedMessage, cancellationToken);
+
+                    foreach (var variant in sourceMessage.Variants.OrderBy(x => x.VariantIndex))
+                    {
+                        var copiedVariant = new MessageVariant
+                        {
+                            Id = Guid.NewGuid(),
+                            MessageId = copiedMessage.Id,
+                            VariantIndex = variant.VariantIndex,
+                            Content = variant.Content,
+                            CreatedAt = DateTime.UtcNow,
+                            ProviderType = variant.ProviderType,
+                            ModelIdentifier = variant.ModelIdentifier,
+                            ModelProfileId = variant.ModelProfileId,
+                            GenerationPresetId = variant.GenerationPresetId,
+                            RuntimeSourceType = variant.RuntimeSourceType,
+                            GenerationStartedAt = variant.GenerationStartedAt,
+                            GenerationCompletedAt = variant.GenerationCompletedAt,
+                            ResponseTimeMs = variant.ResponseTimeMs,
+                        };
+
+                        await repository.AddMessageVariantAsync(copiedVariant, cancellationToken);
+                    }
                 }
+
+                await repository.SaveChangesAsync(cancellationToken);
+                await scheduler.ScheduleConversationChangeAsync(
+                    branchedConversation.Id,
+                    ConversationBackgroundWorkType.All,
+                    "conversation-branch",
+                    cancellationToken
+                );
+
+                var created = await repository.GetByIdWithMessagesAsync(
+                    branchedConversation.Id,
+                    cancellationToken
+                );
+                return Results.Ok(ToConversationResponse(created!));
             }
+        );
 
-            await repository.SaveChangesAsync(cancellationToken);
-            await scheduler.ScheduleConversationChangeAsync(
-                branchedConversation.Id,
-                ConversationBackgroundWorkType.All,
-                "conversation-branch",
-                cancellationToken);
-
-            var created = await repository.GetByIdWithMessagesAsync(branchedConversation.Id, cancellationToken);
-            return Results.Ok(ToConversationResponse(created!));
-        });
-
-        group.MapPut("/{conversationId:guid}/messages/{messageId:guid}/selected-variant", async (
-            Guid conversationId,
-            Guid messageId,
-            SelectMessageVariantRequest request,
-            ChatOrchestrator orchestrator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await orchestrator.SelectMessageVariantAsync(
-                conversationId,
-                messageId,
-                request.VariantIndex,
-                cancellationToken);
-
-            return Results.Ok(result);
-        });
-
-        group.MapPut("/{id:guid}/persona", async (
-            Guid id,
-            UpdateConversationPersonaRequest request,
-            IConversationRepository conversationRepository,
-            IUserPersonaRepository userPersonaRepository,
-            CancellationToken cancellationToken) =>
-        {
-            var conversation = await conversationRepository.GetByIdWithMessagesAsync(id, cancellationToken);
-            if (conversation is null)
+        group.MapPut(
+            "/{conversationId:guid}/messages/{messageId:guid}/selected-variant",
+            async (
+                Guid conversationId,
+                Guid messageId,
+                SelectMessageVariantRequest request,
+                ChatOrchestrator orchestrator,
+                CancellationToken cancellationToken
+            ) =>
             {
-                return Results.NotFound();
+                var result = await orchestrator.SelectMessageVariantAsync(
+                    conversationId,
+                    messageId,
+                    request.VariantIndex,
+                    cancellationToken
+                );
+
+                return Results.Ok(result);
             }
+        );
 
-            if (request.UserPersonaId.HasValue)
+        group.MapPut(
+            "/{id:guid}/userProfile",
+            async (
+                Guid id,
+                UpdateConversationUserProfileRequest request,
+                IConversationRepository conversationRepository,
+                IUserProfileRepository userProfileRepository,
+                CancellationToken cancellationToken
+            ) =>
             {
-                var persona = await userPersonaRepository.GetByIdAsync(request.UserPersonaId.Value, cancellationToken);
-                if (persona is null)
+                var conversation = await conversationRepository.GetByIdWithMessagesAsync(
+                    id,
+                    cancellationToken
+                );
+                if (conversation is null)
                 {
-                    return Results.BadRequest(new { error = $"User persona '{request.UserPersonaId.Value}' was not found." });
+                    return Results.NotFound();
                 }
 
-                conversation.UserPersonaId = persona.Id;
-                conversation.UserPersona = persona;
+                if (request.UserProfileId.HasValue)
+                {
+                    var userProfile = await userProfileRepository.GetByIdAsync(
+                        request.UserProfileId.Value,
+                        cancellationToken
+                    );
+                    if (userProfile is null)
+                    {
+                        return Results.BadRequest(
+                            new
+                            {
+                                error = $"User profile '{request.UserProfileId.Value}' was not found.",
+                            }
+                        );
+                    }
+
+                    conversation.UserProfileId = userProfile.Id;
+                    conversation.UserProfile = userProfile;
+                }
+                else
+                {
+                    conversation.UserProfileId = null;
+                    conversation.UserProfile = null;
+                }
+
+                conversation.UpdatedAt = DateTime.UtcNow;
+
+                await conversationRepository.SaveChangesAsync(cancellationToken);
+
+                return Results.Ok(ToConversationResponse(conversation));
             }
-            else
+        );
+
+        group.MapPut(
+            "/{conversationId:guid}/settings",
+            async (
+                Guid conversationId,
+                UpdateConversationSettingsRequest request,
+                IConversationRepository conversationRepository,
+                CancellationToken cancellationToken
+            ) =>
             {
-                conversation.UserPersonaId = null;
-                conversation.UserPersona = null;
+                var conversation = await conversationRepository.GetByIdWithMessagesAsync(
+                    conversationId,
+                    cancellationToken
+                );
+                if (conversation is null)
+                {
+                    return Results.NotFound();
+                }
+
+                conversation.UserProfileId = request.UserProfileId;
+                conversation.RuntimeModelProfileOverrideId = request.RuntimeModelProfileOverrideId;
+                conversation.RuntimeGenerationPresetOverrideId =
+                    request.RuntimeGenerationPresetOverrideId;
+                conversation.UpdatedAt = DateTime.UtcNow;
+
+                await conversationRepository.SaveChangesAsync(cancellationToken);
+
+                return Results.Ok();
             }
-
-            conversation.UpdatedAt = DateTime.UtcNow;
-
-            await conversationRepository.SaveChangesAsync(cancellationToken);
-
-            return Results.Ok(ToConversationResponse(conversation));
-        });
-
-        group.MapPut("/{conversationId:guid}/settings", async (
-            Guid conversationId,
-            UpdateConversationSettingsRequest request,
-            IConversationRepository conversationRepository,
-            CancellationToken cancellationToken) =>
-        {
-            var conversation = await conversationRepository.GetByIdWithMessagesAsync(conversationId, cancellationToken);
-            if (conversation is null)
-            {
-                return Results.NotFound();
-            }
-
-            conversation.UserPersonaId = request.UserPersonaId;
-            conversation.RuntimeModelProfileOverrideId = request.RuntimeModelProfileOverrideId;
-            conversation.RuntimeGenerationPresetOverrideId = request.RuntimeGenerationPresetOverrideId;
-            conversation.UpdatedAt = DateTime.UtcNow;
-
-            await conversationRepository.SaveChangesAsync(cancellationToken);
-
-            return Results.Ok();
-        });
+        );
 
         return app;
     }
@@ -325,8 +411,8 @@ public static class ConversationsEndpoints
         new()
         {
             Id = conversation.Id,
-            CharacterId = conversation.CharacterId,
-            UserPersonaId = conversation.UserPersonaId,
+            AgentId = conversation.AgentId,
+            UserProfileId = conversation.UserProfileId,
             RuntimeModelProfileOverrideId = conversation.RuntimeModelProfileOverrideId,
             RuntimeGenerationPresetOverrideId = conversation.RuntimeGenerationPresetOverrideId,
             ParentConversationId = conversation.ParentConversationId,
@@ -337,20 +423,18 @@ public static class ConversationsEndpoints
             Title = conversation.Title,
             CreatedAt = conversation.CreatedAt,
             UpdatedAt = conversation.UpdatedAt,
-            Messages = conversation.Messages
-                .OrderBy(x => x.SequenceNumber)
+            Messages = conversation
+                .Messages.OrderBy(x => x.SequenceNumber)
                 .Select(ToMessageResponse)
-                .ToList()
+                .ToList(),
         };
 
     private static MessageResponse ToMessageResponse(Message message)
     {
-        var orderedVariants = message.Variants
-            .OrderBy(x => x.VariantIndex)
-            .ToList();
+        var orderedVariants = message.Variants.OrderBy(x => x.VariantIndex).ToList();
 
-        var selectedVariant = orderedVariants
-            .FirstOrDefault(x => x.VariantIndex == message.SelectedVariantIndex)
+        var selectedVariant =
+            orderedVariants.FirstOrDefault(x => x.VariantIndex == message.SelectedVariantIndex)
             ?? orderedVariants.FirstOrDefault();
 
         return new MessageResponse
@@ -379,19 +463,20 @@ public static class ConversationsEndpoints
                     RuntimeSource = x.RuntimeSourceType?.ToString(),
                     GenerationStartedAt = x.GenerationStartedAt,
                     GenerationCompletedAt = x.GenerationCompletedAt,
-                    ResponseTimeMs = x.ResponseTimeMs
+                    ResponseTimeMs = x.ResponseTimeMs,
                 })
                 .ToList(),
-            SelectedProvider = selectedVariant?.ProviderType.HasValue == true
-                ? ModelRoute.ProviderToWireValue(selectedVariant.ProviderType.Value)
-                : null,
+            SelectedProvider =
+                selectedVariant?.ProviderType.HasValue == true
+                    ? ModelRoute.ProviderToWireValue(selectedVariant.ProviderType.Value)
+                    : null,
             SelectedModelIdentifier = selectedVariant?.ModelIdentifier,
             SelectedModelProfileId = selectedVariant?.ModelProfileId,
             SelectedGenerationPresetId = selectedVariant?.GenerationPresetId,
             SelectedRuntimeSource = selectedVariant?.RuntimeSourceType?.ToString(),
             SelectedGenerationStartedAt = selectedVariant?.GenerationStartedAt,
             SelectedGenerationCompletedAt = selectedVariant?.GenerationCompletedAt,
-            SelectedResponseTimeMs = selectedVariant?.ResponseTimeMs
+            SelectedResponseTimeMs = selectedVariant?.ResponseTimeMs,
         };
     }
 }

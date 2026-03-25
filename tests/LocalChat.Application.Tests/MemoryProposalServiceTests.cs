@@ -2,7 +2,7 @@ using LocalChat.Application.Abstractions.Inference;
 using LocalChat.Application.Abstractions.Persistence;
 using LocalChat.Application.Features.Memory;
 using LocalChat.Application.Memory;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Enums;
@@ -12,22 +12,22 @@ namespace LocalChat.Application.Tests;
 public sealed class MemoryProposalServiceTests
 {
     [Fact]
-    public async Task GenerateForConversationAsync_ReplacesSceneStateByFamily_WhenFamilyEnforcementEnabled()
+    public async Task GenerateForConversationAsync_ReplacesSessionStateByFamily_WhenFamilyEnforcementEnabled()
     {
         var fixture = CreateFixture();
 
         fixture.MemoryRepository.Items.Add(new MemoryItem
         {
             Id = Guid.NewGuid(),
-            CharacterId = fixture.CharacterId,
+            AgentId = fixture.AgentId,
             ConversationId = fixture.ConversationId,
-            Category = MemoryCategory.SceneState,
-            Kind = MemoryKind.SceneState,
-            Content = "The character is currently wearing a yellow sundress.",
+            Category = MemoryCategory.SessionState,
+            Kind = MemoryKind.SessionState,
+            Content = "The agent is currently wearing a yellow sundress.",
             ReviewStatus = MemoryReviewStatus.Accepted,
             ConfidenceScore = 0.92,
-            NormalizedKey = "SceneState:the character is currently wearing a yellow sundress",
-            SlotKey = "scene.character.outfit",
+            NormalizedKey = "SessionState:the agent is currently wearing a yellow sundress",
+            SlotKey = "scene.agent.outfit",
             SlotFamily = MemorySlotFamily.Outfit,
             ExpiresAt = DateTime.UtcNow.AddHours(2),
             CreatedAt = DateTime.UtcNow,
@@ -40,9 +40,9 @@ public sealed class MemoryProposalServiceTests
             {
               "proposals": [
                 {
-                  "category": "SceneState",
-                  "content": "The character is currently wearing a black evening gown.",
-                  "slotKey": "scene.character.formal-outfit",
+                  "category": "SessionState",
+                  "content": "The agent is currently wearing a black evening gown.",
+                  "slotKey": "scene.agent.formal-outfit",
                   "slotFamily": "Outfit",
                   "confidence": 0.95,
                   "reason": "Current outfit was explicitly stated.",
@@ -58,18 +58,18 @@ public sealed class MemoryProposalServiceTests
             new MemoryProposalOptions
             {
                 AutoAcceptDurableFacts = false,
-                EnforceSingleSceneStatePerFamily = true
+                EnforceSingleSessionStatePerFamily = true
             });
 
         var result = await service.GenerateForConversationAsync(fixture.ConversationId);
 
-        Assert.Equal(1, result.AutoSavedSceneStateCount);
-        Assert.Equal(1, result.SceneStateReplacedCount);
+        Assert.Equal(1, result.AutoSavedSessionStateCount);
+        Assert.Equal(1, result.SessionStateReplacedCount);
 
         Assert.Equal(2, fixture.MemoryRepository.Items.Count);
         var superseded = fixture.MemoryRepository.Items.Single(x => x.SupersededAtSequenceNumber.HasValue);
         var active = fixture.MemoryRepository.Items.Single(x => !x.SupersededAtSequenceNumber.HasValue);
-        Assert.Equal("The character is currently wearing a black evening gown.", active.Content);
+        Assert.Equal("The agent is currently wearing a black evening gown.", active.Content);
         Assert.Equal(MemorySlotFamily.Outfit, active.SlotFamily);
         Assert.NotNull(superseded.SupersededAtSequenceNumber);
         Assert.Contains(
@@ -85,7 +85,7 @@ public sealed class MemoryProposalServiceTests
         fixture.MemoryRepository.Items.Add(new MemoryItem
         {
             Id = Guid.NewGuid(),
-            CharacterId = fixture.CharacterId,
+            AgentId = fixture.AgentId,
             ConversationId = fixture.ConversationId,
             Category = MemoryCategory.UserFact,
             Kind = MemoryKind.DurableFact,
@@ -139,17 +139,17 @@ public sealed class MemoryProposalServiceTests
 
     private static TestFixture CreateFixture()
     {
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
         var conversationId = Guid.NewGuid();
 
         var conversation = new Conversation
         {
             Id = conversationId,
-            CharacterId = characterId,
+            AgentId = agentId,
             Title = "Memory Test",
-            Character = new Character
+            Agent = new Agent
             {
-                Id = characterId,
+                Id = agentId,
                 Name = "Elena",
                 Description = "Test",
                 Greeting = "Hi",
@@ -185,12 +185,12 @@ public sealed class MemoryProposalServiceTests
 
         return new TestFixture
         {
-            CharacterId = characterId,
+            AgentId = agentId,
             ConversationId = conversationId,
             ConversationRepository = new FakeConversationRepository(conversation),
             MemoryRepository = new FakeMemoryRepository(),
             MemoryOperationAuditService = new FakeMemoryOperationAuditService(),
-            SceneStateEventRepository = new FakeSceneStateExtractionEventRepository(),
+            SessionStateEventRepository = new FakeSessionStateExtractionEventRepository(),
             AuditRepository = new FakeMemoryExtractionAuditEventRepository()
         };
     }
@@ -214,13 +214,13 @@ public sealed class MemoryProposalServiceTests
             options,
             new MemoryPolicyService(),
             fixture.MemoryOperationAuditService,
-            fixture.SceneStateEventRepository,
+            fixture.SessionStateEventRepository,
             fixture.AuditRepository);
     }
 
     private sealed class TestFixture
     {
-        public required Guid CharacterId { get; init; }
+        public required Guid AgentId { get; init; }
 
         public required Guid ConversationId { get; init; }
 
@@ -230,26 +230,26 @@ public sealed class MemoryProposalServiceTests
 
         public required FakeMemoryOperationAuditService MemoryOperationAuditService { get; init; }
 
-        public required FakeSceneStateExtractionEventRepository SceneStateEventRepository { get; init; }
+        public required FakeSessionStateExtractionEventRepository SessionStateEventRepository { get; init; }
 
         public required FakeMemoryExtractionAuditEventRepository AuditRepository { get; init; }
     }
 
-    private sealed class FakeSceneStateExtractionEventRepository : ISceneStateExtractionEventRepository
+    private sealed class FakeSessionStateExtractionEventRepository : ISessionStateExtractionEventRepository
     {
-        public List<SceneStateExtractionEvent> Items { get; } = new();
+        public List<SessionStateExtractionEvent> Items { get; } = new();
 
-        public Task AddAsync(SceneStateExtractionEvent item, CancellationToken cancellationToken = default)
+        public Task AddAsync(SessionStateExtractionEvent item, CancellationToken cancellationToken = default)
         {
             Items.Add(item);
             return Task.CompletedTask;
         }
 
-        public Task<IReadOnlyList<SceneStateExtractionEvent>> ListByConversationAsync(
+        public Task<IReadOnlyList<SessionStateExtractionEvent>> ListByConversationAsync(
             Guid conversationId,
             int maxCount = 100,
             CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<SceneStateExtractionEvent>>(Items
+            => Task.FromResult<IReadOnlyList<SessionStateExtractionEvent>>(Items
                 .Where(x => x.ConversationId == conversationId)
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(maxCount)
@@ -269,7 +269,7 @@ public sealed class MemoryProposalServiceTests
             Guid? sourceMemoryItemId = null,
             Guid? targetMemoryItemId = null,
             Guid? conversationId = null,
-            Guid? characterId = null,
+            Guid? agentId = null,
             int? messageSequenceNumber = null,
             string? note = null,
             CancellationToken cancellationToken = default)
@@ -318,7 +318,7 @@ public sealed class MemoryProposalServiceTests
         public Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default)
             => Task.FromResult<Conversation?>(null);
 
-        public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<Conversation>>(new[] { _conversation });
 
         public Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default)
@@ -362,24 +362,24 @@ public sealed class MemoryProposalServiceTests
         public Task<IReadOnlyList<MemoryItem>> ListByConversationAsync(Guid conversationId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<MemoryItem>>(Items.Where(x => x.ConversationId == conversationId).ToList());
 
-        public Task<IReadOnlyList<MemoryItem>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<MemoryItem>>(Items.Where(x => x.CharacterId == characterId).ToList());
+        public Task<IReadOnlyList<MemoryItem>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<MemoryItem>>(Items.Where(x => x.AgentId == agentId).ToList());
 
-        public Task<IReadOnlyList<MemoryItem>> ListForProposalComparisonAsync(Guid characterId, Guid conversationId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<MemoryItem>> ListForProposalComparisonAsync(Guid agentId, Guid conversationId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<MemoryItem>>(Items.ToList());
 
-        public Task<MemoryItem?> FindActiveByNormalizedKeyAsync(Guid characterId, Guid? conversationId, string normalizedKey, MemoryKind kind, CancellationToken cancellationToken = default)
+        public Task<MemoryItem?> FindActiveByNormalizedKeyAsync(Guid agentId, Guid? conversationId, string normalizedKey, MemoryKind kind, CancellationToken cancellationToken = default)
             => Task.FromResult(Items.FirstOrDefault(x =>
-                x.CharacterId == characterId &&
+                x.AgentId == agentId &&
                 x.ConversationId == conversationId &&
                 x.NormalizedKey == normalizedKey &&
                 x.Kind == kind &&
                 x.ReviewStatus == MemoryReviewStatus.Accepted));
 
-        public Task<MemoryItem?> FindTrackedBySlotAsync(Guid characterId, Guid? conversationId, string slotKey, MemoryKind kind, CancellationToken cancellationToken = default)
+        public Task<MemoryItem?> FindTrackedBySlotAsync(Guid agentId, Guid? conversationId, string slotKey, MemoryKind kind, CancellationToken cancellationToken = default)
             => Task.FromResult(Items
                 .Where(x =>
-                    x.CharacterId == characterId &&
+                    x.AgentId == agentId &&
                     x.ConversationId == conversationId &&
                     x.Kind == kind &&
                     x.SlotKey == slotKey &&
@@ -388,10 +388,10 @@ public sealed class MemoryProposalServiceTests
                 .ThenByDescending(x => x.UpdatedAt)
                 .FirstOrDefault());
 
-        public Task<MemoryItem?> FindTrackedByFamilyAsync(Guid characterId, Guid? conversationId, MemorySlotFamily slotFamily, MemoryKind kind, CancellationToken cancellationToken = default)
+        public Task<MemoryItem?> FindTrackedByFamilyAsync(Guid agentId, Guid? conversationId, MemorySlotFamily slotFamily, MemoryKind kind, CancellationToken cancellationToken = default)
             => Task.FromResult(Items
                 .Where(x =>
-                    x.CharacterId == characterId &&
+                    x.AgentId == agentId &&
                     x.ConversationId == conversationId &&
                     x.Kind == kind &&
                     x.SlotFamily == slotFamily &&
@@ -400,7 +400,7 @@ public sealed class MemoryProposalServiceTests
                 .ThenByDescending(x => x.UpdatedAt)
                 .FirstOrDefault());
 
-        public Task<int> DeleteExpiredSceneStateAsync(DateTime utcNow, CancellationToken cancellationToken = default)
+        public Task<int> DeleteExpiredSessionStateAsync(DateTime utcNow, CancellationToken cancellationToken = default)
             => Task.FromResult(0);
 
         public Task<int> DeleteByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)

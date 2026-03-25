@@ -1,6 +1,6 @@
 using LocalChat.Application.Prompting.Composition;
 using LocalChat.Application.Abstractions.Prompting;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 
 namespace LocalChat.Application.Inspection;
@@ -27,9 +27,9 @@ public sealed class ContextInspectionResult
 
     public IReadOnlyList<PromptSection> Sections { get; init; } = Array.Empty<PromptSection>();
 
-    public IReadOnlyList<PromptSceneStateSelectedDebugItem> SelectedSceneState { get; init; } = Array.Empty<PromptSceneStateSelectedDebugItem>();
+    public IReadOnlyList<PromptSessionStateSelectedDebugItem> SelectedSessionState { get; init; } = Array.Empty<PromptSessionStateSelectedDebugItem>();
 
-    public IReadOnlyList<PromptSceneStateSuppressedDebugItem> SuppressedSceneState { get; init; } = Array.Empty<PromptSceneStateSuppressedDebugItem>();
+    public IReadOnlyList<PromptSessionStateSuppressedDebugItem> SuppressedSessionState { get; init; } = Array.Empty<PromptSessionStateSuppressedDebugItem>();
 
     public IReadOnlyList<PromptDurableMemorySelectedDebugItem> SelectedDurableMemory { get; init; } = Array.Empty<PromptDurableMemorySelectedDebugItem>();
 

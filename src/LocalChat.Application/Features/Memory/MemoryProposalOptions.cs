@@ -12,25 +12,25 @@ public sealed class MemoryProposalOptions
 
     public bool AutoAcceptDurableFacts { get; set; } = false;
 
-    public double AutoSceneStateMinConfidence { get; set; } = 0.72;
+    public double AutoSessionStateMinConfidence { get; set; } = 0.72;
 
-    public double AutoSceneStateMinSceneBound { get; set; } = 0.60;
+    public double AutoSessionStateMinSceneBound { get; set; } = 0.60;
 
-    public int SceneStateTtlHoursDefault { get; set; } = 8;
+    public int SessionStateTtlHoursDefault { get; set; } = 8;
 
-    public int SceneStateTtlHoursOutfit { get; set; } = 6;
+    public int SessionStateTtlHoursOutfit { get; set; } = 6;
 
-    public int SceneStateTtlHoursLocation { get; set; } = 8;
+    public int SessionStateTtlHoursLocation { get; set; } = 8;
 
-    public int SceneStateTtlHoursPoseAction { get; set; } = 4;
+    public int SessionStateTtlHoursPoseAction { get; set; } = 4;
 
-    public int SceneStateTtlHoursPossession { get; set; } = 6;
+    public int SessionStateTtlHoursPossession { get; set; } = 6;
 
-    public int SceneStateTtlHoursEmotionalState { get; set; } = 2;
+    public int SessionStateTtlHoursEmotionalState { get; set; } = 2;
 
-    public int SceneStateTtlHoursRelationshipState { get; set; } = 10;
+    public int SessionStateTtlHoursRelationshipState { get; set; } = 10;
 
-    public int SceneStateTtlHoursMisc { get; set; } = 6;
+    public int SessionStateTtlHoursMisc { get; set; } = 6;
 
     public double AutoDurableAcceptMinConfidence { get; set; } = 0.98;
 
@@ -42,5 +42,5 @@ public sealed class MemoryProposalOptions
 
     public double AutoDurableAcceptMaxConflictRisk { get; set; } = 0.15;
 
-    public bool EnforceSingleSceneStatePerFamily { get; set; } = true;
+    public bool EnforceSingleSessionStatePerFamily { get; set; } = true;
 }

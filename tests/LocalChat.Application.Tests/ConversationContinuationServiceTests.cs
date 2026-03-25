@@ -6,9 +6,9 @@ using LocalChat.Application.Background;
 using LocalChat.Application.Chat;
 using LocalChat.Application.Inspection;
 using LocalChat.Application.Prompting.Composition;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Models;
 using LocalChat.Domain.Enums;
@@ -20,19 +20,19 @@ public sealed class ConversationContinuationServiceTests
     [Fact]
     public async Task ContinueConversationAsync_AppendsAssistantMessage_AndSchedulesBackgroundWork()
     {
-        var characterId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
         var conversationId = Guid.NewGuid();
 
         var conversation = new Conversation
         {
             Id = conversationId,
-            CharacterId = characterId,
+            AgentId = agentId,
             Title = "Test Conversation",
-            Character = new Character
+            Agent = new Agent
             {
-                Id = characterId,
+                Id = agentId,
                 Name = "Cassandra",
-                Description = "Test character",
+                Description = "Test agent",
                 Greeting = "Hi",
                 PersonalityDefinition = "Immersive",
                 Scenario = "Bar scene",
@@ -120,7 +120,7 @@ public sealed class ConversationContinuationServiceTests
         public Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default)
             => Task.FromResult(_conversation.Messages.Any(x => x.Id == messageId) ? _conversation : null);
 
-        public Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<Conversation>>(new[] { _conversation });
 
         public Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default)
@@ -177,8 +177,8 @@ public sealed class ConversationContinuationServiceTests
             {
                 Prompt = "continue prompt",
                 Sections = Array.Empty<PromptSection>(),
-                SelectedSceneState = Array.Empty<PromptSceneStateSelectedDebugItem>(),
-                SuppressedSceneState = Array.Empty<PromptSceneStateSuppressedDebugItem>(),
+                SelectedSessionState = Array.Empty<PromptSessionStateSelectedDebugItem>(),
+                SuppressedSessionState = Array.Empty<PromptSessionStateSuppressedDebugItem>(),
                 SelectedDurableMemory = Array.Empty<PromptDurableMemorySelectedDebugItem>(),
                 SuppressedDurableMemory = Array.Empty<PromptDurableMemorySuppressedDebugItem>()
             };
@@ -211,7 +211,7 @@ public sealed class ConversationContinuationServiceTests
             => Task.CompletedTask;
 
         public Task IndexLoreEntryAsync(
-            Guid characterId,
+            Guid agentId,
             LoreEntry loreEntry,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
@@ -223,7 +223,7 @@ public sealed class ConversationContinuationServiceTests
             => Task.CompletedTask;
 
         public Task<RetrievalInspectionResult> InspectAsync(
-            Guid characterId,
+            Guid agentId,
             Guid? conversationId,
             string query,
             CancellationToken cancellationToken = default)

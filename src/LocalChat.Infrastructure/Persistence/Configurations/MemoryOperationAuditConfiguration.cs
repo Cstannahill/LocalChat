@@ -28,7 +28,7 @@ public sealed class MemoryOperationAuditConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.ConversationId)
             .IsRequired(false);
 
-        builder.Property(x => x.CharacterId)
+        builder.Property(x => x.AgentId)
             .IsRequired(false);
 
         builder.Property(x => x.MessageSequenceNumber)

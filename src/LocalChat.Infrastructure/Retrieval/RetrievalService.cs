@@ -2,7 +2,7 @@ using LocalChat.Application.Abstractions.Inference;
 using LocalChat.Application.Abstractions.Retrieval;
 using LocalChat.Application.Inspection;
 using LocalChat.Application.Memory;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Enums;
 using LocalChat.Infrastructure.Options;
@@ -48,7 +48,7 @@ public sealed class RetrievalService : IRetrievalService
     {
         if (
             memoryItem.ReviewStatus != MemoryReviewStatus.Accepted
-            || !memoryItem.CharacterId.HasValue
+            || !memoryItem.AgentId.HasValue
             || string.IsNullOrWhiteSpace(memoryItem.Content)
         )
         {
@@ -65,7 +65,7 @@ public sealed class RetrievalService : IRetrievalService
                 {
                     SourceId = memoryItem.Id,
                     SourceType = MemorySourceType,
-                    CharacterId = memoryItem.CharacterId.Value,
+                    AgentId = memoryItem.AgentId.Value,
                     ConversationId = memoryItem.ConversationId,
                     Content = memoryItem.Content,
                     Embedding = embedding,
@@ -78,7 +78,7 @@ public sealed class RetrievalService : IRetrievalService
     }
 
     public async Task IndexLoreEntryAsync(
-        Guid characterId,
+        Guid agentId,
         LoreEntry loreEntry,
         CancellationToken cancellationToken = default
     )
@@ -105,7 +105,7 @@ public sealed class RetrievalService : IRetrievalService
                 {
                     SourceId = loreEntry.Id,
                     SourceType = LoreSourceType,
-                    CharacterId = characterId,
+                    AgentId = agentId,
                     ConversationId = null,
                     Content = content,
                     Embedding = embedding,
@@ -127,7 +127,7 @@ public sealed class RetrievalService : IRetrievalService
     }
 
     public async Task<RetrievalInspectionResult> InspectAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
         string query,
         CancellationToken cancellationToken = default
@@ -152,9 +152,9 @@ public sealed class RetrievalService : IRetrievalService
             {
                 QueryEmbedding = queryEmbedding,
                 SourceTypes = new[] { MemorySourceType },
-                CharacterId = characterId,
+                AgentId = agentId,
                 ConversationId = conversationId,
-                IncludeGlobalCharacterItems = true,
+                IncludeGlobalAgentItems = true,
                 IncludeGlobalConversationItems = true,
                 TopK = _options.CandidatePoolSize
             },
@@ -166,9 +166,9 @@ public sealed class RetrievalService : IRetrievalService
             {
                 QueryEmbedding = queryEmbedding,
                 SourceTypes = new[] { LoreSourceType },
-                CharacterId = characterId,
+                AgentId = agentId,
                 ConversationId = null,
-                IncludeGlobalCharacterItems = true,
+                IncludeGlobalAgentItems = true,
                 IncludeGlobalConversationItems = true,
                 TopK = _options.CandidatePoolSize
             },

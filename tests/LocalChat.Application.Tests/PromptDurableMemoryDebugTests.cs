@@ -1,6 +1,6 @@
 using LocalChat.Application.Abstractions.Inference;
 using LocalChat.Application.Prompting.Composition;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Enums;
@@ -14,7 +14,7 @@ public sealed class PromptDurableMemoryDebugTests
     {
         var composer = new PromptComposer(new FakeTokenEstimator());
 
-        var character = new Character
+        var agent = new Agent
         {
             Id = Guid.NewGuid(),
             Name = "Elena",
@@ -28,7 +28,7 @@ public sealed class PromptDurableMemoryDebugTests
         var conversation = new Conversation
         {
             Id = Guid.NewGuid(),
-            CharacterId = character.Id,
+            AgentId = agent.Id,
             Title = "Test",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -36,7 +36,7 @@ public sealed class PromptDurableMemoryDebugTests
 
         var result = composer.Compose(new LocalChat.Application.Prompting.Composition.PromptCompositionContext
         {
-            Character = character,
+            Agent = agent,
             Conversation = conversation,
             CurrentUserMessage = "Continue.",
             ExplicitMemories = Enumerable.Range(1, 40)

@@ -36,31 +36,31 @@ public sealed class MemoryRepository : IMemoryRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<MemoryItem>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MemoryItem>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.MemoryItems
             .AsNoTracking()
-            .Where(x => x.CharacterId == characterId)
+            .Where(x => x.AgentId == agentId)
             .OrderByDescending(x => x.IsPinned)
             .ThenByDescending(x => x.UpdatedAt)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<MemoryItem>> ListForProposalComparisonAsync(
-        Guid characterId,
+        Guid agentId,
         Guid conversationId,
         CancellationToken cancellationToken = default)
     {
         return await _dbContext.MemoryItems
             .Where(x =>
-                x.CharacterId == characterId &&
+                x.AgentId == agentId &&
                 (x.ConversationId == null || x.ConversationId == conversationId) &&
                 x.ReviewStatus != MemoryReviewStatus.Rejected)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<MemoryItem?> FindActiveByNormalizedKeyAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
         string normalizedKey,
         MemoryKind kind,
@@ -69,17 +69,17 @@ public sealed class MemoryRepository : IMemoryRepository
         return await _dbContext.MemoryItems
             .FirstOrDefaultAsync(
                 x =>
-                    x.CharacterId == characterId &&
+                    x.AgentId == agentId &&
                     x.ConversationId == conversationId &&
                     x.Kind == kind &&
                     x.NormalizedKey == normalizedKey &&
                     x.ReviewStatus == MemoryReviewStatus.Accepted &&
-                    (kind != MemoryKind.SceneState || x.SupersededAtSequenceNumber == null),
+                    (kind != MemoryKind.SessionState || x.SupersededAtSequenceNumber == null),
                 cancellationToken);
     }
 
     public async Task<MemoryItem?> FindTrackedBySlotAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
         string slotKey,
         MemoryKind kind,
@@ -87,19 +87,19 @@ public sealed class MemoryRepository : IMemoryRepository
     {
         return await _dbContext.MemoryItems
             .Where(x =>
-                x.CharacterId == characterId &&
+                x.AgentId == agentId &&
                 x.ConversationId == conversationId &&
                 x.Kind == kind &&
                 x.SlotKey == slotKey &&
                 x.ReviewStatus != MemoryReviewStatus.Rejected &&
-                (kind != MemoryKind.SceneState || x.SupersededAtSequenceNumber == null))
+                (kind != MemoryKind.SessionState || x.SupersededAtSequenceNumber == null))
             .OrderByDescending(x => x.ReviewStatus == MemoryReviewStatus.Accepted)
             .ThenByDescending(x => x.UpdatedAt)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<MemoryItem?> FindTrackedByFamilyAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
         MemorySlotFamily slotFamily,
         MemoryKind kind,
@@ -107,18 +107,18 @@ public sealed class MemoryRepository : IMemoryRepository
     {
         return await _dbContext.MemoryItems
             .Where(x =>
-                x.CharacterId == characterId &&
+                x.AgentId == agentId &&
                 x.ConversationId == conversationId &&
                 x.Kind == kind &&
                 x.SlotFamily == slotFamily &&
                 x.ReviewStatus != MemoryReviewStatus.Rejected &&
-                (kind != MemoryKind.SceneState || x.SupersededAtSequenceNumber == null))
+                (kind != MemoryKind.SessionState || x.SupersededAtSequenceNumber == null))
             .OrderByDescending(x => x.ReviewStatus == MemoryReviewStatus.Accepted)
             .ThenByDescending(x => x.UpdatedAt)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<int> DeleteExpiredSceneStateAsync(
+    public async Task<int> DeleteExpiredSessionStateAsync(
         DateTime utcNow,
         CancellationToken cancellationToken = default)
     {
@@ -126,7 +126,7 @@ public sealed class MemoryRepository : IMemoryRepository
 
         var expired = await _dbContext.MemoryItems
             .Where(x =>
-                x.Kind == MemoryKind.SceneState &&
+                x.Kind == MemoryKind.SessionState &&
                 x.SupersededAtSequenceNumber != null)
             .ToListAsync(cancellationToken);
 

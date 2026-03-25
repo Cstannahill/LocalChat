@@ -12,7 +12,7 @@ public sealed class BackgroundProposalRunResult
 
     public required int CreatedProposalCount { get; init; }
 
-    public required int AutoSavedSceneStateCount { get; init; }
+    public required int AutoSavedSessionStateCount { get; init; }
 
     public required int AutoAcceptedDurableCount { get; init; }
 

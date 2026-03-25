@@ -1,9 +1,9 @@
 using LocalChat.Application.Abstractions.Persistence;
-using LocalChat.Contracts.Characters;
+using LocalChat.Contracts.Agents;
 using LocalChat.Contracts.ImportExport;
-using LocalChat.Contracts.Personas;
-using LocalChat.Domain.Entities.Characters;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Contracts.UserProfiles;
+using LocalChat.Domain.Entities.Agents;
+using LocalChat.Domain.Entities.UserProfiles;
 
 namespace LocalChat.Api.Endpoints;
 
@@ -14,31 +14,31 @@ public static class ImportExportEndpoints
         var group = app.MapGroup("/api/import-export")
             .WithTags("ImportExport");
 
-        group.MapGet("/characters/{id:guid}", async (
+        group.MapGet("/agents/{id:guid}", async (
             Guid id,
-            ICharacterRepository repository,
+            IAgentRepository repository,
             CancellationToken cancellationToken) =>
         {
-            var character = await repository.GetByIdWithDetailsAsync(id, cancellationToken);
-            if (character is null)
+            var agent = await repository.GetByIdWithDetailsAsync(id, cancellationToken);
+            if (agent is null)
             {
                 return Results.NotFound();
             }
 
-            var model = new CharacterPortableModel
+            var model = new AgentPortableModel
             {
-                Name = character.Name,
-                Description = character.Description,
-                Greeting = character.Greeting,
-                PersonalityDefinition = character.PersonalityDefinition,
-                Scenario = character.Scenario,
-                DefaultTtsVoice = character.DefaultTtsVoice,
-                DefaultVisualStylePreset = character.DefaultVisualStylePreset,
-                DefaultVisualPromptPrefix = character.DefaultVisualPromptPrefix,
-                DefaultVisualNegativePrompt = character.DefaultVisualNegativePrompt,
-                SampleDialogues = character.SampleDialogues
+                Name = agent.Name,
+                Description = agent.Description,
+                Greeting = agent.Greeting,
+                PersonalityDefinition = agent.PersonalityDefinition,
+                Scenario = agent.Scenario,
+                DefaultTtsVoice = agent.DefaultTtsVoice,
+                DefaultVisualStylePreset = agent.DefaultVisualStylePreset,
+                DefaultVisualPromptPrefix = agent.DefaultVisualPromptPrefix,
+                DefaultVisualNegativePrompt = agent.DefaultVisualNegativePrompt,
+                SampleDialogues = agent.SampleDialogues
                     .OrderBy(x => x.SortOrder)
-                    .Select(x => new CharacterSampleDialogueRequest
+                    .Select(x => new AgentSampleDialogueRequest
                     {
                         UserMessage = x.UserMessage,
                         AssistantMessage = x.AssistantMessage
@@ -49,12 +49,12 @@ public static class ImportExportEndpoints
             return Results.Ok(model);
         });
 
-        group.MapPost("/characters", async (
-            CharacterPortableModel model,
-            ICharacterRepository repository,
+        group.MapPost("/agents", async (
+            AgentPortableModel model,
+            IAgentRepository repository,
             CancellationToken cancellationToken) =>
         {
-            var character = new Character
+            var agent = new Agent
             {
                 Id = Guid.NewGuid(),
                 Name = model.Name.Trim(),
@@ -72,7 +72,7 @@ public static class ImportExportEndpoints
                     .Where(x =>
                         !string.IsNullOrWhiteSpace(x.UserMessage) &&
                         !string.IsNullOrWhiteSpace(x.AssistantMessage))
-                    .Select((x, index) => new CharacterSampleDialogue
+                    .Select((x, index) => new AgentSampleDialogue
                     {
                         Id = Guid.NewGuid(),
                         UserMessage = x.UserMessage.Trim(),
@@ -82,12 +82,12 @@ public static class ImportExportEndpoints
                     .ToList()
             };
 
-            await repository.AddAsync(character, cancellationToken);
+            await repository.AddAsync(agent, cancellationToken);
             await repository.SaveChangesAsync(cancellationToken);
 
-            var created = await repository.GetByIdWithDetailsAsync(character.Id, cancellationToken);
+            var created = await repository.GetByIdWithDetailsAsync(agent.Id, cancellationToken);
 
-            return Results.Ok(new CharacterDetailResponse
+            return Results.Ok(new AgentDetailResponse
             {
                 Id = created!.Id,
                 Name = created.Name,
@@ -105,7 +105,7 @@ public static class ImportExportEndpoints
                 UpdatedAt = created.UpdatedAt,
                 SampleDialogues = created.SampleDialogues
                     .OrderBy(x => x.SortOrder)
-                    .Select(x => new CharacterSampleDialogueResponse
+                    .Select(x => new AgentSampleDialogueResponse
                     {
                         Id = x.Id,
                         UserMessage = x.UserMessage,
@@ -116,36 +116,36 @@ public static class ImportExportEndpoints
             });
         });
 
-        group.MapGet("/personas/{id:guid}", async (
+        group.MapGet("/userProfiles/{id:guid}", async (
             Guid id,
-            IUserPersonaRepository repository,
+            IUserProfileRepository repository,
             CancellationToken cancellationToken) =>
         {
-            var persona = await repository.GetByIdAsync(id, cancellationToken);
-            if (persona is null)
+            var userProfile = await repository.GetByIdAsync(id, cancellationToken);
+            if (userProfile is null)
             {
                 return Results.NotFound();
             }
 
-            var model = new PersonaPortableModel
+            var model = new UserProfilePortableModel
             {
-                Name = persona.Name,
-                DisplayName = persona.DisplayName,
-                Description = persona.Description,
-                Traits = persona.Traits,
-                Preferences = persona.Preferences,
-                AdditionalInstructions = persona.AdditionalInstructions
+                Name = userProfile.Name,
+                DisplayName = userProfile.DisplayName,
+                Description = userProfile.Description,
+                Traits = userProfile.Traits,
+                Preferences = userProfile.Preferences,
+                AdditionalInstructions = userProfile.AdditionalInstructions
             };
 
             return Results.Ok(model);
         });
 
-        group.MapPost("/personas", async (
-            PersonaPortableModel model,
-            IUserPersonaRepository repository,
+        group.MapPost("/userProfiles", async (
+            UserProfilePortableModel model,
+            IUserProfileRepository repository,
             CancellationToken cancellationToken) =>
         {
-            var persona = new UserPersona
+            var userProfile = new UserProfile
             {
                 Id = Guid.NewGuid(),
                 Name = model.Name.Trim(),
@@ -158,21 +158,21 @@ public static class ImportExportEndpoints
                 UpdatedAt = DateTime.UtcNow
             };
 
-            await repository.AddAsync(persona, cancellationToken);
+            await repository.AddAsync(userProfile, cancellationToken);
             await repository.SaveChangesAsync(cancellationToken);
 
-            return Results.Ok(new UserPersonaResponse
+            return Results.Ok(new UserProfileResponse
             {
-                Id = persona.Id,
-                Name = persona.Name,
-                DisplayName = persona.DisplayName,
-                Description = persona.Description,
-                Traits = persona.Traits,
-                Preferences = persona.Preferences,
-                AdditionalInstructions = persona.AdditionalInstructions,
-                IsDefault = persona.IsDefault,
-                CreatedAt = persona.CreatedAt,
-                UpdatedAt = persona.UpdatedAt
+                Id = userProfile.Id,
+                Name = userProfile.Name,
+                DisplayName = userProfile.DisplayName,
+                Description = userProfile.Description,
+                Traits = userProfile.Traits,
+                Preferences = userProfile.Preferences,
+                AdditionalInstructions = userProfile.AdditionalInstructions,
+                IsDefault = userProfile.IsDefault,
+                CreatedAt = userProfile.CreatedAt,
+                UpdatedAt = userProfile.UpdatedAt
             });
         });
 

@@ -15,18 +15,18 @@ public sealed class MemoryExtractionClassifier
         ExtractedMemoryCandidate candidate,
         bool hasConflict)
     {
-        if (candidate.Category == MemoryCategory.SceneState)
+        if (candidate.Category == MemoryCategory.SessionState)
         {
-            var isSceneState =
-                candidate.ConfidenceScore >= _options.AutoSceneStateMinConfidence &&
-                candidate.SceneBoundScore >= _options.AutoSceneStateMinSceneBound;
+            var isSessionState =
+                candidate.ConfidenceScore >= _options.AutoSessionStateMinConfidence &&
+                candidate.SceneBoundScore >= _options.AutoSessionStateMinSceneBound;
 
-            if (isSceneState)
+            if (isSessionState)
             {
                 return new MemoryExtractionDecision
                 {
-                    Category = MemoryCategory.SceneState,
-                    Kind = MemoryKind.SceneState,
+                    Category = MemoryCategory.SessionState,
+                    Kind = MemoryKind.SessionState,
                     ReviewStatus = MemoryReviewStatus.Accepted,
                     ExpiresAt = null,
                     Reason = "Scene-bound state was auto-saved."

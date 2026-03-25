@@ -14,9 +14,9 @@ public sealed class MemoryMaintenanceServiceTests
             new MemoryItem
             {
                 Id = Guid.NewGuid(),
-                Category = MemoryCategory.SceneState,
-                Kind = MemoryKind.SceneState,
-                Content = "The character is currently wearing a yellow sundress.",
+                Category = MemoryCategory.SessionState,
+                Kind = MemoryKind.SessionState,
+                Content = "The agent is currently wearing a yellow sundress.",
                 ReviewStatus = MemoryReviewStatus.Accepted,
                 NormalizedKey = null,
                 SlotKey = null,
@@ -60,22 +60,22 @@ public sealed class MemoryMaintenanceServiceTests
         public Task<IReadOnlyList<MemoryItem>> ListByConversationAsync(Guid conversationId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<MemoryItem>>(Items.Where(x => x.ConversationId == conversationId).ToList());
 
-        public Task<IReadOnlyList<MemoryItem>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<MemoryItem>>(Items.Where(x => x.CharacterId == characterId).ToList());
+        public Task<IReadOnlyList<MemoryItem>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<MemoryItem>>(Items.Where(x => x.AgentId == agentId).ToList());
 
-        public Task<IReadOnlyList<MemoryItem>> ListForProposalComparisonAsync(Guid characterId, Guid conversationId, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<MemoryItem>> ListForProposalComparisonAsync(Guid agentId, Guid conversationId, CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<MemoryItem>>(Items);
 
-        public Task<MemoryItem?> FindActiveByNormalizedKeyAsync(Guid characterId, Guid? conversationId, string normalizedKey, MemoryKind kind, CancellationToken cancellationToken = default)
+        public Task<MemoryItem?> FindActiveByNormalizedKeyAsync(Guid agentId, Guid? conversationId, string normalizedKey, MemoryKind kind, CancellationToken cancellationToken = default)
             => Task.FromResult<MemoryItem?>(null);
 
-        public Task<MemoryItem?> FindTrackedBySlotAsync(Guid characterId, Guid? conversationId, string slotKey, MemoryKind kind, CancellationToken cancellationToken = default)
+        public Task<MemoryItem?> FindTrackedBySlotAsync(Guid agentId, Guid? conversationId, string slotKey, MemoryKind kind, CancellationToken cancellationToken = default)
             => Task.FromResult<MemoryItem?>(null);
 
-        public Task<MemoryItem?> FindTrackedByFamilyAsync(Guid characterId, Guid? conversationId, MemorySlotFamily slotFamily, MemoryKind kind, CancellationToken cancellationToken = default)
+        public Task<MemoryItem?> FindTrackedByFamilyAsync(Guid agentId, Guid? conversationId, MemorySlotFamily slotFamily, MemoryKind kind, CancellationToken cancellationToken = default)
             => Task.FromResult<MemoryItem?>(null);
 
-        public Task<int> DeleteExpiredSceneStateAsync(DateTime utcNow, CancellationToken cancellationToken = default)
+        public Task<int> DeleteExpiredSessionStateAsync(DateTime utcNow, CancellationToken cancellationToken = default)
             => Task.FromResult(0);
 
         public Task<int> DeleteByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)

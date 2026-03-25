@@ -22,7 +22,7 @@ public static class MemoryExtractionInspectionEndpoints
                 ConversationId = result.ConversationId,
                 TotalEventCount = result.TotalEventCount,
                 DurableEventCount = result.DurableEventCount,
-                SceneStateEventCount = result.SceneStateEventCount,
+                SessionStateEventCount = result.SessionStateEventCount,
                 Events = result.Events.Select(x => new MemoryExtractionAuditItemResponse
                 {
                     EventId = x.EventId,

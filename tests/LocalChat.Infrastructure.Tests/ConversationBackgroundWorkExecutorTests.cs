@@ -8,7 +8,7 @@ namespace LocalChat.Infrastructure.Tests;
 public sealed class ConversationBackgroundWorkExecutorTests
 {
     [Fact]
-    public async Task ExecuteAsync_ReindexesAfterMemoryExtraction_WhenSceneStateWasAutoSaved()
+    public async Task ExecuteAsync_ReindexesAfterMemoryExtraction_WhenSessionStateWasAutoSaved()
     {
         var proposalService = new FakeMemoryProposalService
         {
@@ -16,9 +16,9 @@ public sealed class ConversationBackgroundWorkExecutorTests
             {
                 AttemptedCandidates = 2,
                 CreatedProposalCount = 0,
-                AutoSavedSceneStateCount = 1,
+                AutoSavedSessionStateCount = 1,
                 AutoAcceptedDurableCount = 0,
-                SceneStateReplacedCount = 0,
+                SessionStateReplacedCount = 0,
                 MergedDurableProposalCount = 0,
                 ConflictingDurableProposalCount = 0,
                 SkippedLowConfidenceCount = 0,
@@ -89,9 +89,9 @@ public sealed class ConversationBackgroundWorkExecutorTests
             {
                 AttemptedCandidates = 0,
                 CreatedProposalCount = 0,
-                AutoSavedSceneStateCount = 0,
+                AutoSavedSessionStateCount = 0,
                 AutoAcceptedDurableCount = 0,
-                SceneStateReplacedCount = 0,
+                SessionStateReplacedCount = 0,
                 MergedDurableProposalCount = 0,
                 ConflictingDurableProposalCount = 0,
                 SkippedLowConfidenceCount = 0,

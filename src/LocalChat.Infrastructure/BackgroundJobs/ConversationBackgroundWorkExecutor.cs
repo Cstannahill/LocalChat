@@ -60,15 +60,15 @@ public sealed class ConversationBackgroundWorkExecutor
                     cancellationToken);
 
                 shouldReindexAfterMemory =
-                    proposalResult.AutoSavedSceneStateCount > 0 ||
+                    proposalResult.AutoSavedSessionStateCount > 0 ||
                     proposalResult.AutoAcceptedDurableCount > 0;
 
                 _logger.LogInformation(
-                    "Conversation memory extraction completed. ConversationId={ConversationId}, Attempted={Attempted}, Proposals={Proposals}, AutoSceneState={AutoSceneState}, AutoAcceptedDurable={AutoAcceptedDurable}",
+                    "Conversation memory extraction completed. ConversationId={ConversationId}, Attempted={Attempted}, Proposals={Proposals}, AutoSessionState={AutoSessionState}, AutoAcceptedDurable={AutoAcceptedDurable}",
                     work.ConversationId,
                     proposalResult.AttemptedCandidates,
                     proposalResult.CreatedProposalCount,
-                    proposalResult.AutoSavedSceneStateCount,
+                    proposalResult.AutoSavedSessionStateCount,
                     proposalResult.AutoAcceptedDurableCount);
             }
             catch (Exception ex)

@@ -11,8 +11,8 @@ public sealed class MemoryProposalQualityEvaluatorTests
         var evaluator = new MemoryProposalQualityEvaluator();
 
         var family = evaluator.BuildSlotFamily(
-            MemoryCategory.SceneState,
-            "The character is currently wearing a yellow sundress.",
+            MemoryCategory.SessionState,
+            "The agent is currently wearing a yellow sundress.",
             null,
             null);
 
@@ -25,7 +25,7 @@ public sealed class MemoryProposalQualityEvaluatorTests
         var evaluator = new MemoryProposalQualityEvaluator();
 
         var family = evaluator.BuildSlotFamily(
-            MemoryCategory.SceneState,
+            MemoryCategory.SessionState,
             "They are currently standing on a balcony.",
             null,
             null);
@@ -39,8 +39,8 @@ public sealed class MemoryProposalQualityEvaluatorTests
         var evaluator = new MemoryProposalQualityEvaluator();
 
         var family = evaluator.BuildSlotFamily(
-            MemoryCategory.SceneState,
-            "The character is visibly nervous right now.",
+            MemoryCategory.SessionState,
+            "The agent is visibly nervous right now.",
             null,
             null);
 

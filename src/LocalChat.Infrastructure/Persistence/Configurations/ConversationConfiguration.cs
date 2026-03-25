@@ -37,22 +37,22 @@ public sealed class ConversationConfiguration : IEntityTypeConfiguration<Convers
         builder.Property(x => x.UpdatedAt)
             .IsRequired();
 
-        builder.HasIndex(x => x.CharacterId);
-        builder.HasIndex(x => x.UserPersonaId);
+        builder.HasIndex(x => x.AgentId);
+        builder.HasIndex(x => x.UserProfileId);
         builder.HasIndex(x => x.RuntimeModelProfileOverrideId);
         builder.HasIndex(x => x.RuntimeGenerationPresetOverrideId);
         builder.HasIndex(x => x.ParentConversationId);
         builder.HasIndex(x => x.BranchedFromMessageId);
         builder.HasIndex(x => x.UpdatedAt);
 
-        builder.HasOne(x => x.Character)
+        builder.HasOne(x => x.Agent)
             .WithMany(x => x.Conversations)
-            .HasForeignKey(x => x.CharacterId)
+            .HasForeignKey(x => x.AgentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.UserPersona)
+        builder.HasOne(x => x.UserProfile)
             .WithMany(x => x.Conversations)
-            .HasForeignKey(x => x.UserPersonaId)
+            .HasForeignKey(x => x.UserProfileId)
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(x => x.RuntimeModelProfileOverride)

@@ -100,7 +100,7 @@ public static class BackgroundWorkEndpoints
                     Message = "Memory extraction completed.",
                     AttemptedCandidates = result.AttemptedCandidates,
                     CreatedProposalCount = result.CreatedProposalCount,
-                    AutoSavedSceneStateCount = result.AutoSavedSceneStateCount,
+                    AutoSavedSessionStateCount = result.AutoSavedSessionStateCount,
                     AutoAcceptedDurableCount = result.AutoAcceptedDurableCount
                 });
             }

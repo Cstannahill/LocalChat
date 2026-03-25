@@ -95,7 +95,7 @@ public static class TtsEndpoints
         new()
         {
             Id = x.Id,
-            CharacterId = x.CharacterId,
+            AgentId = x.AgentId,
             ConversationId = x.ConversationId,
             MessageId = x.MessageId,
             Provider = x.Provider,

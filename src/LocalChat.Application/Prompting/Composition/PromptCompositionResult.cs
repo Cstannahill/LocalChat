@@ -8,9 +8,9 @@ public sealed class PromptCompositionResult
 
     public required IReadOnlyList<PromptSection> Sections { get; init; }
 
-    public required IReadOnlyList<PromptSceneStateSelectedDebugItem> SelectedSceneState { get; init; }
+    public required IReadOnlyList<PromptSessionStateSelectedDebugItem> SelectedSessionState { get; init; }
 
-    public required IReadOnlyList<PromptSceneStateSuppressedDebugItem> SuppressedSceneState { get; init; }
+    public required IReadOnlyList<PromptSessionStateSuppressedDebugItem> SuppressedSessionState { get; init; }
 
     public required IReadOnlyList<PromptDurableMemorySelectedDebugItem> SelectedDurableMemory { get; init; }
 

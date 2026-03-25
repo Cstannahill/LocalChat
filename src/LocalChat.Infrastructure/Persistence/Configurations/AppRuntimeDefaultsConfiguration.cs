@@ -12,7 +12,7 @@ public sealed class AppRuntimeDefaultsConfiguration : IEntityTypeConfiguration<A
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.DefaultPersonaId)
+        builder.Property(x => x.DefaultUserProfileId)
             .IsRequired(false);
 
         builder.Property(x => x.DefaultModelProfileId)

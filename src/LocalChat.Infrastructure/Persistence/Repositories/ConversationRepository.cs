@@ -18,9 +18,9 @@ public sealed class ConversationRepository : IConversationRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbContext.Conversations
-            .Include(x => x.Character)
+            .Include(x => x.Agent)
                 .ThenInclude(x => x!.SampleDialogues)
-            .Include(x => x.UserPersona)
+            .Include(x => x.UserProfile)
             .Include(x => x.Messages.OrderBy(m => m.SequenceNumber))
                 .ThenInclude(x => x.Variants.OrderBy(v => v.VariantIndex))
             .Include(x => x.SummaryCheckpoints.OrderBy(s => s.EndSequenceNumber))
@@ -44,13 +44,13 @@ public sealed class ConversationRepository : IConversationRepository
         return await GetByIdWithMessagesAsync(conversationId.Value, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Conversation>> ListByCharacterAsync(
-        Guid characterId,
+    public async Task<IReadOnlyList<Conversation>> ListByAgentAsync(
+        Guid agentId,
         CancellationToken cancellationToken = default)
     {
         return await _dbContext.Conversations
             .AsNoTracking()
-            .Where(x => x.CharacterId == characterId)
+            .Where(x => x.AgentId == agentId)
             .OrderByDescending(x => x.UpdatedAt)
             .ToListAsync(cancellationToken);
     }

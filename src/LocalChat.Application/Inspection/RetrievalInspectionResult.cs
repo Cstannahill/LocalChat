@@ -1,4 +1,4 @@
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 
 namespace LocalChat.Application.Inspection;

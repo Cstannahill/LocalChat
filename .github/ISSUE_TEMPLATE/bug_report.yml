@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a defect in behavior or reliability
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact reproduction steps.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, .NET SDK version, provider stack, and runtime mode.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or traces
+      description: Paste snippets only. Do not include API keys or tokens.

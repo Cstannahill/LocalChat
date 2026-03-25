@@ -1,0 +1,768 @@
+LocalChat
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── LocalChat.sln
+├── QUICKSTART.md
+├── README.md
+├── SECURITY.md
+├── docs
+│   ├── API_OVERVIEW.md
+│   ├── CONFIGURATION.md
+│   ├── OPERATIONS.md
+│   └── RELEASE_CHECKLIST.md
+├── src
+│   ├── LocalChat.Api
+│   │   ├── App_Data
+│   │   ├── ComfyUI
+│   │   │   └── text2img-workflow.json
+│   │   ├── Configuration
+│   │   │   ├── OptionsBindingExtensions.cs
+│   │   │   └── SwaggerConfiguration.cs
+│   │   ├── DependencyInjection
+│   │   │   └── ServiceCollectionExtensions.cs
+│   │   ├── Endpoints
+│   │   │   ├── AdminEndpoints.cs
+│   │   │   ├── AdminMaintenanceEndpoints.cs
+│   │   │   ├── AppRuntimeDefaultsEndpoints.cs
+│   │   │   ├── AuthoringAssistantEndpoints.cs
+│   │   │   ├── BackgroundWorkEndpoints.cs
+│   │   │   ├── CharactersEndpoints.cs
+│   │   │   ├── ChatEndpoints.cs
+│   │   │   ├── CommandsEndpoints.cs
+│   │   │   ├── ContinueChatEndpoints.cs
+│   │   │   ├── ConversationsEndpoints.cs
+│   │   │   ├── GenerationPromptSnapshotEndpoints.cs
+│   │   │   ├── ImageGenerationEndpoints.cs
+│   │   │   ├── ImportExportEndpoints.cs
+│   │   │   ├── InspectionEndpoints.cs
+│   │   │   ├── LorebookEndpoints.cs
+│   │   │   ├── MemoryAdminEndpoints.cs
+│   │   │   ├── MemoryEndpoints.cs
+│   │   │   ├── MemoryExtractionInspectionEndpoints.cs
+│   │   │   ├── ModelProfilesEndpoints.cs
+│   │   │   ├── PersonasEndpoints.cs
+│   │   │   ├── SceneStateInspectionEndpoints.cs
+│   │   │   ├── SuggestedUserMessageEndpoints.cs
+│   │   │   └── TtsEndpoints.cs
+│   │   ├── LocalChat.Api.csproj
+│   │   ├── LocalChat.Api.http
+│   │   ├── Mapping
+│   │   │   └── ContractMappingExtensions.cs
+│   │   ├── Middleware
+│   │   │   ├── CorrelationIdMiddleware.cs
+│   │   │   ├── ExceptionHandlingMiddleware.cs
+│   │   │   └── RequestLoggingMiddleware.cs
+│   │   ├── Program.cs
+│   │   ├── Properties
+│   │   │   └── launchSettings.json
+│   │   ├── Streaming
+│   │   │   ├── ChatStreamingMapper.cs
+│   │   │   ├── SseChatStreamWriter.cs
+│   │   │   └── SseEventNames.cs
+│   │   ├── Telemetry
+│   │   │   ├── RequestFlowLogWriter.cs
+│   │   │   ├── RequestFlowLoggingOptions.cs
+│   │   │   ├── RequestFlowState.cs
+│   │   │   └── RequestFlowTiming.cs
+│   │   ├── Validation
+│   │   ├── appsettings.json
+│   │   └── wwwroot
+│   │       ├── app.js
+│   │       ├── index.html
+│   │       └── styles.css
+│   ├── LocalChat.Application
+│   │   ├── Abstractions
+│   │   │   ├── BackgroundJobs
+│   │   │   │   ├── IBackgroundJobDispatcher.cs
+│   │   │   │   ├── IBackgroundJobHandler.cs
+│   │   │   │   └── IBackgroundJobQueue.cs
+│   │   │   ├── ImageGeneration
+│   │   │   │   ├── GeneratedImageBinary.cs
+│   │   │   │   ├── IGeneratedImageFileStore.cs
+│   │   │   │   ├── IImageGenerationProvider.cs
+│   │   │   │   ├── ImageGenerationProviderResult.cs
+│   │   │   │   └── ImageGenerationRequest.cs
+│   │   │   ├── Inference
+│   │   │   │   ├── IEmbeddingProvider.cs
+│   │   │   │   ├── IInferenceProvider.cs
+│   │   │   │   ├── IInferenceProviderFactory.cs
+│   │   │   │   ├── IModelContextService.cs
+│   │   │   │   ├── ITokenEstimator.cs
+│   │   │   │   ├── InferenceExecutionSettings.cs
+│   │   │   │   ├── ModelContextInfo.cs
+│   │   │   │   └── ModelRoute.cs
+│   │   │   ├── Persistence
+│   │   │   │   ├── IAppRuntimeDefaultsRepository.cs
+│   │   │   │   ├── IApplicationDbContext.cs
+│   │   │   │   ├── ICharacterRepository.cs
+│   │   │   │   ├── IConversationRepository.cs
+│   │   │   │   ├── IGenerationPresetRepository.cs
+│   │   │   │   ├── IGenerationPromptSnapshotRepository.cs
+│   │   │   │   ├── IImageGenerationJobRepository.cs
+│   │   │   │   ├── ILorebookRepository.cs
+│   │   │   │   ├── IMemoryExtractionAuditEventRepository.cs
+│   │   │   │   ├── IMemoryRepository.cs
+│   │   │   │   ├── IModelProfileRepository.cs
+│   │   │   │   ├── ISceneStateExtractionEventRepository.cs
+│   │   │   │   ├── ISpeechClipRepository.cs
+│   │   │   │   ├── IUnitOfWork.cs
+│   │   │   │   └── IUserPersonaRepository.cs
+│   │   │   ├── Prompting
+│   │   │   │   ├── IPromptBudgetAllocator.cs
+│   │   │   │   ├── IPromptComposer.cs
+│   │   │   │   ├── IPromptInspectionService.cs
+│   │   │   │   ├── IPromptSectionBuilder.cs
+│   │   │   │   ├── PromptDurableMemorySelectedDebugItem.cs
+│   │   │   │   ├── PromptDurableMemorySuppressedDebugItem.cs
+│   │   │   │   ├── PromptSceneStateSelectedDebugItem.cs
+│   │   │   │   └── PromptSceneStateSuppressedDebugItem.cs
+│   │   │   ├── Retrieval
+│   │   │   │   ├── IConversationRetrievalSyncService.cs
+│   │   │   │   ├── IFullRetrievalReindexService.cs
+│   │   │   │   ├── IRetrievalAdminService.cs
+│   │   │   │   ├── IRetrievalChunkBuilder.cs
+│   │   │   │   ├── IRetrievalService.cs
+│   │   │   │   ├── IVectorStore.cs
+│   │   │   │   ├── RetrievalAdminStats.cs
+│   │   │   │   ├── RetrievalReindexResult.cs
+│   │   │   │   ├── VectorDocument.cs
+│   │   │   │   ├── VectorSearchQuery.cs
+│   │   │   │   └── VectorSearchResult.cs
+│   │   │   ├── Speech
+│   │   │   │   ├── ISpeechFileStore.cs
+│   │   │   │   ├── ISpeechSynthesisProvider.cs
+│   │   │   │   ├── SpeechSynthesisRequest.cs
+│   │   │   │   └── SpeechSynthesisResult.cs
+│   │   │   ├── Storage
+│   │   │   │   ├── IExportService.cs
+│   │   │   │   └── IFileStorage.cs
+│   │   │   ├── Telemetry
+│   │   │   │   ├── IRequestFlowTiming.cs
+│   │   │   │   └── NullRequestFlowTiming.cs
+│   │   │   └── Time
+│   │   │       └── IClock.cs
+│   │   ├── Authoring
+│   │   │   ├── AuthoringAssistantService.cs
+│   │   │   ├── AuthoringConsistencyCheckInput.cs
+│   │   │   ├── AuthoringConsistencyCheckResult.cs
+│   │   │   ├── AuthoringConsistencyIssue.cs
+│   │   │   ├── AuthoringEnhancementInput.cs
+│   │   │   ├── AuthoringEnhancementResult.cs
+│   │   │   ├── AuthoringFieldTemplate.cs
+│   │   │   ├── AuthoringStarterPack.cs
+│   │   │   ├── CharacterConceptGenerationInput.cs
+│   │   │   ├── CharacterConceptGenerationResult.cs
+│   │   │   ├── ConsistencyIssueRepairInput.cs
+│   │   │   ├── FullAuthoringBundleGenerationInput.cs
+│   │   │   ├── FullAuthoringBundleGenerationResult.cs
+│   │   │   └── IAuthoringAssistantService.cs
+│   │   ├── Background
+│   │   │   ├── ConversationBackgroundWorkOptions.cs
+│   │   │   ├── ConversationBackgroundWorkType.cs
+│   │   │   ├── ConversationSummaryRefreshResult.cs
+│   │   │   ├── ConversationSummaryRefreshService.cs
+│   │   │   ├── IConversationBackgroundWorkScheduler.cs
+│   │   │   └── IConversationSummaryRefreshService.cs
+│   │   ├── Chat
+│   │   │   ├── AssistantGenerationProvenance.cs
+│   │   │   ├── AssistantMessageVariantFactory.cs
+│   │   │   ├── AssistantTurnGenerationService.cs
+│   │   │   ├── ChatOrchestrator.cs
+│   │   │   ├── ChatRequestFactory.cs
+│   │   │   ├── ChatResponseFinalizer.cs
+│   │   │   ├── ContinueConversationResult.cs
+│   │   │   ├── ConversationContinuationService.cs
+│   │   │   ├── ConversationMessageMutationService.cs
+│   │   │   ├── ConversationMessageSeeder.cs
+│   │   │   ├── GeneratedAssistantTurnResult.cs
+│   │   │   ├── GenerationStopRegistry.cs
+│   │   │   ├── IAssistantTurnGenerationService.cs
+│   │   │   ├── RegenerateAssistantMessageResult.cs
+│   │   │   ├── SelectMessageVariantResult.cs
+│   │   │   ├── SuggestedUserMessageResult.cs
+│   │   │   └── UserMessageSuggestionService.cs
+│   │   ├── DependencyInjection
+│   │   │   └── ServiceCollectionExtensions.cs
+│   │   ├── Features
+│   │   │   ├── Agents
+│   │   │   │   ├── CreateCharacter
+│   │   │   │   │   ├── CreateCharacterCommand.cs
+│   │   │   │   │   ├── CreateCharacterHandler.cs
+│   │   │   │   │   └── CreateCharacterValidator.cs
+│   │   │   │   ├── DeleteCharacter
+│   │   │   │   ├── GetCharacterById
+│   │   │   │   ├── ListCharacters
+│   │   │   │   └── UpdateCharacter
+│   │   │   ├── Chat
+│   │   │   │   ├── SendChatMessage
+│   │   │   │   │   ├── ChatContextLoader.cs
+│   │   │   │   │   ├── SendChatMessageCommand.cs
+│   │   │   │   │   ├── SendChatMessageHandler.cs
+│   │   │   │   │   └── SendChatMessageResult.cs
+│   │   │   │   ├── StopGeneration
+│   │   │   │   └── StreamChatResponse
+│   │   │   ├── Commands
+│   │   │   │   ├── CommandExecutionResult.cs
+│   │   │   │   ├── CommandOrchestrator.cs
+│   │   │   │   ├── CommandType.cs
+│   │   │   │   ├── ExecuteDirectorCommand
+│   │   │   │   ├── ExecuteSearchCommand
+│   │   │   │   ├── ParseSlashCommand
+│   │   │   │   ├── ParsedCommand.cs
+│   │   │   │   └── SlashCommandParser.cs
+│   │   │   ├── Conversations
+│   │   │   │   ├── AddUserMessage
+│   │   │   │   ├── BranchConversation
+│   │   │   │   ├── CreateConversation
+│   │   │   │   ├── GetConversation
+│   │   │   │   ├── ListConversations
+│   │   │   │   ├── RegenerateAssistantMessage
+│   │   │   │   └── SelectMessageVariant
+│   │   │   ├── ImportExport
+│   │   │   │   ├── ExportCharacter
+│   │   │   │   ├── ExportConversation
+│   │   │   │   ├── ImportCharacter
+│   │   │   │   └── RestoreBackup
+│   │   │   ├── KnowledgeBases
+│   │   │   │   ├── CreateLoreEntry
+│   │   │   │   ├── CreateLorebook
+│   │   │   │   ├── ListLoreEntries
+│   │   │   │   ├── UpdateLoreEntry
+│   │   │   │   └── UpdateLorebook
+│   │   │   ├── Memory
+│   │   │   │   ├── ApproveMemoryProposal
+│   │   │   │   ├── CreateMemoryItem
+│   │   │   │   ├── ExtractedMemoryCandidate.cs
+│   │   │   │   ├── IMemoryMaintenanceService.cs
+│   │   │   │   ├── IMemoryProposalService.cs
+│   │   │   │   ├── ISceneStateCleanupService.cs
+│   │   │   │   ├── ListMemoryItems
+│   │   │   │   ├── MemoryExtractionClassifier.cs
+│   │   │   │   ├── MemoryExtractionDecision.cs
+│   │   │   │   ├── MemoryMaintenanceService.cs
+│   │   │   │   ├── MemoryProposalCandidate.cs
+│   │   │   │   ├── MemoryProposalGenerationResult.cs
+│   │   │   │   ├── MemoryProposalOptions.cs
+│   │   │   │   ├── MemoryProposalQualityEvaluator.cs
+│   │   │   │   ├── MemoryProposalService.cs
+│   │   │   │   ├── MemoryRepairKeysResult.cs
+│   │   │   │   ├── PinMemoryItem
+│   │   │   │   ├── RejectMemoryProposal
+│   │   │   │   ├── SceneStateCleanupOptions.cs
+│   │   │   │   ├── SceneStateCleanupResult.cs
+│   │   │   │   ├── SceneStateCleanupService.cs
+│   │   │   │   └── SceneStateTtlPolicyResolver.cs
+│   │   │   ├── ModelProfiles
+│   │   │   │   ├── CreateGenerationPreset
+│   │   │   │   ├── CreateModelProfile
+│   │   │   │   └── ListModelProfiles
+│   │   │   ├── UserProfiles
+│   │   │   │   ├── CreateUserPersona
+│   │   │   │   ├── GetUserPersona
+│   │   │   │   ├── ListUserPersonas
+│   │   │   │   └── UpdateUserPersona
+│   │   │   ├── Retrieval
+│   │   │   │   ├── IndexConversationChunks
+│   │   │   │   ├── RebuildEmbeddings
+│   │   │   │   └── RetrieveRelevantContext
+│   │   │   └── Summaries
+│   │   │       ├── ConversationSummaryService.cs
+│   │   │       ├── GenerateConversationSummary
+│   │   │       ├── GetActiveSummary
+│   │   │       ├── IConversationSummaryService.cs
+│   │   │       ├── RefreshSummaryCheckpoint
+│   │   │       └── SummaryOptions.cs
+│   │   ├── ImageGeneration
+│   │   │   ├── ContextualImagePromptResult.cs
+│   │   │   ├── ConversationVisualPromptService.cs
+│   │   │   └── ImageGenerationOrchestrator.cs
+│   │   ├── Inspection
+│   │   │   ├── ContextInspectionResult.cs
+│   │   │   ├── IMemoryExtractionInspectionService.cs
+│   │   │   ├── ISceneStateInspectionService.cs
+│   │   │   ├── MemoryExtractionAuditItem.cs
+│   │   │   ├── MemoryExtractionAuditResult.cs
+│   │   │   ├── MemoryExtractionInspectionService.cs
+│   │   │   ├── PromptInspectionService.cs
+│   │   │   ├── RetrievalCandidateDebug.cs
+│   │   │   ├── RetrievalInspectionResult.cs
+│   │   │   ├── SceneStateDebugItem.cs
+│   │   │   ├── SceneStateInspectionResult.cs
+│   │   │   ├── SceneStateInspectionService.cs
+│   │   │   ├── SceneStateReplacementHistoryItem.cs
+│   │   │   ├── SelectedLoreExplanation.cs
+│   │   │   ├── SelectedMemoryExplanation.cs
+│   │   │   └── SuppressedMemoryDetail.cs
+│   │   ├── Jobs
+│   │   │   ├── JobHandlers
+│   │   │   │   ├── EmbeddingRebuildJobHandler.cs
+│   │   │   │   ├── MemoryProposalJobHandler.cs
+│   │   │   │   └── SummaryRefreshJobHandler.cs
+│   │   │   └── JobPayloads
+│   │   │       ├── EmbeddingRebuildJobPayload.cs
+│   │   │       ├── MemoryProposalJobPayload.cs
+│   │   │       └── SummaryRefreshJobPayload.cs
+│   │   ├── LocalChat.Application.csproj
+│   │   ├── Memory
+│   │   │   ├── IMemoryOperationAuditService.cs
+│   │   │   ├── IMemoryPolicyService.cs
+│   │   │   ├── MemoryAuditSnapshot.cs
+│   │   │   └── MemoryPolicyService.cs
+│   │   ├── Options
+│   │   │   └── InspectionOptions.cs
+│   │   ├── Prompting
+│   │   │   ├── Budgeting
+│   │   │   │   ├── PromptBudgetAllocator.cs
+│   │   │   │   ├── PromptBudgetPlan.cs
+│   │   │   │   └── SectionBudgetResult.cs
+│   │   │   ├── Composition
+│   │   │   │   ├── PromptComposer.cs
+│   │   │   │   ├── PromptCompositionContext.cs
+│   │   │   │   ├── PromptCompositionResult.cs
+│   │   │   │   ├── PromptSection.cs
+│   │   │   │   ├── SceneStatePromptBudgetOptions.cs
+│   │   │   │   └── SceneStatePromptBudgeter.cs
+│   │   │   └── SectionBuilders
+│   │   │       ├── CharacterSectionBuilder.cs
+│   │   │       ├── CurrentTurnSectionBuilder.cs
+│   │   │       ├── DirectorSectionBuilder.cs
+│   │   │       ├── HistorySectionBuilder.cs
+│   │   │       ├── LoreSectionBuilder.cs
+│   │   │       ├── MemorySectionBuilder.cs
+│   │   │       ├── PersonaSectionBuilder.cs
+│   │   │       ├── SummarySectionBuilder.cs
+│   │   │       └── SystemRulesSectionBuilder.cs
+│   │   ├── Retrieval
+│   │   │   ├── ConversationChunkRetrievalService.cs
+│   │   │   ├── LoreRetrievalService.cs
+│   │   │   └── MemoryRetrievalService.cs
+│   │   ├── Runtime
+│   │   │   ├── IRuntimeSelectionResolver.cs
+│   │   │   ├── ResolvedRuntimeSelection.cs
+│   │   │   └── RuntimeSelectionResolver.cs
+│   │   └── Speech
+│   │       └── SpeechOrchestrator.cs
+│   ├── LocalChat.Contracts
+│   │   ├── Admin
+│   │   │   ├── BackgroundProposalRunResponse.cs
+│   │   │   ├── BackgroundProposalStatusResponse.cs
+│   │   │   ├── BackgroundWorkManualTriggerResponse.cs
+│   │   │   ├── BackgroundWorkPendingItemResponse.cs
+│   │   │   ├── BackgroundWorkStatusResponse.cs
+│   │   │   ├── MemoryExtractionAuditPruneResponse.cs
+│   │   │   ├── MemoryRepairKeysResponse.cs
+│   │   │   ├── RetrievalAdminStatsResponse.cs
+│   │   │   ├── RetrievalReindexAllResponse.cs
+│   │   │   ├── RetrievalReindexResponse.cs
+│   │   │   └── SceneStateCleanupResponse.cs
+│   │   ├── Authoring
+│   │   │   ├── AuthoringConsistencyCheckRequest.cs
+│   │   │   ├── AuthoringConsistencyCheckResponse.cs
+│   │   │   ├── AuthoringConsistencyIssueResponse.cs
+│   │   │   ├── AuthoringEnhancementRequest.cs
+│   │   │   ├── AuthoringEnhancementResponse.cs
+│   │   │   ├── AuthoringFieldTemplateResponse.cs
+│   │   │   ├── AuthoringStarterPackResponse.cs
+│   │   │   ├── CharacterConceptGenerationRequest.cs
+│   │   │   ├── CharacterConceptGenerationResponse.cs
+│   │   │   ├── ConsistencyIssueRepairRequest.cs
+│   │   │   ├── FullAuthoringBundleGenerationRequest.cs
+│   │   │   └── FullAuthoringBundleGenerationResponse.cs
+│   │   ├── Agents
+│   │   │   ├── CharacterDetailResponse.cs
+│   │   │   ├── CharacterResponse.cs
+│   │   │   ├── CharacterSampleDialogueRequest.cs
+│   │   │   ├── CharacterSampleDialogueResponse.cs
+│   │   │   ├── CreateCharacterRequest.cs
+│   │   │   └── UpdateCharacterRequest.cs
+│   │   ├── Chat
+│   │   │   ├── ContinueConversationRequest.cs
+│   │   │   ├── GenerateSuggestedUserMessageRequest.cs
+│   │   │   ├── GenerateSuggestedUserMessageResponse.cs
+│   │   │   ├── SendChatMessageRequest.cs
+│   │   │   ├── SendChatMessageResponse.cs
+│   │   │   ├── StopGenerationRequest.cs
+│   │   │   └── Streaming
+│   │   │       ├── ChatCompletedEvent.cs
+│   │   │       ├── ChatErrorEvent.cs
+│   │   │       ├── ChatStreamStartedEvent.cs
+│   │   │       └── ChatTokenDeltaEvent.cs
+│   │   ├── Commands
+│   │   │   ├── ExecuteCommandRequest.cs
+│   │   │   └── ExecuteCommandResponse.cs
+│   │   ├── Common
+│   │   │   ├── ErrorResponse.cs
+│   │   │   └── PagedResponse.cs
+│   │   ├── Conversations
+│   │   │   ├── ConversationMessageMutationResponse.cs
+│   │   │   ├── ConversationResponse.cs
+│   │   │   ├── CreateConversationRequest.cs
+│   │   │   ├── DeleteConversationMessageRequest.cs
+│   │   │   ├── MessageResponse.cs
+│   │   │   ├── MessageVariantResponse.cs
+│   │   │   ├── RegenerateAssistantMessageRequest.cs
+│   │   │   ├── RegenerateAssistantMessageResponse.cs
+│   │   │   ├── SelectMessageVariantRequest.cs
+│   │   │   ├── UpdateConversationMessageRequest.cs
+│   │   │   ├── UpdateConversationPersonaRequest.cs
+│   │   │   └── UpdateConversationSettingsRequest.cs
+│   │   ├── Images
+│   │   │   ├── ContextualImagePromptResponse.cs
+│   │   │   ├── GenerateContextualImagePromptRequest.cs
+│   │   │   ├── GenerateImageRequest.cs
+│   │   │   ├── GeneratedImageAssetResponse.cs
+│   │   │   └── ImageGenerationJobResponse.cs
+│   │   ├── ImportExport
+│   │   │   ├── CharacterPortableModel.cs
+│   │   │   └── PersonaPortableModel.cs
+│   │   ├── Inspection
+│   │   │   ├── ContextBreakdownResponse.cs
+│   │   │   ├── MemoryExtractionAuditItemResponse.cs
+│   │   │   ├── MemoryExtractionAuditResponse.cs
+│   │   │   ├── PromptDurableMemorySelectedDebugResponse.cs
+│   │   │   ├── PromptDurableMemorySuppressedDebugResponse.cs
+│   │   │   ├── PromptInspectionRequest.cs
+│   │   │   ├── PromptInspectionResponse.cs
+│   │   │   ├── PromptSceneStateSelectedDebugResponse.cs
+│   │   │   ├── PromptSceneStateSuppressedDebugResponse.cs
+│   │   │   ├── RetrievalInspectionRequest.cs
+│   │   │   ├── RetrievalInspectionResponse.cs
+│   │   │   ├── SceneStateDebugItemResponse.cs
+│   │   │   ├── SceneStateInspectionResponse.cs
+│   │   │   ├── SceneStateReplacementHistoryItemResponse.cs
+│   │   │   ├── SelectedLoreExplanationResponse.cs
+│   │   │   ├── SelectedMemoryExplanationResponse.cs
+│   │   │   ├── SummaryInspectionRequest.cs
+│   │   │   ├── SummaryInspectionResponse.cs
+│   │   │   └── SuppressedMemoryResponse.cs
+│   │   ├── LocalChat.Contracts.csproj
+│   │   ├── KnowledgeBases
+│   │   │   ├── CreateLoreEntryRequest.cs
+│   │   │   ├── CreateLorebookRequest.cs
+│   │   │   ├── LoreEntryResponse.cs
+│   │   │   ├── LorebookResponse.cs
+│   │   │   └── UpdateLoreEntry.cs
+│   │   ├── Memory
+│   │   │   ├── BulkResolveMemoryConflictsRequest.cs
+│   │   │   ├── BulkResolveMemoryConflictsResponse.cs
+│   │   │   ├── CreateMemoryItemRequest.cs
+│   │   │   ├── GenerateMemoryProposalsResponse.cs
+│   │   │   ├── MemoryConflictResolutionResponse.cs
+│   │   │   ├── MemoryConflictResponse.cs
+│   │   │   ├── MemoryConflictSuggestionResponse.cs
+│   │   │   ├── MemoryImportResponse.cs
+│   │   │   ├── MemoryItemResponse.cs
+│   │   │   ├── MemoryOperationAuditEntryResponse.cs
+│   │   │   ├── MemoryProvenanceResponse.cs
+│   │   │   ├── MergeMemoryItemsRequest.cs
+│   │   │   ├── MergeMemoryItemsResponse.cs
+│   │   │   ├── MergeMemoryPreviewResponse.cs
+│   │   │   ├── ReviewMemoryRequest.cs
+│   │   │   └── UpdateMemoryItemRequest.cs
+│   │   ├── Models
+│   │   │   ├── CreateGenerationPresetRequest.cs
+│   │   │   ├── CreateModelProfileRequest.cs
+│   │   │   ├── GenerationPresetResponse.cs
+│   │   │   ├── ModelProfileResponse.cs
+│   │   │   ├── UpdateGenerationPresetRequest.cs
+│   │   │   └── UpdateModelProfileRequest.cs
+│   │   ├── UserProfiles
+│   │   │   ├── CreateUserPersonaRequest.cs
+│   │   │   ├── PersonaDeletePreviewResponse.cs
+│   │   │   ├── UpdateUserPersonaRequest.cs
+│   │   │   └── UserPersonaResponse.cs
+│   │   ├── PromptSnapshots
+│   │   │   ├── GenerationPromptSnapshotResponse.cs
+│   │   │   └── PromptSnapshotSectionResponse.cs
+│   │   ├── Settings
+│   │   │   ├── AppRuntimeDefaultsResponse.cs
+│   │   │   └── UpdateAppRuntimeDefaultsRequest.cs
+│   │   └── Tts
+│   │       ├── SpeechClipResponse.cs
+│   │       └── SynthesizeSpeechRequest.cs
+│   ├── LocalChat.Domain
+│   │   ├── Common
+│   │   │   ├── AggregateRoot.cs
+│   │   │   ├── AuditableEntity.cs
+│   │   │   ├── DomainException.cs
+│   │   │   └── Entity.cs
+│   │   ├── Entities
+│   │   │   ├── Audio
+│   │   │   │   └── SpeechClip.cs
+│   │   │   ├── Agents
+│   │   │   │   ├── Agent.cs
+│   │   │   │   ├── CharacterSampleDialogue.cs
+│   │   │   │   └── CharacterTag.cs
+│   │   │   ├── Conversations
+│   │   │   │   ├── Conversation.cs
+│   │   │   │   ├── Message.cs
+│   │   │   │   ├── MessageVariant.cs
+│   │   │   │   └── SummaryCheckpoint.cs
+│   │   │   ├── Generation
+│   │   │   │   └── GenerationPromptSnapshot.cs
+│   │   │   ├── Images
+│   │   │   │   ├── GeneratedImageAsset.cs
+│   │   │   │   └── ImageGenerationJob.cs
+│   │   │   ├── Jobs
+│   │   │   │   └── BackgroundJobRecord.cs
+│   │   │   ├── KnowledgeBases
+│   │   │   │   ├── LoreEntry.cs
+│   │   │   │   └── KnowledgeBase.cs
+│   │   │   ├── Memory
+│   │   │   │   ├── MemoryExtractionAuditEvent.cs
+│   │   │   │   ├── MemoryItem.cs
+│   │   │   │   ├── MemoryOperationAudit.cs
+│   │   │   │   └── SceneStateExtractionEvent.cs
+│   │   │   ├── Models
+│   │   │   │   ├── GenerationPreset.cs
+│   │   │   │   └── ModelProfile.cs
+│   │   │   ├── UserProfiles
+│   │   │   │   └── UserProfile.cs
+│   │   │   ├── Retrieval
+│   │   │   │   └── RetrievalChunk.cs
+│   │   │   └── Settings
+│   │   │       └── AppRuntimeDefaults.cs
+│   │   ├── Enums
+│   │   │   ├── BackgroundJobStatus.cs
+│   │   │   ├── ImageGenerationJobStatus.cs
+│   │   │   ├── LorebookScopeType.cs
+│   │   │   ├── MemoryCategory.cs
+│   │   │   ├── MemoryKind.cs
+│   │   │   ├── MemoryOperationType.cs
+│   │   │   ├── MemoryReviewStatus.cs
+│   │   │   ├── MemoryScopeType.cs
+│   │   │   ├── MemorySlotFamily.cs
+│   │   │   ├── MessageOriginType.cs
+│   │   │   ├── MessageRole.cs
+│   │   │   ├── ProviderType.cs
+│   │   │   └── RuntimeSourceType.cs
+│   │   ├── LocalChat.Domain.csproj
+│   │   ├── Services
+│   │   └── ValueObjects
+│   │       ├── CharacterDefinitionParts.cs
+│   │       ├── GenerationSettings.cs
+│   │       ├── TokenBudget.cs
+│   │       └── TriggerKeyword.cs
+│   └── LocalChat.Infrastructure
+│       ├── BackgroundJobs
+│       │   ├── BackgroundJobDispatcher.cs
+│       │   ├── BackgroundJobSerializer.cs
+│       │   ├── BackgroundMemoryProposalCoordinator.cs
+│       │   ├── BackgroundMemoryProposalState.cs
+│       │   ├── BackgroundMemoryProposalWorker.cs
+│       │   ├── BackgroundProposalRunResult.cs
+│       │   ├── BackgroundProposalStatus.cs
+│       │   ├── ConversationBackgroundWorkExecutor.cs
+│       │   ├── ConversationBackgroundWorkHostedService.cs
+│       │   ├── ConversationBackgroundWorkProcessor.cs
+│       │   ├── ConversationBackgroundWorkQueue.cs
+│       │   ├── HostedJobWorker.cs
+│       │   └── InMemoryBackgroundJobQueue.cs
+│       ├── DependencyInjection
+│       │   └── ServiceCollectionExtensions.cs
+│       ├── ImageGeneration
+│       │   ├── ComfyUi
+│       │   │   ├── ComfyUiImageGenerationProvider.cs
+│       │   │   └── ComfyUiQueuePromptRequest.cs
+│       │   └── LocalGeneratedImageFileStore.cs
+│       ├── Inference
+│       │   ├── Factories
+│       │   │   └── InferenceProviderFactory.cs
+│       │   ├── HuggingFace
+│       │   │   ├── HuggingFaceInferenceProvider.cs
+│       │   │   ├── HuggingFaceModelContextService.cs
+│       │   │   └── HuggingFaceOptions.cs
+│       │   ├── LlamaCpp
+│       │   │   ├── LlamaCppInferenceProvider.cs
+│       │   │   ├── LlamaCppModelContextService.cs
+│       │   │   └── LlamaCppOptions.cs
+│       │   ├── Ollama
+│       │   │   ├── OllamaChatRequest.cs
+│       │   │   ├── OllamaChatStreamChunk.cs
+│       │   │   ├── OllamaEmbeddingProvider.cs
+│       │   │   ├── OllamaEmbeddingRequest.cs
+│       │   │   ├── OllamaEmbeddingResponse.cs
+│       │   │   ├── OllamaHttpClient.cs
+│       │   │   ├── OllamaInferenceProvider.cs
+│       │   │   ├── OllamaModelContextService.cs
+│       │   │   ├── OllamaModelInfoClient.cs
+│       │   │   ├── OllamaOptions.cs
+│       │   │   ├── OllamaShowModelRequest.cs
+│       │   │   └── OllamaShowModelResponse.cs
+│       │   ├── OpenRouter
+│       │   │   ├── OpenRouterInferenceProvider.cs
+│       │   │   ├── OpenRouterModelContextService.cs
+│       │   │   └── OpenRouterOptions.cs
+│       │   ├── RoutedInferenceProvider.cs
+│       │   ├── RoutedModelContextService.cs
+│       │   └── Tokenization
+│       │       ├── BasicTokenEstimator.cs
+│       │       └── ModelAwareTokenEstimator.cs
+│       ├── LocalChat.Infrastructure.csproj
+│       ├── Options
+│       │   ├── BackgroundMemoryProposalOptions.cs
+│       │   ├── ComfyUiOptions.cs
+│       │   ├── ConversationBackgroundWorkOptions.cs
+│       │   ├── DatabaseOptions.cs
+│       │   ├── InferenceOptions.cs
+│       │   ├── KokoroTtsOptions.cs
+│       │   ├── QwenTtsOptions.cs
+│       │   ├── RetrievalAdminOptions.cs
+│       │   ├── RetrievalOptions.cs
+│       │   ├── SpeechProviderOptions.cs
+│       │   └── StorageOptions.cs
+│       ├── Persistence
+│       │   ├── ApplicationDbContext.cs
+│       │   ├── ApplicationDbContextFactory.cs
+│       │   ├── Configurations
+│       │   │   ├── AppRuntimeDefaultsConfiguration.cs
+│       │   │   ├── BackgroundJobRecordConfiguration.cs
+│       │   │   ├── CharacterConfiguration.cs
+│       │   │   ├── CharacterSampleDialogueConfiguration.cs
+│       │   │   ├── ConversationConfiguration.cs
+│       │   │   ├── GeneratedImageAssetConfiguration.cs
+│       │   │   ├── GenerationPresetConfiguration.cs
+│       │   │   ├── GenerationPromptSnapshotConfiguration.cs
+│       │   │   ├── ImageGenerationJobConfiguration.cs
+│       │   │   ├── LoreEntryConfiguration.cs
+│       │   │   ├── LorebookConfiguration.cs
+│       │   │   ├── MemoryExtractionAuditEventConfiguration.cs
+│       │   │   ├── MemoryItemConfiguration.cs
+│       │   │   ├── MemoryOperationAuditConfiguration.cs
+│       │   │   ├── MessageConfiguration.cs
+│       │   │   ├── MessageVariantConfiguration.cs
+│       │   │   ├── ModelProfileConfiguration.cs
+│       │   │   ├── RetrievalChunkConfiguration.cs
+│       │   │   ├── SceneStateExtractionEventConfiguration.cs
+│       │   │   ├── SpeechClipConfiguration.cs
+│       │   │   ├── SummaryCheckpointConfiguration.cs
+│       │   │   └── UserPersonaConfiguration.cs
+│       │   ├── Migrations
+│       │   │   ├── 20260315174509_Baseline_20260315.Designer.cs
+│       │   │   ├── 20260315174509_Baseline_20260315.cs
+│       │   │   ├── 20260315190240_ImproveMemoryProposalQuality.Designer.cs
+│       │   │   ├── 20260315190240_ImproveMemoryProposalQuality.cs
+│       │   │   ├── 20260315215831_AddCharacterVisualDefaults.Designer.cs
+│       │   │   ├── 20260315215831_AddCharacterVisualDefaults.cs
+│       │   │   ├── 20260317024746_AddMemoryKindAndExpiry.Designer.cs
+│       │   │   ├── 20260317024746_AddMemoryKindAndExpiry.cs
+│       │   │   ├── 20260317063256_AddMemorySlotKey.Designer.cs
+│       │   │   ├── 20260317063256_AddMemorySlotKey.cs
+│       │   │   ├── 20260317081836_AddMemorySlotFamily.Designer.cs
+│       │   │   ├── 20260317081836_AddMemorySlotFamily.cs
+│       │   │   ├── 20260317153649_AddSceneStateExtractionEventsAndSlotFamily.Designer.cs
+│       │   │   ├── 20260317153649_AddSceneStateExtractionEventsAndSlotFamily.cs
+│       │   │   ├── 20260317164552_AddMemoryExtractionAuditEvents.Designer.cs
+│       │   │   ├── 20260317164552_AddMemoryExtractionAuditEvents.cs
+│       │   │   ├── 20260319023225_AddMessageVariantGenerationProvenance.Designer.cs
+│       │   │   ├── 20260319023225_AddMessageVariantGenerationProvenance.cs
+│       │   │   ├── 20260319030000_AddMessageVariantResponseTiming.cs
+│       │   │   ├── 20260319050000_AddRuntimeSourceAndAppDefaults.cs
+│       │   │   ├── 20260319052756_AddRuntimeDefaultsAndConversationStickyOverrides.Designer.cs
+│       │   │   ├── 20260319052756_AddRuntimeDefaultsAndConversationStickyOverrides.cs
+│       │   │   ├── 20260319221250_AddGenerationPromptSnapshots.Designer.cs
+│       │   │   ├── 20260319221250_AddGenerationPromptSnapshots.cs
+│       │   │   ├── 20260320002054_SeedGreetingAndMessageOriginType.Designer.cs
+│       │   │   ├── 20260320002054_SeedGreetingAndMessageOriginType.cs
+│       │   │   ├── 20260320010902_MemorySequenceStateAndConversationScopePolicy.Designer.cs
+│       │   │   ├── 20260320010902_MemorySequenceStateAndConversationScopePolicy.cs
+│       │   │   ├── 20260320021102_MemoryAdminToolsAndPersonaDefault.Designer.cs
+│       │   │   ├── 20260320021102_MemoryAdminToolsAndPersonaDefault.cs
+│       │   │   ├── 20260320035050_AddMemoryOperationAudit.Designer.cs
+│       │   │   ├── 20260320035050_AddMemoryOperationAudit.cs
+│       │   │   ├── 20260323163718_AddCharacterImage.Designer.cs
+│       │   │   ├── 20260323163718_AddCharacterImage.cs
+│       │   │   └── ApplicationDbContextModelSnapshot.cs
+│       │   ├── Repositories
+│       │   │   ├── AppRuntimeDefaultsRepository.cs
+│       │   │   ├── CharacterRepository.cs
+│       │   │   ├── ConversationRepository.cs
+│       │   │   ├── GenerationPresetRepository.cs
+│       │   │   ├── GenerationPromptSnapshotRepository.cs
+│       │   │   ├── ImageGenerationJobRepository.cs
+│       │   │   ├── LorebookRepository.cs
+│       │   │   ├── MemoryExtractionAuditEventRepository.cs
+│       │   │   ├── MemoryOperationAuditService.cs
+│       │   │   ├── MemoryRepository.cs
+│       │   │   ├── ModelProfileRepository.cs
+│       │   │   ├── SceneStateExtractionEventRepository.cs
+│       │   │   ├── SpeechClipRepository.cs
+│       │   │   ├── UnitOfWork.cs
+│       │   │   └── UserPersonaRepository.cs
+│       │   └── Seed
+│       │       ├── DefaultCharacterSeeder.cs
+│       │       ├── DefaultGenerationPresetSeeder.cs
+│       │       └── DefaultModelProfileSeeder.cs
+│       ├── Retrieval
+│       │   ├── Admin
+│       │   │   └── RetrievalAdminService.cs
+│       │   ├── Chunking
+│       │   │   ├── RetrievalChunkBuilder.cs
+│       │   │   └── TextChunker.cs
+│       │   ├── ConversationRetrievalSyncService.cs
+│       │   ├── FullRetrievalReindexService.cs
+│       │   ├── MemoryCandidateRanker.cs
+│       │   ├── Ranking
+│       │   │   └── RetrievalRanker.cs
+│       │   ├── RetrievalService.cs
+│       │   ├── VectorIndexingService.cs
+│       │   └── VectorStores
+│       │       ├── QdrantVectorStore.cs
+│       │       ├── SqliteBruteForceVectorStore.cs
+│       │       └── SqliteVectorStore.cs
+│       ├── Serialization
+│       │   ├── JsonOptionsFactory.cs
+│       │   └── PolymorphicConverters
+│       ├── Speech
+│       │   ├── Kokoro
+│       │   │   ├── KokoroSpeechRequestDto.cs
+│       │   │   └── KokoroSpeechSynthesisProvider.cs
+│       │   ├── LocalSpeechFileStore.cs
+│       │   └── Qwen
+│       │       ├── QwenSpeechRequestDto.cs
+│       │       └── QwenSpeechSynthesisProvider.cs
+│       ├── Storage
+│       │   ├── BackupRestoreService.cs
+│       │   ├── JsonExportService.cs
+│       │   └── LocalFileStorage.cs
+│       └── Time
+│           └── SystemClock.cs
+├── tests
+│   ├── LocalChat.Application.Tests
+│   │   ├── AssistantGenerationProvenanceTests.cs
+│   │   ├── AssistantMessageVariantFactoryTests.cs
+│   │   ├── BackendCriticalFlowTests.cs
+│   │   ├── ConversationContinuationServiceTests.cs
+│   │   ├── ConversationMessageMutationServiceTests.cs
+│   │   ├── ConversationSummaryRefreshServiceTests.cs
+│   │   ├── ConversationVisualPromptServiceTests.cs
+│   │   ├── LocalChat.Application.Tests.csproj
+│   │   ├── MemoryExtractionClassifierTests.cs
+│   │   ├── MemoryMaintenanceServiceTests.cs
+│   │   ├── MemoryPolicyServiceTests.cs
+│   │   ├── MemoryProposalQualityEvaluatorTests.cs
+│   │   ├── MemoryProposalServiceTests.cs
+│   │   ├── ModelRouteTests.cs
+│   │   ├── PromptComposerTests.cs
+│   │   ├── PromptDurableMemoryDebugTests.cs
+│   │   ├── RecordingConversationBackgroundWorkScheduler.cs
+│   │   ├── RegressionHardeningTests.cs
+│   │   ├── SceneStateCleanupServiceTests.cs
+│   │   ├── SceneStatePromptBudgeterTests.cs
+│   │   ├── SceneStateTtlPolicyResolverTests.cs
+│   │   ├── SlashCommandParserTests.cs
+│   │   └── UserMessageSuggestionServiceTests.cs
+│   ├── LocalChat.Domain.Tests
+│   │   ├── LocalChat.Domain.Tests.csproj
+│   │   └── MemoryItemDefaultsTests.cs
+│   └── LocalChat.Infrastructure.Tests
+│       ├── BackendApiIntegrationTests.cs
+│       ├── ConversationBackgroundWorkExecutorTests.cs
+│       ├── ConversationBackgroundWorkQueueTests.cs
+│       ├── LlamaCppRoutingTests.cs
+│       ├── LocalChat.Infrastructure.Tests.csproj
+│       ├── MemoryCandidateRankerTests.cs
+│       ├── SqliteBruteForceVectorStoreTests.cs
+│       └── SqliteMigrationSmokeTests.cs
+└── tools

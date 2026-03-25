@@ -3,7 +3,7 @@
 LocalChat is a .NET 9 backend for local-first AI orchestration with:
 
 - multi-provider LLM routing (`Ollama`, `OpenRouter`, `HuggingFace`, `LlamaCpp`)
-- conversation memory and scene-state lifecycle tooling
+- conversation memory and session-state lifecycle tooling
 - retrieval-enhanced prompt composition
 - streaming chat responses over Server-Sent Events (SSE)
 - text-to-speech (Kokoro or Qwen provider integration)
@@ -14,10 +14,10 @@ This repository contains the API plus application/domain/infrastructure layers a
 
 ## Terminology Note
 
-Some API/domain names are intentionally retained from the current implementation (for example `chat`, `conversations`, `characters`, and `personas`). Functionally, these map to reusable AI orchestration concepts:
+Some API/domain names are intentionally retained from the current implementation (for example `chat`, `conversations`, `agents`, and `userProfiles`). Functionally, these map to reusable AI orchestration concepts:
 
-- `character` -> assistant/agent profile
-- `persona` -> end-user profile/context
+- `agent` -> assistant/agent profile
+- `userProfile` -> end-user profile/context
 - `conversation` -> stateful interaction session
 
 Naming alignment is planned toward more generic agent platform terminology while preserving current behavior and data model intent.
@@ -74,7 +74,7 @@ High-impact sections:
 - `Ollama`, `OpenRouter`, `HuggingFace`, `LlamaCpp`
 - `Speech`, `KokoroTts`, `QwenTts`
 - `ComfyUi`
-- `Summaries`, `Retrieval`, `MemoryProposals`, `SceneStateCleanup`
+- `Summaries`, `Retrieval`, `MemoryProposals`, `SessionStateCleanup`
 - `ConversationBackgroundWork`, `BackgroundMemoryProposals`
 - `Inspection`, `RequestFlowLogging`
 
@@ -111,9 +111,9 @@ Primary route groups for AI orchestration:
 
 - `/api/chat` - streaming send, continue, regenerate, suggested user message
 - `/api/conversations` - conversation CRUD and message mutation
-- `/api/characters`, `/api/personas`
+- `/api/agents`, `/api/user-profiles`
 - `/api/model-profiles`, `/api/generation-presets`, `/api/app-defaults`
-- `/api/memory`, `/api/lorebooks`, `/api/inspection`
+- `/api/memory`, `/api/knowledge-bases`, `/api/inspection`
 - `/api/tts`, `/api/images`
 - `/api/import-export`
 - `/api/admin`, `/api/admin/maintenance`, `/api/admin/background-work`
@@ -126,13 +126,13 @@ Endpoint catalog and examples: [docs/API_OVERVIEW.md](docs/API_OVERVIEW.md)
 - Request flow telemetry: `src/LocalChat.Api/App_Data/Logs/request-flow.ndjson` (when enabled)
 - Generated speech files: `src/LocalChat.Api/wwwroot/generated/audio/...`
 - Generated images: `src/LocalChat.Api/wwwroot/generated/images/...`
-- Character uploads: `src/LocalChat.Api/wwwroot/uploads/characters/...`
+- Agent uploads: `src/LocalChat.Api/wwwroot/uploads/agents/...`
 
 On startup the app:
 
 1. ensures migration history compatibility for legacy databases
 2. applies pending EF Core migrations
-3. seeds default model profile, generation preset, and character records
+3. seeds default model profile, generation preset, and agent records
 
 ## Development Commands
 

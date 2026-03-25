@@ -1,30 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace LocalChat.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCharacterVisualDefaults : Migration
+    public partial class AddAgentVisualDefaults : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
                 name: "DefaultVisualNegativePrompt",
-                table: "Characters",
+                table: "Agents",
                 type: "TEXT",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "DefaultVisualPromptPrefix",
-                table: "Characters",
+                table: "Agents",
                 type: "TEXT",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "DefaultVisualStylePreset",
-                table: "Characters",
+                table: "Agents",
                 type: "TEXT",
                 maxLength: 100,
                 nullable: true);
@@ -35,15 +35,15 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "DefaultVisualNegativePrompt",
-                table: "Characters");
+                table: "Agents");
 
             migrationBuilder.DropColumn(
                 name: "DefaultVisualPromptPrefix",
-                table: "Characters");
+                table: "Agents");
 
             migrationBuilder.DropColumn(
                 name: "DefaultVisualStylePreset",
-                table: "Characters");
+                table: "Agents");
         }
     }
 }

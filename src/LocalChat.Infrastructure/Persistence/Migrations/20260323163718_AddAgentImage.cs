@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,27 +6,27 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LocalChat.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCharacterImage : Migration
+    public partial class AddAgentImage : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
                 name: "ImagePath",
-                table: "Characters",
+                table: "Agents",
                 type: "TEXT",
                 maxLength: 500,
                 nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "ImageUpdatedAt",
-                table: "Characters",
+                table: "Agents",
                 type: "TEXT",
                 nullable: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Characters_ImagePath",
-                table: "Characters",
+                name: "IX_Agents_ImagePath",
+                table: "Agents",
                 column: "ImagePath");
         }
 
@@ -34,16 +34,16 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_Characters_ImagePath",
-                table: "Characters");
+                name: "IX_Agents_ImagePath",
+                table: "Agents");
 
             migrationBuilder.DropColumn(
                 name: "ImagePath",
-                table: "Characters");
+                table: "Agents");
 
             migrationBuilder.DropColumn(
                 name: "ImageUpdatedAt",
-                table: "Characters");
+                table: "Agents");
         }
     }
 }

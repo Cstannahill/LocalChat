@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -32,11 +32,11 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Lorebooks",
+                name: "KnowledgeBases",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -44,7 +44,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Lorebooks", x => x.Id);
+                    table.PrimaryKey("PK_KnowledgeBases", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -70,7 +70,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: true),
                     SourceType = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     SourceEntityId = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -86,7 +86,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserPersonas",
+                name: "UserProfiles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -101,7 +101,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPersonas", x => x.Id);
+                    table.PrimaryKey("PK_UserProfiles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,7 +109,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    LorebookId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    KnowledgeBaseId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     Content = table.Column<string>(type: "TEXT", nullable: false),
                     IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
@@ -120,15 +120,15 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_LoreEntries", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_LoreEntries_Lorebooks_LorebookId",
-                        column: x => x.LorebookId,
-                        principalTable: "Lorebooks",
+                        name: "FK_LoreEntries_KnowledgeBases_KnowledgeBaseId",
+                        column: x => x.KnowledgeBaseId,
+                        principalTable: "KnowledgeBases",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Characters",
+                name: "Agents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -145,15 +145,15 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Characters", x => x.Id);
+                    table.PrimaryKey("PK_Agents", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Characters_GenerationPresets_DefaultGenerationPresetId",
+                        name: "FK_Agents_GenerationPresets_DefaultGenerationPresetId",
                         column: x => x.DefaultGenerationPresetId,
                         principalTable: "GenerationPresets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_Characters_ModelProfiles_DefaultModelProfileId",
+                        name: "FK_Agents_ModelProfiles_DefaultModelProfileId",
                         column: x => x.DefaultModelProfileId,
                         principalTable: "ModelProfiles",
                         principalColumn: "Id",
@@ -161,22 +161,22 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CharacterSampleDialogues",
+                name: "AgentSampleDialogues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserMessage = table.Column<string>(type: "TEXT", nullable: false),
                     AssistantMessage = table.Column<string>(type: "TEXT", nullable: false),
                     SortOrder = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CharacterSampleDialogues", x => x.Id);
+                    table.PrimaryKey("PK_AgentSampleDialogues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CharacterSampleDialogues_Characters_CharacterId",
-                        column: x => x.CharacterId,
-                        principalTable: "Characters",
+                        name: "FK_AgentSampleDialogues_Agents_AgentId",
+                        column: x => x.AgentId,
+                        principalTable: "Agents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -186,8 +186,8 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserPersonaId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserProfileId = table.Column<Guid>(type: "TEXT", nullable: true),
                     ParentConversationId = table.Column<Guid>(type: "TEXT", nullable: true),
                     BranchedFromMessageId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Title = table.Column<string>(type: "TEXT", maxLength: 300, nullable: false),
@@ -203,9 +203,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Conversations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Conversations_Characters_CharacterId",
-                        column: x => x.CharacterId,
-                        principalTable: "Characters",
+                        name: "FK_Conversations_Agents_AgentId",
+                        column: x => x.AgentId,
+                        principalTable: "Agents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -215,9 +215,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_Conversations_UserPersonas_UserPersonaId",
-                        column: x => x.UserPersonaId,
-                        principalTable: "UserPersonas",
+                        name: "FK_Conversations_UserProfiles_UserProfileId",
+                        column: x => x.UserProfileId,
+                        principalTable: "UserProfiles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                 });
@@ -227,7 +227,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Provider = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     PromptText = table.Column<string>(type: "TEXT", nullable: false),
@@ -247,9 +247,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_ImageGenerationJobs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ImageGenerationJobs_Characters_CharacterId",
-                        column: x => x.CharacterId,
-                        principalTable: "Characters",
+                        name: "FK_ImageGenerationJobs_Agents_AgentId",
+                        column: x => x.AgentId,
+                        principalTable: "Agents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -265,7 +265,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Category = table.Column<string>(type: "TEXT", nullable: false),
                     Content = table.Column<string>(type: "TEXT", nullable: false),
@@ -280,9 +280,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_MemoryItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MemoryItems_Characters_CharacterId",
-                        column: x => x.CharacterId,
-                        principalTable: "Characters",
+                        name: "FK_MemoryItems_Agents_AgentId",
+                        column: x => x.AgentId,
+                        principalTable: "Agents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -388,7 +388,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: false),
                     MessageId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Provider = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
@@ -404,9 +404,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_SpeechClips", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SpeechClips_Characters_CharacterId",
-                        column: x => x.CharacterId,
-                        principalTable: "Characters",
+                        name: "FK_SpeechClips_Agents_AgentId",
+                        column: x => x.AgentId,
+                        principalTable: "Agents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -424,24 +424,24 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Characters_DefaultGenerationPresetId",
-                table: "Characters",
+                name: "IX_Agents_DefaultGenerationPresetId",
+                table: "Agents",
                 column: "DefaultGenerationPresetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Characters_DefaultModelProfileId",
-                table: "Characters",
+                name: "IX_Agents_DefaultModelProfileId",
+                table: "Agents",
                 column: "DefaultModelProfileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Characters_Name",
-                table: "Characters",
+                name: "IX_Agents_Name",
+                table: "Agents",
                 column: "Name");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CharacterSampleDialogues_CharacterId_SortOrder",
-                table: "CharacterSampleDialogues",
-                columns: new[] { "CharacterId", "SortOrder" },
+                name: "IX_AgentSampleDialogues_AgentId_SortOrder",
+                table: "AgentSampleDialogues",
+                columns: new[] { "AgentId", "SortOrder" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -450,9 +450,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "BranchedFromMessageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Conversations_CharacterId",
+                name: "IX_Conversations_AgentId",
                 table: "Conversations",
-                column: "CharacterId");
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Conversations_ParentConversationId",
@@ -465,9 +465,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "UpdatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Conversations_UserPersonaId",
+                name: "IX_Conversations_UserProfileId",
                 table: "Conversations",
-                column: "UserPersonaId");
+                column: "UserProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GeneratedImageAssets_ImageGenerationJobId",
@@ -480,9 +480,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "Name");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ImageGenerationJobs_CharacterId",
+                name: "IX_ImageGenerationJobs_AgentId",
                 table: "ImageGenerationJobs",
-                column: "CharacterId");
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ImageGenerationJobs_ConversationId",
@@ -495,9 +495,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "Status");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Lorebooks_CharacterId",
-                table: "Lorebooks",
-                column: "CharacterId");
+                name: "IX_KnowledgeBases_AgentId",
+                table: "KnowledgeBases",
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LoreEntries_IsEnabled",
@@ -505,14 +505,14 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "IsEnabled");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LoreEntries_LorebookId",
+                name: "IX_LoreEntries_KnowledgeBaseId",
                 table: "LoreEntries",
-                column: "LorebookId");
+                column: "KnowledgeBaseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MemoryItems_CharacterId",
+                name: "IX_MemoryItems_AgentId",
                 table: "MemoryItems",
-                column: "CharacterId");
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MemoryItems_ConversationId",
@@ -547,9 +547,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "Name");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RetrievalChunks_CharacterId",
+                name: "IX_RetrievalChunks_AgentId",
                 table: "RetrievalChunks",
-                column: "CharacterId");
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RetrievalChunks_ConversationId",
@@ -563,9 +563,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_SpeechClips_CharacterId",
+                name: "IX_SpeechClips_AgentId",
                 table: "SpeechClips",
-                column: "CharacterId");
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SpeechClips_ConversationId",
@@ -583,8 +583,8 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: new[] { "ConversationId", "EndSequenceNumber" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPersonas_Name",
-                table: "UserPersonas",
+                name: "IX_UserProfiles_Name",
+                table: "UserProfiles",
                 column: "Name");
         }
 
@@ -592,7 +592,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CharacterSampleDialogues");
+                name: "AgentSampleDialogues");
 
             migrationBuilder.DropTable(
                 name: "GeneratedImageAssets");
@@ -619,7 +619,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 name: "ImageGenerationJobs");
 
             migrationBuilder.DropTable(
-                name: "Lorebooks");
+                name: "KnowledgeBases");
 
             migrationBuilder.DropTable(
                 name: "Messages");
@@ -628,10 +628,10 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 name: "Conversations");
 
             migrationBuilder.DropTable(
-                name: "Characters");
+                name: "Agents");
 
             migrationBuilder.DropTable(
-                name: "UserPersonas");
+                name: "UserProfiles");
 
             migrationBuilder.DropTable(
                 name: "GenerationPresets");

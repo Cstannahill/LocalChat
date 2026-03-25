@@ -1,18 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace LocalChat.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class MemoryAdminToolsAndPersonaDefault : Migration
+    public partial class MemoryAdminToolsAndUserProfileDefault : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
                 name: "IsDefault",
-                table: "UserPersonas",
+                table: "UserProfiles",
                 type: "INTEGER",
                 nullable: false,
                 defaultValue: false);
@@ -27,8 +27,8 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 oldDefaultValue: "Accepted");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPersonas_IsDefault",
-                table: "UserPersonas",
+                name: "IX_UserProfiles_IsDefault",
+                table: "UserProfiles",
                 column: "IsDefault");
         }
 
@@ -36,12 +36,12 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_UserPersonas_IsDefault",
-                table: "UserPersonas");
+                name: "IX_UserProfiles_IsDefault",
+                table: "UserProfiles");
 
             migrationBuilder.DropColumn(
                 name: "IsDefault",
-                table: "UserPersonas");
+                table: "UserProfiles");
 
             migrationBuilder.AlterColumn<string>(
                 name: "ReviewStatus",

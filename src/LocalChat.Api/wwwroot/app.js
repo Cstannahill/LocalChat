@@ -1,13 +1,13 @@
 const state = {
-  characters: [],
-  selectedCharacterId: null,
-  selectedCharacterDetail: null,
-  characterEditorMode: "edit",
+  agents: [],
+  selectedAgentId: null,
+  selectedAgentDetail: null,
+  agentEditorMode: "edit",
 
-  personas: [],
-  selectedPersonaId: null,
-  selectedPersonaDetail: null,
-  personaEditorMode: "edit",
+  userProfiles: [],
+  selectedUserProfileId: null,
+  selectedUserProfileDetail: null,
+  userProfileEditorMode: "edit",
 
   modelProfiles: [],
   selectedModelProfileId: null,
@@ -21,12 +21,12 @@ const state = {
 
   conversations: [],
   activeConversationId: null,
-  activeCharacterDetail: null,
+  activeAgentDetail: null,
   messages: [],
   isStreaming: false,
   memories: [],
   proposals: [],
-  lorebooks: [],
+  knowledgeBases: [],
 };
 
 const authoringEnhancementState = {
@@ -42,81 +42,71 @@ const pendingTurnRuntimeOverride = {
 };
 
 let appRuntimeDefaults = {
-  defaultPersonaId: null,
+  defaultUserProfileId: null,
   defaultModelProfileId: null,
   defaultGenerationPresetId: null,
 };
 
-const characterSelect = document.getElementById("characterSelect");
-const refreshCharactersBtn = document.getElementById("refreshCharactersBtn");
-const newCharacterBtn = document.getElementById("newCharacterBtn");
-const saveCharacterBtn = document.getElementById("saveCharacterBtn");
-const deleteCharacterBtn = document.getElementById("deleteCharacterBtn");
-const characterNameInput = document.getElementById("characterNameInput");
-const characterDescriptionInput = document.getElementById(
-  "characterDescriptionInput",
+const agentSelect = document.getElementById("agentSelect");
+const refreshAgentsBtn = document.getElementById("refreshAgentsBtn");
+const newAgentBtn = document.getElementById("newAgentBtn");
+const saveAgentBtn = document.getElementById("saveAgentBtn");
+const deleteAgentBtn = document.getElementById("deleteAgentBtn");
+const agentNameInput = document.getElementById("agentNameInput");
+const agentDescriptionInput = document.getElementById("agentDescriptionInput");
+const agentGreetingInput = document.getElementById("agentGreetingInput");
+const agentScenarioInput = document.getElementById("agentScenarioInput");
+const agentPersonalityInput = document.getElementById("agentPersonalityInput");
+const agentModelProfileSelect = document.getElementById(
+  "agentModelProfileSelect",
 );
-const characterGreetingInput = document.getElementById(
-  "characterGreetingInput",
+const agentGenerationPresetSelect = document.getElementById(
+  "agentGenerationPresetSelect",
 );
-const characterScenarioInput = document.getElementById(
-  "characterScenarioInput",
+const agentDefaultTtsVoiceInput = document.getElementById(
+  "agentDefaultTtsVoiceInput",
 );
-const characterPersonalityInput = document.getElementById(
-  "characterPersonalityInput",
+const agentImageFileInput = document.getElementById("agentImageFileInput");
+const uploadAgentImageBtn = document.getElementById("uploadAgentImageBtn");
+const removeAgentImageBtn = document.getElementById("removeAgentImageBtn");
+const agentImageStatus = document.getElementById("agentImageStatus");
+const agentImagePreview = document.getElementById("agentImagePreview");
+const agentDefaultVisualStylePresetSelect = document.getElementById(
+  "agentDefaultVisualStylePresetSelect",
 );
-const characterModelProfileSelect = document.getElementById(
-  "characterModelProfileSelect",
+const agentDefaultVisualPromptPrefixInput = document.getElementById(
+  "agentDefaultVisualPromptPrefixInput",
 );
-const characterGenerationPresetSelect = document.getElementById(
-  "characterGenerationPresetSelect",
-);
-const characterDefaultTtsVoiceInput = document.getElementById(
-  "characterDefaultTtsVoiceInput",
-);
-const characterImageFileInput = document.getElementById(
-  "characterImageFileInput",
-);
-const uploadCharacterImageBtn = document.getElementById(
-  "uploadCharacterImageBtn",
-);
-const removeCharacterImageBtn = document.getElementById(
-  "removeCharacterImageBtn",
-);
-const characterImageStatus = document.getElementById("characterImageStatus");
-const characterImagePreview = document.getElementById("characterImagePreview");
-const characterDefaultVisualStylePresetSelect = document.getElementById(
-  "characterDefaultVisualStylePresetSelect",
-);
-const characterDefaultVisualPromptPrefixInput = document.getElementById(
-  "characterDefaultVisualPromptPrefixInput",
-);
-const characterDefaultVisualNegativePromptInput = document.getElementById(
-  "characterDefaultVisualNegativePromptInput",
+const agentDefaultVisualNegativePromptInput = document.getElementById(
+  "agentDefaultVisualNegativePromptInput",
 );
 const addSampleDialogueBtn = document.getElementById("addSampleDialogueBtn");
-const characterSampleDialogueList = document.getElementById(
-  "characterSampleDialogueList",
+const agentSampleDialogueList = document.getElementById(
+  "agentSampleDialogueList",
 );
 
-const personaSelect = document.getElementById("personaSelect");
-const refreshPersonasBtn = document.getElementById("refreshPersonasBtn");
-const newPersonaBtn = document.getElementById("newPersonaBtn");
-const savePersonaBtn = document.getElementById("savePersonaBtn");
-const deletePersonaBtn = document.getElementById("deletePersonaBtn");
-const personaNameInput = document.getElementById("personaNameInput");
-const personaDisplayNameInput = document.getElementById(
-  "personaDisplayNameInput",
+const userProfileSelect = document.getElementById("userProfileSelect");
+const refreshUserProfilesBtn = document.getElementById(
+  "refreshUserProfilesBtn",
 );
-const personaDescriptionInput = document.getElementById(
-  "personaDescriptionInput",
+const newUserProfileBtn = document.getElementById("newUserProfileBtn");
+const saveUserProfileBtn = document.getElementById("saveUserProfileBtn");
+const deleteUserProfileBtn = document.getElementById("deleteUserProfileBtn");
+const userProfileNameInput = document.getElementById("userProfileNameInput");
+const userProfileDisplayNameInput = document.getElementById(
+  "userProfileDisplayNameInput",
 );
-const personaTraitsInput = document.getElementById("personaTraitsInput");
-const personaPreferencesInput = document.getElementById(
-  "personaPreferencesInput",
+const userProfileDescriptionInput = document.getElementById(
+  "userProfileDescriptionInput",
 );
-const personaInstructionsInput = document.getElementById(
-  "personaInstructionsInput",
+const userProfileTraitsInput = document.getElementById(
+  "userProfileTraitsInput",
+);
+const userProfilePreferencesInput = document.getElementById(
+  "userProfilePreferencesInput",
+);
+const userProfileInstructionsInput = document.getElementById(
+  "userProfileInstructionsInput",
 );
 
 const refreshConversationsBtn = document.getElementById(
@@ -140,8 +130,8 @@ const activeConversationRuntimeModel = document.getElementById(
 const activeConversationRuntimeSource = document.getElementById(
   "activeConversationRuntimeSource",
 );
-const conversationPersonaSelect = document.getElementById(
-  "conversationPersonaSelect",
+const conversationUserProfileSelect = document.getElementById(
+  "conversationUserProfileSelect",
 );
 const conversationModelProfileOverrideSelect = document.getElementById(
   "conversationModelProfileOverrideSelect",
@@ -158,7 +148,9 @@ const clearConversationRuntimeOverrideBtn = document.getElementById(
 const conversationSettingsStatus = document.getElementById(
   "conversationSettingsStatus",
 );
-const defaultPersonaSelect = document.getElementById("defaultPersonaSelect");
+const defaultUserProfileSelect = document.getElementById(
+  "defaultUserProfileSelect",
+);
 const defaultModelProfileSelect = document.getElementById(
   "defaultModelProfileSelect",
 );
@@ -301,7 +293,9 @@ const suggestedUserMessageMeta = document.getElementById(
 const ttsVoiceOverrideInput = document.getElementById("ttsVoiceOverrideInput");
 
 const imagePromptInput = document.getElementById("imagePromptInput");
-const imageNegativePromptInput = document.getElementById("imageNegativePromptInput");
+const imageNegativePromptInput = document.getElementById(
+  "imageNegativePromptInput",
+);
 const imageWidthInput = document.getElementById("imageWidthInput");
 const imageHeightInput = document.getElementById("imageHeightInput");
 const imageStepsInput = document.getElementById("imageStepsInput");
@@ -314,7 +308,9 @@ const imageStylePresetSelect = document.getElementById(
 const buildAndGenerateImageBtn = document.getElementById(
   "buildAndGenerateImageBtn",
 );
-const generatedImagesGallery = document.getElementById("generatedImagesGallery");
+const generatedImagesGallery = document.getElementById(
+  "generatedImagesGallery",
+);
 const buildImagePromptFromContextBtn = document.getElementById(
   "buildImagePromptFromContextBtn",
 );
@@ -407,22 +403,24 @@ const pruneMemoryExtractionAuditBtn = document.getElementById(
 const exportMemoryExtractionAuditBtn = document.getElementById(
   "exportMemoryExtractionAuditBtn",
 );
-const pruneStaleSceneStateBtn = document.getElementById(
-  "pruneStaleSceneStateBtn",
+const pruneStaleSessionStateBtn = document.getElementById(
+  "pruneStaleSessionStateBtn",
 );
 const maintenanceResult = document.getElementById("maintenanceResult");
-const refreshSceneStateInspectionBtn = document.getElementById(
-  "refreshSceneStateInspectionBtn",
+const refreshSessionStateInspectionBtn = document.getElementById(
+  "refreshSessionStateInspectionBtn",
 );
-const sceneStateInspectionMeta = document.getElementById(
-  "sceneStateInspectionMeta",
+const sessionStateInspectionMeta = document.getElementById(
+  "sessionStateInspectionMeta",
 );
-const sceneStateActiveList = document.getElementById("sceneStateActiveList");
-const sceneStateReplacementHistoryList = document.getElementById(
-  "sceneStateReplacementHistoryList",
+const sessionStateActiveList = document.getElementById(
+  "sessionStateActiveList",
 );
-const sceneStateFamilyCollisionList = document.getElementById(
-  "sceneStateFamilyCollisionList",
+const sessionStateReplacementHistoryList = document.getElementById(
+  "sessionStateReplacementHistoryList",
+);
+const sessionStateFamilyCollisionList = document.getElementById(
+  "sessionStateFamilyCollisionList",
 );
 const refreshMemoryExtractionAuditBtn = document.getElementById(
   "refreshMemoryExtractionAuditBtn",
@@ -433,14 +431,14 @@ const memoryExtractionAuditMeta = document.getElementById(
 const memoryExtractionAuditList = document.getElementById(
   "memoryExtractionAuditList",
 );
-const promptSceneStateDebugMeta = document.getElementById(
-  "promptSceneStateDebugMeta",
+const promptSessionStateDebugMeta = document.getElementById(
+  "promptSessionStateDebugMeta",
 );
-const promptSceneStateSelectedList = document.getElementById(
-  "promptSceneStateSelectedList",
+const promptSessionStateSelectedList = document.getElementById(
+  "promptSessionStateSelectedList",
 );
-const promptSceneStateSuppressedList = document.getElementById(
-  "promptSceneStateSuppressedList",
+const promptSessionStateSuppressedList = document.getElementById(
+  "promptSessionStateSuppressedList",
 );
 const promptDurableMemoryDebugMeta = document.getElementById(
   "promptDurableMemoryDebugMeta",
@@ -480,32 +478,38 @@ const summaryInspectionResults = document.getElementById(
   "summaryInspectionResults",
 );
 
-const refreshLorebooksBtn = document.getElementById("refreshLorebooksBtn");
-const lorebookNameInput = document.getElementById("lorebookNameInput");
-const lorebookDescriptionInput = document.getElementById(
-  "lorebookDescriptionInput",
+const refreshKnowledgeBasesBtn = document.getElementById(
+  "refreshKnowledgeBasesBtn",
 );
-const createLorebookBtn = document.getElementById("createLorebookBtn");
-const lorebookSelect = document.getElementById("lorebookSelect");
+const knowledgeBaseNameInput = document.getElementById(
+  "knowledgeBaseNameInput",
+);
+const knowledgeBaseDescriptionInput = document.getElementById(
+  "knowledgeBaseDescriptionInput",
+);
+const createKnowledgeBaseBtn = document.getElementById(
+  "createKnowledgeBaseBtn",
+);
+const knowledgeBaseSelect = document.getElementById("knowledgeBaseSelect");
 const loreEntryTitleInput = document.getElementById("loreEntryTitleInput");
 const loreEntryContentInput = document.getElementById("loreEntryContentInput");
 const loreEntryEnabledInput = document.getElementById("loreEntryEnabledInput");
 const createLoreEntryBtn = document.getElementById("createLoreEntryBtn");
-const lorebookList = document.getElementById("lorebookList");
-const exportCharacterBtn = document.getElementById("exportCharacterBtn");
-const importCharacterBtn = document.getElementById("importCharacterBtn");
-const characterImportJsonInput = document.getElementById(
-  "characterImportJsonInput",
-);
+const knowledgeBaseList = document.getElementById("knowledgeBaseList");
+const exportAgentBtn = document.getElementById("exportAgentBtn");
+const importAgentBtn = document.getElementById("importAgentBtn");
+const agentImportJsonInput = document.getElementById("agentImportJsonInput");
 
-const assignPersonaToConversationBtn = document.getElementById(
-  "assignPersonaToConversationBtn",
+const assignUserProfileToConversationBtn = document.getElementById(
+  "assignUserProfileToConversationBtn",
 );
-const setDefaultPersonaBtn = document.getElementById("setDefaultPersonaBtn");
-const exportPersonaBtn = document.getElementById("exportPersonaBtn");
-const importPersonaBtn = document.getElementById("importPersonaBtn");
-const personaImportJsonInput = document.getElementById(
-  "personaImportJsonInput",
+const setDefaultUserProfileBtn = document.getElementById(
+  "setDefaultUserProfileBtn",
+);
+const exportUserProfileBtn = document.getElementById("exportUserProfileBtn");
+const importUserProfileBtn = document.getElementById("importUserProfileBtn");
+const userProfileImportJsonInput = document.getElementById(
+  "userProfileImportJsonInput",
 );
 
 const modelProfileSelect = document.getElementById("modelProfileSelect");
@@ -619,35 +623,35 @@ const bundleSettingInput = document.getElementById("bundleSettingInput");
 const generateFullBundleBtn = document.getElementById("generateFullBundleBtn");
 
 const bundleGenerationMeta = document.getElementById("bundleGenerationMeta");
-const generatedCharacterNameInput = document.getElementById(
-  "generatedCharacterNameInput",
+const generatedAgentNameInput = document.getElementById(
+  "generatedAgentNameInput",
 );
-const generatedCharacterDescriptionInput = document.getElementById(
-  "generatedCharacterDescriptionInput",
+const generatedAgentDescriptionInput = document.getElementById(
+  "generatedAgentDescriptionInput",
 );
-const generatedCharacterPersonalityInput = document.getElementById(
-  "generatedCharacterPersonalityInput",
+const generatedAgentPersonalityInput = document.getElementById(
+  "generatedAgentPersonalityInput",
 );
-const generatedCharacterScenarioInput = document.getElementById(
-  "generatedCharacterScenarioInput",
+const generatedAgentScenarioInput = document.getElementById(
+  "generatedAgentScenarioInput",
 );
-const generatedCharacterGreetingInput = document.getElementById(
-  "generatedCharacterGreetingInput",
+const generatedAgentGreetingInput = document.getElementById(
+  "generatedAgentGreetingInput",
 );
-const generatedPersonaDisplayNameInput = document.getElementById(
-  "generatedPersonaDisplayNameInput",
+const generatedUserProfileDisplayNameInput = document.getElementById(
+  "generatedUserProfileDisplayNameInput",
 );
-const generatedPersonaDescriptionInput = document.getElementById(
-  "generatedPersonaDescriptionInput",
+const generatedUserProfileDescriptionInput = document.getElementById(
+  "generatedUserProfileDescriptionInput",
 );
-const generatedPersonaTraitsInput = document.getElementById(
-  "generatedPersonaTraitsInput",
+const generatedUserProfileTraitsInput = document.getElementById(
+  "generatedUserProfileTraitsInput",
 );
-const generatedPersonaPreferencesInput = document.getElementById(
-  "generatedPersonaPreferencesInput",
+const generatedUserProfilePreferencesInput = document.getElementById(
+  "generatedUserProfilePreferencesInput",
 );
-const generatedPersonaAdditionalInstructionsInput = document.getElementById(
-  "generatedPersonaAdditionalInstructionsInput",
+const generatedUserProfileAdditionalInstructionsInput = document.getElementById(
+  "generatedUserProfileAdditionalInstructionsInput",
 );
 const bundleGenerationRationale = document.getElementById(
   "bundleGenerationRationale",
@@ -819,14 +823,17 @@ function exportPromptDataset() {
   window.location.href = url;
 }
 
-async function setDefaultPersona(personaId) {
-  const response = await fetch(`/api/personas/${personaId}/set-default`, {
-    method: "POST",
-  });
+async function setDefaultUserProfile(userProfileId) {
+  const response = await fetch(
+    `/api/user-profiles/${userProfileId}/set-default`,
+    {
+      method: "POST",
+    },
+  );
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to set default persona. ${text}`);
+    throw new Error(`Failed to set default userProfile. ${text}`);
   }
 }
 
@@ -903,10 +910,11 @@ async function resolveMemoryConflictsBulk() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      conversationId: memorySuggestionConflictsCurrentConversationOnlyInput?.checked
-        ? state.activeConversationId || null
-        : null,
-      characterId: null,
+      conversationId:
+        memorySuggestionConflictsCurrentConversationOnlyInput?.checked
+          ? state.activeConversationId || null
+          : null,
+      agentId: null,
       maxCount: Number(memorySuggestionConflictsMaxCountInput?.value || 50),
       strategy: memoryConflictsStrategyInput?.value || "append_unique",
     }),
@@ -930,7 +938,10 @@ async function importMemoryDataset() {
   formData.append("file", file);
 
   const params = new URLSearchParams();
-  params.set("format", (memoryImportFormatInput?.value || "json").trim().toLowerCase());
+  params.set(
+    "format",
+    (memoryImportFormatInput?.value || "json").trim().toLowerCase(),
+  );
   params.set(
     "strategy",
     (memoryImportStrategyInput?.value || "upsert_normalized_key")
@@ -1068,7 +1079,9 @@ async function loadMemoryConflictSuggestions() {
     params.set("conversationId", state.activeConversationId);
   }
 
-  const maxCount = (memorySuggestionConflictsMaxCountInput?.value || "50").trim();
+  const maxCount = (
+    memorySuggestionConflictsMaxCountInput?.value || "50"
+  ).trim();
   if (maxCount) {
     params.set("maxCount", maxCount);
   }
@@ -1220,27 +1233,30 @@ function renderMemoryConflictSuggestions(conflicts) {
   }
 }
 
-async function previewPersonaDelete(personaId) {
-  const response = await fetch(`/api/personas/${personaId}/delete-preview`);
+async function previewUserProfileDelete(userProfileId) {
+  const response = await fetch(
+    `/api/user-profiles/${userProfileId}/delete-preview`,
+  );
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to load persona delete preview. ${text}`);
+    throw new Error(`Failed to load userProfile delete preview. ${text}`);
   }
 
   return await response.json();
 }
 
-async function deletePersonaWithPreview(personaId) {
-  const preview = await previewPersonaDelete(personaId);
+async function deleteUserProfileWithPreview(userProfileId) {
+  const preview = await previewUserProfileDelete(userProfileId);
 
-  let confirmMessage = `Delete persona "${preview.displayName}"?`;
+  let confirmMessage = `Delete userProfile "${preview.displayName}"?`;
 
   if (preview.isDefault) {
     if (preview.willPromoteReplacement) {
-      confirmMessage += `\n\nThis is the default persona. "${preview.replacementDisplayName}" will become the new default automatically.`;
+      confirmMessage += `\n\nThis is the default userProfile. "${preview.replacementDisplayName}" will become the new default automatically.`;
     } else {
-      confirmMessage += "\n\nThis is the default persona. No replacement persona exists, so the default persona will be cleared.";
+      confirmMessage +=
+        "\n\nThis is the default userProfile. No replacement userProfile exists, so the default userProfile will be cleared.";
     }
   }
 
@@ -1248,13 +1264,13 @@ async function deletePersonaWithPreview(personaId) {
     return false;
   }
 
-  const response = await fetch(`/api/personas/${personaId}`, {
+  const response = await fetch(`/api/user-profiles/${userProfileId}`, {
     method: "DELETE",
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to delete persona. ${text}`);
+    throw new Error(`Failed to delete userProfile. ${text}`);
   }
 
   return true;
@@ -1379,21 +1395,21 @@ function renderSceneStatus(sceneContext, isOocModeEnabled) {
 function setStreaming(isStreaming) {
   state.isStreaming = isStreaming;
 
-    const controls = [
-      sendBtn,
-      suggestUserMessageBtn,
-      messageInput,
-    characterSelect,
-    refreshCharactersBtn,
-    newCharacterBtn,
-    saveCharacterBtn,
-    deleteCharacterBtn,
+  const controls = [
+    sendBtn,
+    suggestUserMessageBtn,
+    messageInput,
+    agentSelect,
+    refreshAgentsBtn,
+    newAgentBtn,
+    saveAgentBtn,
+    deleteAgentBtn,
     addSampleDialogueBtn,
-    personaSelect,
-    refreshPersonasBtn,
-    newPersonaBtn,
-    savePersonaBtn,
-    deletePersonaBtn,
+    userProfileSelect,
+    refreshUserProfilesBtn,
+    newUserProfileBtn,
+    saveUserProfileBtn,
+    deleteUserProfileBtn,
     refreshConversationsBtn,
     newConversationBtn,
     refreshMemoryBtn,
@@ -1403,8 +1419,8 @@ function setStreaming(isStreaming) {
     inspectRetrievalBtn,
     inspectPromptBtn,
     inspectSummaryBtn,
-    refreshLorebooksBtn,
-    createLorebookBtn,
+    refreshKnowledgeBasesBtn,
+    createKnowledgeBaseBtn,
     createLoreEntryBtn,
     activateTurnOverrideBtn,
     clearTurnOverrideBtn,
@@ -1512,7 +1528,8 @@ function renderProviderBadgeHtml(provider) {
 
 function renderProviderModelInlineHtml(provider, modelIdentifier) {
   const model = stripProviderPrefix(modelIdentifier || "");
-  const resolvedProvider = provider || parseProviderFromModelIdentifier(modelIdentifier);
+  const resolvedProvider =
+    provider || parseProviderFromModelIdentifier(modelIdentifier);
 
   const providerBadge = renderProviderBadgeHtml(resolvedProvider);
   const modelText = model
@@ -1620,7 +1637,10 @@ function renderInspectionRuntimeBadges() {
 
   const rows = [
     { row: promptInspectionRuntimeRow, meta: promptInspectionRuntimeMeta },
-    { row: retrievalInspectionRuntimeRow, meta: retrievalInspectionRuntimeMeta },
+    {
+      row: retrievalInspectionRuntimeRow,
+      meta: retrievalInspectionRuntimeMeta,
+    },
   ];
 
   for (const target of rows) {
@@ -1674,8 +1694,8 @@ function runtimeSourceLabel(source) {
       return "Using one-turn override";
     case "ConversationStickyOverride":
       return "Using conversation sticky override";
-    case "CharacterDefault":
-      return "Using character default profile";
+    case "AgentDefault":
+      return "Using agent default profile";
     case "AppDefault":
       return "Using app default profile";
     case "ProviderDefault":
@@ -1754,8 +1774,9 @@ async function loadAppRuntimeDefaults() {
 }
 
 function applyAppDefaultsToUi() {
-  if (defaultPersonaSelect) {
-    defaultPersonaSelect.value = appRuntimeDefaults.defaultPersonaId || "";
+  if (defaultUserProfileSelect) {
+    defaultUserProfileSelect.value =
+      appRuntimeDefaults.defaultUserProfileId || "";
   }
 
   if (defaultModelProfileSelect) {
@@ -1780,7 +1801,7 @@ async function saveAppRuntimeDefaults() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      defaultPersonaId: defaultPersonaSelect?.value || null,
+      defaultUserProfileId: defaultUserProfileSelect?.value || null,
       defaultModelProfileId: defaultModelProfileSelect?.value || null,
       defaultGenerationPresetId: defaultGenerationPresetSelect?.value || null,
     }),
@@ -1793,7 +1814,7 @@ async function saveAppRuntimeDefaults() {
 
   appRuntimeDefaults = await response.json();
   applyAppDefaultsToUi();
-  await loadPersonas();
+  await loadUserProfiles();
 
   if (appDefaultsStatus) {
     appDefaultsStatus.textContent = "App defaults saved.";
@@ -1805,8 +1826,8 @@ function applyConversationSettingsToUi(conversation) {
     return;
   }
 
-  if (conversationPersonaSelect) {
-    conversationPersonaSelect.value = conversation.userPersonaId || "";
+  if (conversationUserProfileSelect) {
+    conversationUserProfileSelect.value = conversation.userProfileId || "";
   }
 
   if (conversationModelProfileOverrideSelect) {
@@ -1833,7 +1854,7 @@ async function saveConversationSettings() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userPersonaId: conversationPersonaSelect?.value || null,
+        userProfileId: conversationUserProfileSelect?.value || null,
         runtimeModelProfileOverrideId:
           conversationModelProfileOverrideSelect?.value || null,
         runtimeGenerationPresetOverrideId:
@@ -1930,52 +1951,52 @@ function buildTurnOverrideQueryString() {
 
 const AUTHORING_ASSISTANT_FIELDS = [
   {
-    entityType: "character",
+    entityType: "agent",
     fieldName: "description",
-    elementId: "characterDescriptionInput",
-    label: "Character Description",
+    elementId: "agentDescriptionInput",
+    label: "Agent Description",
   },
   {
-    entityType: "character",
+    entityType: "agent",
     fieldName: "personalityDefinition",
-    elementId: "characterPersonalityInput",
-    label: "Character Personality",
+    elementId: "agentPersonalityInput",
+    label: "Agent Personality",
   },
   {
-    entityType: "character",
+    entityType: "agent",
     fieldName: "scenario",
-    elementId: "characterScenarioInput",
-    label: "Character Scenario",
+    elementId: "agentScenarioInput",
+    label: "Agent Scenario",
   },
   {
-    entityType: "character",
+    entityType: "agent",
     fieldName: "greeting",
-    elementId: "characterGreetingInput",
-    label: "Character Greeting",
+    elementId: "agentGreetingInput",
+    label: "Agent Greeting",
   },
   {
-    entityType: "persona",
+    entityType: "userProfile",
     fieldName: "description",
-    elementId: "personaDescriptionInput",
-    label: "Persona Description",
+    elementId: "userProfileDescriptionInput",
+    label: "UserProfile Description",
   },
   {
-    entityType: "persona",
+    entityType: "userProfile",
     fieldName: "traits",
-    elementId: "personaTraitsInput",
-    label: "Persona Traits",
+    elementId: "userProfileTraitsInput",
+    label: "UserProfile Traits",
   },
   {
-    entityType: "persona",
+    entityType: "userProfile",
     fieldName: "preferences",
-    elementId: "personaPreferencesInput",
-    label: "Persona Preferences",
+    elementId: "userProfilePreferencesInput",
+    label: "UserProfile Preferences",
   },
   {
-    entityType: "persona",
+    entityType: "userProfile",
     fieldName: "additionalInstructions",
-    elementId: "personaInstructionsInput",
-    label: "Persona Additional Instructions",
+    elementId: "userProfileInstructionsInput",
+    label: "UserProfile Additional Instructions",
   },
 ];
 
@@ -1984,71 +2005,75 @@ function safeValueById(id) {
   return el ? el.value || "" : "";
 }
 
-function collectCharacterAuthoringContext() {
+function collectAgentAuthoringContext() {
   return {
-    name: safeValueById("characterNameInput"),
-    description: safeValueById("characterDescriptionInput"),
-    personalityDefinition: safeValueById("characterPersonalityInput"),
-    scenario: safeValueById("characterScenarioInput"),
-    greeting: safeValueById("characterGreetingInput"),
+    name: safeValueById("agentNameInput"),
+    description: safeValueById("agentDescriptionInput"),
+    personalityDefinition: safeValueById("agentPersonalityInput"),
+    scenario: safeValueById("agentScenarioInput"),
+    greeting: safeValueById("agentGreetingInput"),
   };
 }
 
-function collectPersonaAuthoringContext() {
+function collectUserProfileAuthoringContext() {
   return {
-    displayName: safeValueById("personaDisplayNameInput"),
-    description: safeValueById("personaDescriptionInput"),
-    traits: safeValueById("personaTraitsInput"),
-    preferences: safeValueById("personaPreferencesInput"),
-    additionalInstructions: safeValueById("personaInstructionsInput"),
+    displayName: safeValueById("userProfileDisplayNameInput"),
+    description: safeValueById("userProfileDescriptionInput"),
+    traits: safeValueById("userProfileTraitsInput"),
+    preferences: safeValueById("userProfilePreferencesInput"),
+    additionalInstructions: safeValueById("userProfileInstructionsInput"),
   };
 }
 
 function getAuthoringContext(entityType) {
-  return entityType === "character"
-    ? collectCharacterAuthoringContext()
-    : collectPersonaAuthoringContext();
+  return entityType === "agent"
+    ? collectAgentAuthoringContext()
+    : collectUserProfileAuthoringContext();
 }
 
 const AUTHORING_REPAIR_FIELD_TARGETS = {
-  characterDescription: "characterDescriptionInput",
-  characterPersonalityDefinition: "characterPersonalityInput",
-  characterScenario: "characterScenarioInput",
-  characterGreeting: "characterGreetingInput",
-  personaDescription: "personaDescriptionInput",
-  personaTraits: "personaTraitsInput",
-  personaPreferences: "personaPreferencesInput",
-  personaAdditionalInstructions: "personaInstructionsInput",
+  agentDescription: "agentDescriptionInput",
+  agentPersonalityDefinition: "agentPersonalityInput",
+  agentScenario: "agentScenarioInput",
+  agentGreeting: "agentGreetingInput",
+  userProfileDescription: "userProfileDescriptionInput",
+  userProfileTraits: "userProfileTraitsInput",
+  userProfilePreferences: "userProfilePreferencesInput",
+  userProfileAdditionalInstructions: "userProfileInstructionsInput",
 };
 
 function collectFullBundleContext() {
   return {
-    characterName: safeValueById("characterNameInput"),
-    characterDescription: safeValueById("characterDescriptionInput"),
-    characterPersonalityDefinition: safeValueById("characterPersonalityInput"),
-    characterScenario: safeValueById("characterScenarioInput"),
-    characterGreeting: safeValueById("characterGreetingInput"),
-    personaDisplayName: safeValueById("personaDisplayNameInput"),
-    personaDescription: safeValueById("personaDescriptionInput"),
-    personaTraits: safeValueById("personaTraitsInput"),
-    personaPreferences: safeValueById("personaPreferencesInput"),
-    personaAdditionalInstructions: safeValueById("personaInstructionsInput"),
+    agentName: safeValueById("agentNameInput"),
+    agentDescription: safeValueById("agentDescriptionInput"),
+    agentPersonalityDefinition: safeValueById("agentPersonalityInput"),
+    agentScenario: safeValueById("agentScenarioInput"),
+    agentGreeting: safeValueById("agentGreetingInput"),
+    userProfileDisplayName: safeValueById("userProfileDisplayNameInput"),
+    userProfileDescription: safeValueById("userProfileDescriptionInput"),
+    userProfileTraits: safeValueById("userProfileTraitsInput"),
+    userProfilePreferences: safeValueById("userProfilePreferencesInput"),
+    userProfileAdditionalInstructions: safeValueById(
+      "userProfileInstructionsInput",
+    ),
   };
 }
 
 function collectFullAuthoringConsistencyContext() {
   return {
-    characterName: safeValueById("characterNameInput"),
-    characterDescription: safeValueById("characterDescriptionInput"),
-    characterPersonalityDefinition: safeValueById("characterPersonalityInput"),
-    characterScenario: safeValueById("characterScenarioInput"),
-    characterGreeting: safeValueById("characterGreetingInput"),
+    agentName: safeValueById("agentNameInput"),
+    agentDescription: safeValueById("agentDescriptionInput"),
+    agentPersonalityDefinition: safeValueById("agentPersonalityInput"),
+    agentScenario: safeValueById("agentScenarioInput"),
+    agentGreeting: safeValueById("agentGreetingInput"),
 
-    personaDisplayName: safeValueById("personaDisplayNameInput"),
-    personaDescription: safeValueById("personaDescriptionInput"),
-    personaTraits: safeValueById("personaTraitsInput"),
-    personaPreferences: safeValueById("personaPreferencesInput"),
-    personaAdditionalInstructions: safeValueById("personaInstructionsInput"),
+    userProfileDisplayName: safeValueById("userProfileDisplayNameInput"),
+    userProfileDescription: safeValueById("userProfileDescriptionInput"),
+    userProfileTraits: safeValueById("userProfileTraitsInput"),
+    userProfilePreferences: safeValueById("userProfilePreferencesInput"),
+    userProfileAdditionalInstructions: safeValueById(
+      "userProfileInstructionsInput",
+    ),
   };
 }
 
@@ -2296,37 +2321,40 @@ async function generateFullBundle() {
 
   const result = await response.json();
 
-  if (generatedCharacterNameInput) {
-    generatedCharacterNameInput.value = result.characterName || "";
+  if (generatedAgentNameInput) {
+    generatedAgentNameInput.value = result.agentName || "";
   }
-  if (generatedCharacterDescriptionInput) {
-    generatedCharacterDescriptionInput.value = result.characterDescription || "";
+  if (generatedAgentDescriptionInput) {
+    generatedAgentDescriptionInput.value = result.agentDescription || "";
   }
-  if (generatedCharacterPersonalityInput) {
-    generatedCharacterPersonalityInput.value =
-      result.characterPersonalityDefinition || "";
+  if (generatedAgentPersonalityInput) {
+    generatedAgentPersonalityInput.value =
+      result.agentPersonalityDefinition || "";
   }
-  if (generatedCharacterScenarioInput) {
-    generatedCharacterScenarioInput.value = result.characterScenario || "";
+  if (generatedAgentScenarioInput) {
+    generatedAgentScenarioInput.value = result.agentScenario || "";
   }
-  if (generatedCharacterGreetingInput) {
-    generatedCharacterGreetingInput.value = result.characterGreeting || "";
+  if (generatedAgentGreetingInput) {
+    generatedAgentGreetingInput.value = result.agentGreeting || "";
   }
-  if (generatedPersonaDisplayNameInput) {
-    generatedPersonaDisplayNameInput.value = result.personaDisplayName || "";
+  if (generatedUserProfileDisplayNameInput) {
+    generatedUserProfileDisplayNameInput.value =
+      result.userProfileDisplayName || "";
   }
-  if (generatedPersonaDescriptionInput) {
-    generatedPersonaDescriptionInput.value = result.personaDescription || "";
+  if (generatedUserProfileDescriptionInput) {
+    generatedUserProfileDescriptionInput.value =
+      result.userProfileDescription || "";
   }
-  if (generatedPersonaTraitsInput) {
-    generatedPersonaTraitsInput.value = result.personaTraits || "";
+  if (generatedUserProfileTraitsInput) {
+    generatedUserProfileTraitsInput.value = result.userProfileTraits || "";
   }
-  if (generatedPersonaPreferencesInput) {
-    generatedPersonaPreferencesInput.value = result.personaPreferences || "";
+  if (generatedUserProfilePreferencesInput) {
+    generatedUserProfilePreferencesInput.value =
+      result.userProfilePreferences || "";
   }
-  if (generatedPersonaAdditionalInstructionsInput) {
-    generatedPersonaAdditionalInstructionsInput.value =
-      result.personaAdditionalInstructions || "";
+  if (generatedUserProfileAdditionalInstructionsInput) {
+    generatedUserProfileAdditionalInstructionsInput.value =
+      result.userProfileAdditionalInstructions || "";
   }
 
   bundleGenerationMeta.textContent = "Generated full bundle loaded.";
@@ -2335,35 +2363,35 @@ async function generateFullBundle() {
 }
 
 function clearGeneratedBundleReview() {
-  if (generatedCharacterNameInput) {
-    generatedCharacterNameInput.value = "";
+  if (generatedAgentNameInput) {
+    generatedAgentNameInput.value = "";
   }
-  if (generatedCharacterDescriptionInput) {
-    generatedCharacterDescriptionInput.value = "";
+  if (generatedAgentDescriptionInput) {
+    generatedAgentDescriptionInput.value = "";
   }
-  if (generatedCharacterPersonalityInput) {
-    generatedCharacterPersonalityInput.value = "";
+  if (generatedAgentPersonalityInput) {
+    generatedAgentPersonalityInput.value = "";
   }
-  if (generatedCharacterScenarioInput) {
-    generatedCharacterScenarioInput.value = "";
+  if (generatedAgentScenarioInput) {
+    generatedAgentScenarioInput.value = "";
   }
-  if (generatedCharacterGreetingInput) {
-    generatedCharacterGreetingInput.value = "";
+  if (generatedAgentGreetingInput) {
+    generatedAgentGreetingInput.value = "";
   }
-  if (generatedPersonaDisplayNameInput) {
-    generatedPersonaDisplayNameInput.value = "";
+  if (generatedUserProfileDisplayNameInput) {
+    generatedUserProfileDisplayNameInput.value = "";
   }
-  if (generatedPersonaDescriptionInput) {
-    generatedPersonaDescriptionInput.value = "";
+  if (generatedUserProfileDescriptionInput) {
+    generatedUserProfileDescriptionInput.value = "";
   }
-  if (generatedPersonaTraitsInput) {
-    generatedPersonaTraitsInput.value = "";
+  if (generatedUserProfileTraitsInput) {
+    generatedUserProfileTraitsInput.value = "";
   }
-  if (generatedPersonaPreferencesInput) {
-    generatedPersonaPreferencesInput.value = "";
+  if (generatedUserProfilePreferencesInput) {
+    generatedUserProfilePreferencesInput.value = "";
   }
-  if (generatedPersonaAdditionalInstructionsInput) {
-    generatedPersonaAdditionalInstructionsInput.value = "";
+  if (generatedUserProfileAdditionalInstructionsInput) {
+    generatedUserProfileAdditionalInstructionsInput.value = "";
   }
   if (bundleGenerationMeta) {
     bundleGenerationMeta.textContent = "No generated bundle loaded yet.";
@@ -2375,18 +2403,27 @@ function clearGeneratedBundleReview() {
 
 function applyGeneratedBundle() {
   const map = [
-    ["characterNameInput", generatedCharacterNameInput?.value],
-    ["characterDescriptionInput", generatedCharacterDescriptionInput?.value],
-    ["characterPersonalityInput", generatedCharacterPersonalityInput?.value],
-    ["characterScenarioInput", generatedCharacterScenarioInput?.value],
-    ["characterGreetingInput", generatedCharacterGreetingInput?.value],
-    ["personaDisplayNameInput", generatedPersonaDisplayNameInput?.value],
-    ["personaDescriptionInput", generatedPersonaDescriptionInput?.value],
-    ["personaTraitsInput", generatedPersonaTraitsInput?.value],
-    ["personaPreferencesInput", generatedPersonaPreferencesInput?.value],
+    ["agentNameInput", generatedAgentNameInput?.value],
+    ["agentDescriptionInput", generatedAgentDescriptionInput?.value],
+    ["agentPersonalityInput", generatedAgentPersonalityInput?.value],
+    ["agentScenarioInput", generatedAgentScenarioInput?.value],
+    ["agentGreetingInput", generatedAgentGreetingInput?.value],
     [
-      "personaInstructionsInput",
-      generatedPersonaAdditionalInstructionsInput?.value,
+      "userProfileDisplayNameInput",
+      generatedUserProfileDisplayNameInput?.value,
+    ],
+    [
+      "userProfileDescriptionInput",
+      generatedUserProfileDescriptionInput?.value,
+    ],
+    ["userProfileTraitsInput", generatedUserProfileTraitsInput?.value],
+    [
+      "userProfilePreferencesInput",
+      generatedUserProfilePreferencesInput?.value,
+    ],
+    [
+      "userProfileInstructionsInput",
+      generatedUserProfileAdditionalInstructionsInput?.value,
     ],
   ];
 
@@ -2425,7 +2462,7 @@ async function repairConsistencyIssue(issue) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      entityType: "characterPersonaBundle",
+      entityType: "agentUserProfileBundle",
       fieldName: issue.fieldName,
       issueType: issue.issueType,
       issueDescription: issue.description,
@@ -2444,7 +2481,7 @@ async function repairConsistencyIssue(issue) {
   const result = await response.json();
 
   authoringEnhancementState.targetElementId = targetElementId;
-  authoringEnhancementState.entityType = "characterPersonaBundle";
+  authoringEnhancementState.entityType = "agentUserProfileBundle";
   authoringEnhancementState.fieldName = issue.fieldName;
 
   if (authoringEnhancementMeta) {
@@ -2469,7 +2506,7 @@ async function checkAuthoringConsistency() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      entityType: "characterPersonaBundle",
+      entityType: "agentUserProfileBundle",
       fields: collectFullAuthoringConsistencyContext(),
       modelOverride: null,
     }),
@@ -2611,7 +2648,9 @@ function buildMemoryMetaHtml(memory) {
   }
 
   if (memory.slotKey) {
-    rows.push(`<div><strong>Slot:</strong> ${escapeHtml(memory.slotKey)}</div>`);
+    rows.push(
+      `<div><strong>Slot:</strong> ${escapeHtml(memory.slotKey)}</div>`,
+    );
   }
   if (memory.slotFamily) {
     rows.push(
@@ -2713,7 +2752,9 @@ function stripSpeakerPrefix(role, text) {
     return "";
   }
 
-  const normalizedRole = String(role || "").trim().toLowerCase();
+  const normalizedRole = String(role || "")
+    .trim()
+    .toLowerCase();
   const patterns = [];
 
   if (normalizedRole === "assistant") {
@@ -2862,9 +2903,9 @@ function getSelectedImageStylePreset() {
   );
 }
 
-function getActiveCharacterVisualDefaults() {
-  const character = state.activeCharacterDetail;
-  if (!character) {
+function getActiveAgentVisualDefaults() {
+  const agent = state.activeAgentDetail;
+  if (!agent) {
     return {
       defaultVisualStylePreset: null,
       defaultVisualPromptPrefix: null,
@@ -2873,14 +2914,14 @@ function getActiveCharacterVisualDefaults() {
   }
 
   return {
-    defaultVisualStylePreset: character.defaultVisualStylePreset ?? null,
-    defaultVisualPromptPrefix: character.defaultVisualPromptPrefix ?? null,
-    defaultVisualNegativePrompt: character.defaultVisualNegativePrompt ?? null,
+    defaultVisualStylePreset: agent.defaultVisualStylePreset ?? null,
+    defaultVisualPromptPrefix: agent.defaultVisualPromptPrefix ?? null,
+    defaultVisualNegativePrompt: agent.defaultVisualNegativePrompt ?? null,
   };
 }
 
 function applyVisualDefaultsAndPreset(basePositivePrompt, baseNegativePrompt) {
-  const defaults = getActiveCharacterVisualDefaults();
+  const defaults = getActiveAgentVisualDefaults();
   const preset = getSelectedImageStylePreset();
 
   const positivePrompt = mergePromptParts([
@@ -2960,7 +3001,9 @@ function initializeSidebarAccordions() {
 }
 
 function initializeMemoryPanelAccordions() {
-  const sections = document.querySelectorAll(".memory-panel .memory-panel-section");
+  const sections = document.querySelectorAll(
+    ".memory-panel .memory-panel-section",
+  );
 
   sections.forEach((section, index) => {
     if (section.dataset.accordionInitialized === "true") {
@@ -2976,7 +3019,8 @@ function initializeMemoryPanelAccordions() {
 
     section.classList.add("sidebar-section");
 
-    const titleText = heading.textContent?.trim() || `Debug Section ${index + 1}`;
+    const titleText =
+      heading.textContent?.trim() || `Debug Section ${index + 1}`;
     const storageKey = `localchat.debug.${titleText}`;
     const shouldStartExpanded = section.dataset.expandedDefault === "true";
 
@@ -3043,37 +3087,34 @@ function renderEmptyMessages(text) {
   messagesEl.innerHTML = `<div class="empty-state">${escapeHtml(text)}</div>`;
 }
 
-function getSelectedCharacter() {
+function getSelectedAgent() {
   return (
-    (state.characters || []).find((x) => x.id === state.selectedCharacterId) ||
-    null
+    (state.agents || []).find((x) => x.id === state.selectedAgentId) || null
   );
 }
 
-function getActiveConversationCharacter() {
+function getActiveConversationAgent() {
   const activeConversation = (state.conversations || []).find(
     (x) => x.id === state.activeConversationId,
   );
   if (!activeConversation) {
-    return state.activeCharacterDetail || getSelectedCharacter();
+    return state.activeAgentDetail || getSelectedAgent();
   }
 
   return (
-    (state.characters || []).find(
-      (x) => x.id === activeConversation.characterId,
-    ) ||
-    state.activeCharacterDetail ||
-    getSelectedCharacter()
+    (state.agents || []).find((x) => x.id === activeConversation.agentId) ||
+    state.activeAgentDetail ||
+    getSelectedAgent()
   );
 }
 
 function renderAssistantAvatarHtml() {
-  const character = getActiveConversationCharacter();
-  if (!character || !character.imageUrl) {
+  const agent = getActiveConversationAgent();
+  if (!agent || !agent.imageUrl) {
     return "";
   }
 
-  return `<img class="character-avatar" src="${escapeHtml(character.imageUrl)}" alt="${escapeHtml(character.name || "Character")}" />`;
+  return `<img class="agent-avatar" src="${escapeHtml(agent.imageUrl)}" alt="${escapeHtml(agent.name || "Agent")}" />`;
 }
 
 function renderActiveConversationHeaderAvatar() {
@@ -3081,42 +3122,42 @@ function renderActiveConversationHeaderAvatar() {
     return;
   }
 
-  const character = getActiveConversationCharacter();
-  if (!character || !character.imageUrl) {
+  const agent = getActiveConversationAgent();
+  if (!agent || !agent.imageUrl) {
     activeConversationHeaderAvatar.innerHTML = "";
     return;
   }
 
-  activeConversationHeaderAvatar.innerHTML = `<img class="character-avatar character-avatar--large" src="${escapeHtml(character.imageUrl)}" alt="${escapeHtml(character.name || "Character")}" />`;
+  activeConversationHeaderAvatar.innerHTML = `<img class="agent-avatar agent-avatar--large" src="${escapeHtml(agent.imageUrl)}" alt="${escapeHtml(agent.name || "Agent")}" />`;
 }
 
-function renderCharacterImagePreview(character) {
-  if (!characterImagePreview || !characterImageStatus) {
+function renderAgentImagePreview(agent) {
+  if (!agentImagePreview || !agentImageStatus) {
     return;
   }
 
-  if (!character || !character.imageUrl) {
-    characterImagePreview.innerHTML = "";
-    characterImageStatus.textContent = "No image uploaded.";
+  if (!agent || !agent.imageUrl) {
+    agentImagePreview.innerHTML = "";
+    agentImageStatus.textContent = "No image uploaded.";
     return;
   }
 
-  characterImagePreview.innerHTML = `
-    <div class="character-image-preview">
-      <img src="${escapeHtml(character.imageUrl)}" alt="${escapeHtml(character.name || "Character image")}" />
+  agentImagePreview.innerHTML = `
+    <div class="agent-image-preview">
+      <img src="${escapeHtml(agent.imageUrl)}" alt="${escapeHtml(agent.name || "Agent image")}" />
     </div>
   `;
 
-  characterImageStatus.textContent = "Character image uploaded.";
+  agentImageStatus.textContent = "Agent image uploaded.";
 }
 
-async function uploadCharacterImage() {
-  const character = getSelectedCharacter();
-  if (!character) {
-    throw new Error("No active character selected.");
+async function uploadAgentImage() {
+  const agent = getSelectedAgent();
+  if (!agent) {
+    throw new Error("No active agent selected.");
   }
 
-  const file = characterImageFileInput?.files?.[0];
+  const file = agentImageFileInput?.files?.[0];
   if (!file) {
     throw new Error("Choose an image file first.");
   }
@@ -3124,40 +3165,40 @@ async function uploadCharacterImage() {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`/api/characters/${character.id}/image`, {
+  const response = await fetch(`/api/agents/${agent.id}/image`, {
     method: "POST",
     body: formData,
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to upload character image. ${text}`);
+    throw new Error(`Failed to upload agent image. ${text}`);
   }
 
-  await loadCharacters();
-  await loadCharacterDetail(character.id);
+  await loadAgents();
+  await loadAgentDetail(agent.id);
   renderActiveConversationHeaderAvatar();
 }
 
-async function removeCharacterImage() {
-  const character = getSelectedCharacter();
-  if (!character) {
-    throw new Error("No active character selected.");
+async function removeAgentImage() {
+  const agent = getSelectedAgent();
+  if (!agent) {
+    throw new Error("No active agent selected.");
   }
 
-  const response = await fetch(`/api/characters/${character.id}/image`, {
+  const response = await fetch(`/api/agents/${agent.id}/image`, {
     method: "DELETE",
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to remove character image. ${text}`);
+    throw new Error(`Failed to remove agent image. ${text}`);
   }
 
-  await loadCharacters();
-  await loadCharacterDetail(character.id);
-  if (characterImageFileInput) {
-    characterImageFileInput.value = "";
+  await loadAgents();
+  await loadAgentDetail(agent.id);
+  if (agentImageFileInput) {
+    agentImageFileInput.value = "";
   }
   renderActiveConversationHeaderAvatar();
 }
@@ -3216,10 +3257,9 @@ function renderMessages(messages) {
       `
       : `<div class="message-role">${escapeHtml(message.role)}</div>`;
 
-    const variantMeta =
-      isAssistant
-        ? `<div class="message-variant-meta">Selected variant: ${selectedVariantDisplay} • Variant count: ${variantCountDisplay}</div>`
-        : "";
+    const variantMeta = isAssistant
+      ? `<div class="message-variant-meta">Selected variant: ${selectedVariantDisplay} • Variant count: ${variantCountDisplay}</div>`
+      : "";
 
     const selectedRuntimeHtml =
       isAssistant &&
@@ -3238,7 +3278,9 @@ function renderMessages(messages) {
         : "";
 
     const variantCardsHtml =
-      isAssistant && Array.isArray(message.variants) && message.variants.length > 0
+      isAssistant &&
+      Array.isArray(message.variants) &&
+      message.variants.length > 0
         ? `
         <div class="message-variants">
           ${message.variants
@@ -3294,10 +3336,9 @@ function renderMessages(messages) {
         ? `<button type="button" data-action="next-swipe" data-message-id="${message.id}">Next Swipe</button>`
         : "";
 
-    const speakButton =
-      isAssistant
-        ? `<button type="button" data-action="speak" data-message-id="${message.id}">Speak</button>`
-        : "";
+    const speakButton = isAssistant
+      ? `<button type="button" data-action="speak" data-message-id="${message.id}">Speak</button>`
+      : "";
 
     const copyButton =
       message.role === "Assistant" || message.role === "User"
@@ -3391,7 +3432,7 @@ function renderConversationList() {
       <div class="conversation-title">${escapeHtml(conversation.title)}</div>
       <div class="conversation-meta">
         Updated ${escapeHtml(formatDate(conversation.updatedAt))}
-        ${conversation.userPersonaId ? " • Persona linked" : ""}
+        ${conversation.userProfileId ? " • UserProfile linked" : ""}
       </div>
     `;
 
@@ -3416,16 +3457,15 @@ function renderMemoryList() {
     item.className = "memory-item";
     const scopeType =
       (memory.scopeType || "").trim() ||
-      (memory.conversationId ? "Conversation" : "Character");
-    const isConversationScope =
-      scopeType.toLowerCase() === "conversation";
+      (memory.conversationId ? "Conversation" : "Agent");
+    const isConversationScope = scopeType.toLowerCase() === "conversation";
     const promoteButtonHtml = isConversationScope
-      ? `<button type="button" data-action="promote-memory" data-memory-id="${memory.id}">Promote to Character</button>`
+      ? `<button type="button" data-action="promote-memory" data-memory-id="${memory.id}">Promote to Agent</button>`
       : "";
     const copyIdButtonHtml = `<button type="button" data-action="copy-memory-id" data-memory-id="${memory.id}">Copy ID</button>`;
     const provenanceButtonHtml = `<button type="button" data-action="view-memory-provenance" data-memory-id="${memory.id}">View Provenance</button>`;
     const demoteButtonHtml =
-      scopeType.toLowerCase() === "character" && state.activeConversationId
+      scopeType.toLowerCase() === "agent" && state.activeConversationId
         ? `<button type="button" data-action="demote-memory" data-memory-id="${memory.id}">Demote to Current Conversation</button>`
         : "";
 
@@ -3475,7 +3515,7 @@ function renderMemoryList() {
           } else if (action === "merge-memory") {
             await mergeMemoryItem(current);
           } else if (action === "promote-memory") {
-            await promoteMemoryToCharacter(current.id);
+            await promoteMemoryToAgent(current.id);
           } else if (action === "copy-memory-id") {
             await copyTextToClipboard(current.id);
             setStatus("Memory id copied");
@@ -3483,7 +3523,8 @@ function renderMemoryList() {
             await demoteMemoryToConversation(current.id);
           } else if (action === "view-memory-provenance") {
             if (memoryProvenanceStatus) {
-              memoryProvenanceStatus.textContent = "Loading memory provenance...";
+              memoryProvenanceStatus.textContent =
+                "Loading memory provenance...";
             }
             await loadMemoryProvenance(current.id);
             setStatus("Memory provenance loaded");
@@ -3531,7 +3572,7 @@ function renderPendingMemoryProposals(proposals) {
       </div>
     `;
 
-    wrapper.querySelectorAll("button").forEach(button => {
+    wrapper.querySelectorAll("button").forEach((button) => {
       button.addEventListener("click", async () => {
         const action = button.dataset.action;
         const id = button.dataset.id;
@@ -3689,24 +3730,24 @@ function renderPromptMemorySelectionDebug(selectedMemoryExplanations) {
   promptSlotWinnersList.innerHTML = "";
   promptSuppressedDurableList.innerHTML = "";
 
-  const sceneStateWinners = (selectedMemoryExplanations || []).filter(
-    (x) => x.kind === "SceneState" && x.slotKey,
+  const sessionStateWinners = (selectedMemoryExplanations || []).filter(
+    (x) => x.kind === "SessionState" && x.slotKey,
   );
 
   const suppressedDurable = (selectedMemoryExplanations || [])
     .flatMap((x) => x.suppressedMemories || [])
-    .filter((x) => x.kind !== "SceneState");
+    .filter((x) => x.kind !== "SessionState");
 
-  promptSlotWinnersMeta.textContent = `Scene-state slot winners: ${sceneStateWinners.length}`;
+  promptSlotWinnersMeta.textContent = `Session-state slot winners: ${sessionStateWinners.length}`;
   promptSuppressedDurableMeta.textContent = `Suppressed durable memories: ${suppressedDurable.length}`;
 
-  if (sceneStateWinners.length === 0) {
+  if (sessionStateWinners.length === 0) {
     const empty = document.createElement("div");
     empty.className = "muted-text";
-    empty.textContent = "No scene-state slot winners found.";
+    empty.textContent = "No session-state slot winners found.";
     promptSlotWinnersList.appendChild(empty);
   } else {
-    for (const item of sceneStateWinners) {
+    for (const item of sessionStateWinners) {
       const el = document.createElement("div");
       el.className = "proposal-card";
       el.innerHTML = `
@@ -3767,28 +3808,28 @@ function renderRetrievalLoreExplanations(explanations) {
   }
 }
 
-function renderLorebooks() {
-  lorebookSelect.innerHTML = "";
-  lorebookList.innerHTML = "";
+function renderKnowledgeBases() {
+  knowledgeBaseSelect.innerHTML = "";
+  knowledgeBaseList.innerHTML = "";
 
-  if (!state.lorebooks.length) {
-    lorebookSelect.innerHTML = `<option value="">No lorebooks</option>`;
-    lorebookList.innerHTML = `<div class="empty-state">No lorebooks yet.</div>`;
+  if (!state.knowledgeBases.length) {
+    knowledgeBaseSelect.innerHTML = `<option value="">No knowledgeBases</option>`;
+    knowledgeBaseList.innerHTML = `<div class="empty-state">No knowledgeBases yet.</div>`;
     return;
   }
 
-  for (const lorebook of state.lorebooks) {
+  for (const knowledgeBase of state.knowledgeBases) {
     const option = document.createElement("option");
-    option.value = lorebook.id;
-    option.textContent = lorebook.name;
-    lorebookSelect.appendChild(option);
+    option.value = knowledgeBase.id;
+    option.textContent = knowledgeBase.name;
+    knowledgeBaseSelect.appendChild(option);
 
     const block = document.createElement("div");
-    block.className = "lorebook-block";
+    block.className = "knowledgeBase-block";
 
     const entriesHtml =
-      lorebook.entries && lorebook.entries.length
-        ? lorebook.entries
+      knowledgeBase.entries && knowledgeBase.entries.length
+        ? knowledgeBase.entries
             .map(
               (entry) => `
           <div class="lore-entry">
@@ -3809,8 +3850,8 @@ function renderLorebooks() {
         : `<div class="empty-state">No entries.</div>`;
 
     block.innerHTML = `
-      <div class="lorebook-title">${escapeHtml(lorebook.name)}</div>
-      <div class="lorebook-description">${escapeHtml(lorebook.description)}</div>
+      <div class="knowledgeBase-title">${escapeHtml(knowledgeBase.name)}</div>
+      <div class="knowledgeBase-description">${escapeHtml(knowledgeBase.description)}</div>
       ${entriesHtml}
     `;
 
@@ -3818,14 +3859,19 @@ function renderLorebooks() {
     buttons.forEach((button) => {
       button.addEventListener("click", async () => {
         const entryId = button.dataset.entryId;
-        const lorebookEntry = lorebook.entries.find((x) => x.id === entryId);
-        if (!lorebookEntry) return;
+        const knowledgeBaseEntry = knowledgeBase.entries.find(
+          (x) => x.id === entryId,
+        );
+        if (!knowledgeBaseEntry) return;
 
-        await updateLoreEntry(lorebookEntry, !lorebookEntry.isEnabled);
+        await updateLoreEntry(
+          knowledgeBaseEntry,
+          !knowledgeBaseEntry.isEnabled,
+        );
       });
     });
 
-    lorebookList.appendChild(block);
+    knowledgeBaseList.appendChild(block);
   }
 }
 
@@ -3910,7 +3956,7 @@ function renderPromptInspection(data) {
     <div class="inspection-item-reason">${data.fitsWithinBudget ? "Fits within budget." : "Exceeds budget."}</div>
   `;
   promptInspectionResults.appendChild(summary);
-  renderPromptSceneStateDebug(data);
+  renderPromptSessionStateDebug(data);
   renderPromptDurableMemoryDebug(data);
 
   if (!data.sections || data.sections.length === 0) {
@@ -3972,59 +4018,58 @@ function renderSummaryInspection(data) {
   summaryInspectionResults.appendChild(block);
 }
 
-function renderCharacterEditor(character) {
-  state.selectedCharacterDetail = character;
-  state.activeCharacterDetail = character;
-  state.characterEditorMode = "edit";
+function renderAgentEditor(agent) {
+  state.selectedAgentDetail = agent;
+  state.activeAgentDetail = agent;
+  state.agentEditorMode = "edit";
 
-  characterNameInput.value = character?.name ?? "";
-  characterDescriptionInput.value = character?.description ?? "";
-  characterGreetingInput.value = character?.greeting ?? "";
-  characterScenarioInput.value = character?.scenario ?? "";
-  characterPersonalityInput.value = character?.personalityDefinition ?? "";
-  characterModelProfileSelect.value = character?.defaultModelProfileId ?? "";
-  characterGenerationPresetSelect.value =
-    character?.defaultGenerationPresetId ?? "";
-  characterDefaultTtsVoiceInput.value = character?.defaultTtsVoice ?? "";
-  characterDefaultVisualStylePresetSelect.value =
-    character?.defaultVisualStylePreset ?? "none";
-  characterDefaultVisualPromptPrefixInput.value =
-    character?.defaultVisualPromptPrefix ?? "";
-  characterDefaultVisualNegativePromptInput.value =
-    character?.defaultVisualNegativePrompt ?? "";
+  agentNameInput.value = agent?.name ?? "";
+  agentDescriptionInput.value = agent?.description ?? "";
+  agentGreetingInput.value = agent?.greeting ?? "";
+  agentScenarioInput.value = agent?.scenario ?? "";
+  agentPersonalityInput.value = agent?.personalityDefinition ?? "";
+  agentModelProfileSelect.value = agent?.defaultModelProfileId ?? "";
+  agentGenerationPresetSelect.value = agent?.defaultGenerationPresetId ?? "";
+  agentDefaultTtsVoiceInput.value = agent?.defaultTtsVoice ?? "";
+  agentDefaultVisualStylePresetSelect.value =
+    agent?.defaultVisualStylePreset ?? "none";
+  agentDefaultVisualPromptPrefixInput.value =
+    agent?.defaultVisualPromptPrefix ?? "";
+  agentDefaultVisualNegativePromptInput.value =
+    agent?.defaultVisualNegativePrompt ?? "";
 
-  renderSampleDialogueEditor(character?.sampleDialogues ?? []);
-  renderCharacterImagePreview(character);
+  renderSampleDialogueEditor(agent?.sampleDialogues ?? []);
+  renderAgentImagePreview(agent);
   renderActiveConversationHeaderAvatar();
 }
 
-function clearCharacterEditor() {
-  state.selectedCharacterDetail = null;
-  state.activeCharacterDetail = null;
-  state.characterEditorMode = "create";
+function clearAgentEditor() {
+  state.selectedAgentDetail = null;
+  state.activeAgentDetail = null;
+  state.agentEditorMode = "create";
 
-  characterNameInput.value = "";
-  characterDescriptionInput.value = "";
-  characterGreetingInput.value = "";
-  characterScenarioInput.value = "";
-  characterPersonalityInput.value = "";
-  characterModelProfileSelect.value = "";
-  characterGenerationPresetSelect.value = "";
-  characterDefaultTtsVoiceInput.value = "";
-  characterDefaultVisualStylePresetSelect.value = "none";
-  characterDefaultVisualPromptPrefixInput.value = "";
-  characterDefaultVisualNegativePromptInput.value = "";
+  agentNameInput.value = "";
+  agentDescriptionInput.value = "";
+  agentGreetingInput.value = "";
+  agentScenarioInput.value = "";
+  agentPersonalityInput.value = "";
+  agentModelProfileSelect.value = "";
+  agentGenerationPresetSelect.value = "";
+  agentDefaultTtsVoiceInput.value = "";
+  agentDefaultVisualStylePresetSelect.value = "none";
+  agentDefaultVisualPromptPrefixInput.value = "";
+  agentDefaultVisualNegativePromptInput.value = "";
 
   renderSampleDialogueEditor([]);
-  renderCharacterImagePreview(null);
+  renderAgentImagePreview(null);
   renderActiveConversationHeaderAvatar();
 }
 
 function renderSampleDialogueEditor(sampleDialogues) {
-  characterSampleDialogueList.innerHTML = "";
+  agentSampleDialogueList.innerHTML = "";
 
   if (!sampleDialogues.length) {
-    characterSampleDialogueList.innerHTML = `<div class="empty-state">No sample dialogue yet.</div>`;
+    agentSampleDialogueList.innerHTML = `<div class="empty-state">No sample dialogue yet.</div>`;
     return;
   }
 
@@ -4049,13 +4094,13 @@ function renderSampleDialogueEditor(sampleDialogues) {
       renderSampleDialogueEditor(current);
     });
 
-    characterSampleDialogueList.appendChild(item);
+    agentSampleDialogueList.appendChild(item);
   });
 }
 
 function collectSampleDialogues() {
   const items = [];
-  const blocks = characterSampleDialogueList.querySelectorAll(
+  const blocks = agentSampleDialogueList.querySelectorAll(
     ".sample-dialogue-item",
   );
 
@@ -4080,60 +4125,60 @@ function collectSampleDialogues() {
   return items;
 }
 
-function buildCharacterPayload() {
+function buildAgentPayload() {
   return {
-    name: characterNameInput.value.trim(),
-    description: characterDescriptionInput.value.trim(),
-    greeting: characterGreetingInput.value.trim(),
-    scenario: characterScenarioInput.value.trim(),
-    personalityDefinition: characterPersonalityInput.value.trim(),
-    defaultModelProfileId: toNullableGuid(characterModelProfileSelect.value),
+    name: agentNameInput.value.trim(),
+    description: agentDescriptionInput.value.trim(),
+    greeting: agentGreetingInput.value.trim(),
+    scenario: agentScenarioInput.value.trim(),
+    personalityDefinition: agentPersonalityInput.value.trim(),
+    defaultModelProfileId: toNullableGuid(agentModelProfileSelect.value),
     defaultGenerationPresetId: toNullableGuid(
-      characterGenerationPresetSelect.value,
+      agentGenerationPresetSelect.value,
     ),
-    defaultTtsVoice: characterDefaultTtsVoiceInput.value.trim() || null,
-    defaultVisualStylePreset:
-      characterDefaultVisualStylePresetSelect.value || null,
+    defaultTtsVoice: agentDefaultTtsVoiceInput.value.trim() || null,
+    defaultVisualStylePreset: agentDefaultVisualStylePresetSelect.value || null,
     defaultVisualPromptPrefix:
-      characterDefaultVisualPromptPrefixInput.value.trim() || null,
+      agentDefaultVisualPromptPrefixInput.value.trim() || null,
     defaultVisualNegativePrompt:
-      characterDefaultVisualNegativePromptInput.value.trim() || null,
+      agentDefaultVisualNegativePromptInput.value.trim() || null,
     sampleDialogues: collectSampleDialogues(),
   };
 }
 
-function renderPersonaEditor(persona) {
-  state.selectedPersonaDetail = persona;
-  state.personaEditorMode = "edit";
+function renderUserProfileEditor(userProfile) {
+  state.selectedUserProfileDetail = userProfile;
+  state.userProfileEditorMode = "edit";
 
-  personaNameInput.value = persona?.name ?? "";
-  personaDisplayNameInput.value = persona?.displayName ?? "";
-  personaDescriptionInput.value = persona?.description ?? "";
-  personaTraitsInput.value = persona?.traits ?? "";
-  personaPreferencesInput.value = persona?.preferences ?? "";
-  personaInstructionsInput.value = persona?.additionalInstructions ?? "";
+  userProfileNameInput.value = userProfile?.name ?? "";
+  userProfileDisplayNameInput.value = userProfile?.displayName ?? "";
+  userProfileDescriptionInput.value = userProfile?.description ?? "";
+  userProfileTraitsInput.value = userProfile?.traits ?? "";
+  userProfilePreferencesInput.value = userProfile?.preferences ?? "";
+  userProfileInstructionsInput.value =
+    userProfile?.additionalInstructions ?? "";
 }
 
-function clearPersonaEditor() {
-  state.selectedPersonaDetail = null;
-  state.personaEditorMode = "create";
+function clearUserProfileEditor() {
+  state.selectedUserProfileDetail = null;
+  state.userProfileEditorMode = "create";
 
-  personaNameInput.value = "";
-  personaDisplayNameInput.value = "";
-  personaDescriptionInput.value = "";
-  personaTraitsInput.value = "";
-  personaPreferencesInput.value = "";
-  personaInstructionsInput.value = "";
+  userProfileNameInput.value = "";
+  userProfileDisplayNameInput.value = "";
+  userProfileDescriptionInput.value = "";
+  userProfileTraitsInput.value = "";
+  userProfilePreferencesInput.value = "";
+  userProfileInstructionsInput.value = "";
 }
 
-function buildPersonaPayload() {
+function buildUserProfilePayload() {
   return {
-    name: personaNameInput.value.trim(),
-    displayName: personaDisplayNameInput.value.trim(),
-    description: personaDescriptionInput.value.trim(),
-    traits: personaTraitsInput.value.trim(),
-    preferences: personaPreferencesInput.value.trim(),
-    additionalInstructions: personaInstructionsInput.value.trim(),
+    name: userProfileNameInput.value.trim(),
+    displayName: userProfileDisplayNameInput.value.trim(),
+    description: userProfileDescriptionInput.value.trim(),
+    traits: userProfileTraitsInput.value.trim(),
+    preferences: userProfilePreferencesInput.value.trim(),
+    additionalInstructions: userProfileInstructionsInput.value.trim(),
   };
 }
 
@@ -4143,8 +4188,7 @@ function renderModelProfileEditor(profile) {
 
   modelProfileNameInput.value = profile?.name ?? "";
   modelProfileProviderTypeInput.value = (
-    profile?.providerType ??
-    "ollama"
+    profile?.providerType ?? "ollama"
   ).toLowerCase();
   modelProfileModelIdentifierInput.value = profile?.modelIdentifier ?? "";
   modelProfileContextWindowInput.value = profile?.contextWindow ?? "";
@@ -4169,7 +4213,9 @@ function refreshModelProfileProviderUi() {
     return;
   }
 
-  const provider = (modelProfileProviderTypeInput.value || "ollama").toLowerCase();
+  const provider = (
+    modelProfileProviderTypeInput.value || "ollama"
+  ).toLowerCase();
 
   if (provider === "openrouter") {
     modelProfileModelHelp.textContent =
@@ -4218,8 +4264,9 @@ function refreshModelProfileProviderUi() {
 function buildModelProfilePayload() {
   return {
     name: modelProfileNameInput.value.trim(),
-    providerType:
-      (modelProfileProviderTypeInput.value || "ollama").trim().toLowerCase(),
+    providerType: (modelProfileProviderTypeInput.value || "ollama")
+      .trim()
+      .toLowerCase(),
     modelIdentifier: modelProfileModelIdentifierInput.value.trim(),
     contextWindow: toNullableInt(modelProfileContextWindowInput.value),
     notes: modelProfileNotesInput.value.trim(),
@@ -4235,7 +4282,7 @@ async function loadModelProfiles() {
   state.modelProfiles = await response.json();
 
   modelProfileSelect.innerHTML = `<option value="">No Model Profile</option>`;
-  characterModelProfileSelect.innerHTML = `<option value="">No Model Profile</option>`;
+  agentModelProfileSelect.innerHTML = `<option value="">No Model Profile</option>`;
 
   for (const item of state.modelProfiles) {
     const editorOption = document.createElement("option");
@@ -4243,10 +4290,10 @@ async function loadModelProfiles() {
     editorOption.textContent = item.name;
     modelProfileSelect.appendChild(editorOption);
 
-    const characterOption = document.createElement("option");
-    characterOption.value = item.id;
-    characterOption.textContent = item.name;
-    characterModelProfileSelect.appendChild(characterOption);
+    const agentOption = document.createElement("option");
+    agentOption.value = item.id;
+    agentOption.textContent = item.name;
+    agentModelProfileSelect.appendChild(agentOption);
   }
 
   modelProfileSelect.value = state.selectedModelProfileId ?? "";
@@ -4425,7 +4472,7 @@ async function loadGenerationPresets() {
   state.generationPresets = await response.json();
 
   generationPresetSelect.innerHTML = `<option value="">No Generation Preset</option>`;
-  characterGenerationPresetSelect.innerHTML = `<option value="">No Generation Preset</option>`;
+  agentGenerationPresetSelect.innerHTML = `<option value="">No Generation Preset</option>`;
 
   for (const item of state.generationPresets) {
     const editorOption = document.createElement("option");
@@ -4433,10 +4480,10 @@ async function loadGenerationPresets() {
     editorOption.textContent = item.name;
     generationPresetSelect.appendChild(editorOption);
 
-    const characterOption = document.createElement("option");
-    characterOption.value = item.id;
-    characterOption.textContent = item.name;
-    characterGenerationPresetSelect.appendChild(characterOption);
+    const agentOption = document.createElement("option");
+    agentOption.value = item.id;
+    agentOption.textContent = item.name;
+    agentGenerationPresetSelect.appendChild(agentOption);
   }
 
   generationPresetSelect.value = state.selectedGenerationPresetId ?? "";
@@ -4565,75 +4612,75 @@ async function deleteCurrentGenerationPreset() {
   setStatus("Generation preset deleted");
 }
 
-async function loadCharacters() {
-  const response = await fetch("/api/characters");
+async function loadAgents() {
+  const response = await fetch("/api/agents");
   if (!response.ok) {
-    throw new Error("Failed to load characters.");
+    throw new Error("Failed to load agents.");
   }
 
   const data = await response.json();
-  state.characters = data;
+  state.agents = data;
 
-  characterSelect.innerHTML = "";
+  agentSelect.innerHTML = "";
 
-  for (const character of state.characters) {
+  for (const agent of state.agents) {
     const option = document.createElement("option");
-    option.value = character.id;
-    option.textContent = character.name;
-    characterSelect.appendChild(option);
+    option.value = agent.id;
+    option.textContent = agent.name;
+    agentSelect.appendChild(option);
   }
 
-  if (state.characters.length > 0) {
-    const stillExists = state.characters.some(
-      (x) => x.id === state.selectedCharacterId,
+  if (state.agents.length > 0) {
+    const stillExists = state.agents.some(
+      (x) => x.id === state.selectedAgentId,
     );
-    state.selectedCharacterId = stillExists
-      ? state.selectedCharacterId
-      : state.characters[0].id;
+    state.selectedAgentId = stillExists
+      ? state.selectedAgentId
+      : state.agents[0].id;
 
-    characterSelect.value = state.selectedCharacterId;
+    agentSelect.value = state.selectedAgentId;
   } else {
-    state.selectedCharacterId = null;
+    state.selectedAgentId = null;
   }
 
-  renderCharacterImagePreview(getSelectedCharacter());
+  renderAgentImagePreview(getSelectedAgent());
   renderActiveConversationHeaderAvatar();
 }
 
-async function loadCharacterDetail(characterId) {
-  if (!characterId) {
-    clearCharacterEditor();
+async function loadAgentDetail(agentId) {
+  if (!agentId) {
+    clearAgentEditor();
     return;
   }
 
-  const response = await fetch(`/api/characters/${characterId}`);
+  const response = await fetch(`/api/agents/${agentId}`);
   if (!response.ok) {
-    throw new Error("Failed to load character details.");
+    throw new Error("Failed to load agent details.");
   }
 
   const data = await response.json();
-  renderCharacterEditor(data);
+  renderAgentEditor(data);
 }
 
-async function loadActiveCharacterDetail() {
-  if (!state.selectedCharacterId) {
-    state.activeCharacterDetail = null;
+async function loadActiveAgentDetail() {
+  if (!state.selectedAgentId) {
+    state.activeAgentDetail = null;
     return null;
   }
 
-  const response = await fetch(`/api/characters/${state.selectedCharacterId}`);
+  const response = await fetch(`/api/agents/${state.selectedAgentId}`);
   if (!response.ok) {
-    throw new Error("Failed to load character detail.");
+    throw new Error("Failed to load agent detail.");
   }
 
   const detail = await response.json();
-  state.activeCharacterDetail = detail;
+  state.activeAgentDetail = detail;
   renderActiveConversationHeaderAvatar();
   return detail;
 }
 
-async function createCharacter() {
-  const payload = buildCharacterPayload();
+async function createAgent() {
+  const payload = buildAgentPayload();
 
   if (
     !payload.name ||
@@ -4642,11 +4689,11 @@ async function createCharacter() {
     !payload.scenario ||
     !payload.personalityDefinition
   ) {
-    alert("All character fields are required.");
+    alert("All agent fields are required.");
     return;
   }
 
-  const response = await fetch("/api/characters", {
+  const response = await fetch("/api/agents", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -4656,29 +4703,29 @@ async function createCharacter() {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to create character. ${text}`);
+    throw new Error(`Failed to create agent. ${text}`);
   }
 
   const created = await response.json();
-  await loadCharacters();
-  state.selectedCharacterId = created.id;
-  characterSelect.value = created.id;
-  await loadCharacterDetail(created.id);
+  await loadAgents();
+  state.selectedAgentId = created.id;
+  agentSelect.value = created.id;
+  await loadAgentDetail(created.id);
   await loadConversations();
   await loadMemories();
   await loadProposals();
-  await loadLorebooks();
+  await loadKnowledgeBases();
   startNewConversation();
-  setStatus("Character created");
+  setStatus("Agent created");
 }
 
-async function saveCurrentCharacter() {
-  if (state.characterEditorMode === "create" || !state.selectedCharacterId) {
-    await createCharacter();
+async function saveCurrentAgent() {
+  if (state.agentEditorMode === "create" || !state.selectedAgentId) {
+    await createAgent();
     return;
   }
 
-  const payload = buildCharacterPayload();
+  const payload = buildAgentPayload();
 
   if (
     !payload.name ||
@@ -4687,11 +4734,11 @@ async function saveCurrentCharacter() {
     !payload.scenario ||
     !payload.personalityDefinition
   ) {
-    alert("All character fields are required.");
+    alert("All agent fields are required.");
     return;
   }
 
-  const response = await fetch(`/api/characters/${state.selectedCharacterId}`, {
+  const response = await fetch(`/api/agents/${state.selectedAgentId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -4701,112 +4748,116 @@ async function saveCurrentCharacter() {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to save character. ${text}`);
+    throw new Error(`Failed to save agent. ${text}`);
   }
 
   const updated = await response.json();
-  await loadCharacters();
-  characterSelect.value = updated.id;
-  await loadCharacterDetail(updated.id);
-  setStatus("Character saved");
+  await loadAgents();
+  agentSelect.value = updated.id;
+  await loadAgentDetail(updated.id);
+  setStatus("Agent saved");
 }
 
-async function deleteCurrentCharacter() {
-  if (!state.selectedCharacterId || state.characterEditorMode === "create") {
-    alert("Select an existing character first.");
+async function deleteCurrentAgent() {
+  if (!state.selectedAgentId || state.agentEditorMode === "create") {
+    alert("Select an existing agent first.");
     return;
   }
 
-  if (!confirm("Delete this character?")) {
+  if (!confirm("Delete this agent?")) {
     return;
   }
 
-  const response = await fetch(`/api/characters/${state.selectedCharacterId}`, {
+  const response = await fetch(`/api/agents/${state.selectedAgentId}`, {
     method: "DELETE",
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to delete character. ${text}`);
+    throw new Error(`Failed to delete agent. ${text}`);
   }
 
-  await loadCharacters();
+  await loadAgents();
 
-  if (state.selectedCharacterId) {
-    characterSelect.value = state.selectedCharacterId;
-    await loadCharacterDetail(state.selectedCharacterId);
+  if (state.selectedAgentId) {
+    agentSelect.value = state.selectedAgentId;
+    await loadAgentDetail(state.selectedAgentId);
   } else {
-    clearCharacterEditor();
+    clearAgentEditor();
   }
 
   await loadConversations();
   await loadMemories();
   await loadProposals();
-  await loadLorebooks();
+  await loadKnowledgeBases();
   startNewConversation();
-  setStatus("Character deleted");
+  setStatus("Agent deleted");
 }
 
-async function loadPersonas() {
-  const response = await fetch("/api/personas");
+async function loadUserProfiles() {
+  const response = await fetch("/api/user-profiles");
   if (!response.ok) {
-    throw new Error("Failed to load personas.");
+    throw new Error("Failed to load userProfiles.");
   }
 
   const data = await response.json();
-  state.personas = data;
+  state.userProfiles = data;
 
-  personaSelect.innerHTML = `<option value="">No Persona</option>`;
+  userProfileSelect.innerHTML = `<option value="">No UserProfile</option>`;
 
-  for (const persona of state.personas) {
+  for (const userProfile of state.userProfiles) {
     const option = document.createElement("option");
-    option.value = persona.id;
-    option.textContent = `${persona.displayName || persona.name || persona.id}${persona.isDefault ? " • DEFAULT" : ""}`;
-    personaSelect.appendChild(option);
+    option.value = userProfile.id;
+    option.textContent = `${userProfile.displayName || userProfile.name || userProfile.id}${userProfile.isDefault ? " • DEFAULT" : ""}`;
+    userProfileSelect.appendChild(option);
   }
 
-  const stillExists = state.personas.some(
-    (x) => x.id === state.selectedPersonaId,
+  const stillExists = state.userProfiles.some(
+    (x) => x.id === state.selectedUserProfileId,
   );
-  state.selectedPersonaId = stillExists ? state.selectedPersonaId : null;
-  personaSelect.value = state.selectedPersonaId ?? "";
+  state.selectedUserProfileId = stillExists
+    ? state.selectedUserProfileId
+    : null;
+  userProfileSelect.value = state.selectedUserProfileId ?? "";
 
   fillSelectWithOptions(
-    conversationPersonaSelect,
-    state.personas || [],
+    conversationUserProfileSelect,
+    state.userProfiles || [],
     "id",
-    (x) => `${x.displayName || x.name || x.id}${x.isDefault ? " • DEFAULT" : ""}`,
+    (x) =>
+      `${x.displayName || x.name || x.id}${x.isDefault ? " • DEFAULT" : ""}`,
     true,
     "(none)",
   );
 
   fillSelectWithOptions(
-    defaultPersonaSelect,
-    state.personas || [],
+    defaultUserProfileSelect,
+    state.userProfiles || [],
     "id",
-    (x) => `${x.displayName || x.name || x.id}${x.isDefault ? " • DEFAULT" : ""}`,
+    (x) =>
+      `${x.displayName || x.name || x.id}${x.isDefault ? " • DEFAULT" : ""}`,
     true,
     "(none)",
   );
 }
 
-async function loadPersonaDetail(personaId) {
-  if (!personaId) {
-    clearPersonaEditor();
+async function loadUserProfileDetail(userProfileId) {
+  if (!userProfileId) {
+    clearUserProfileEditor();
     return;
   }
 
-  const response = await fetch(`/api/personas/${personaId}`);
+  const response = await fetch(`/api/user-profiles/${userProfileId}`);
   if (!response.ok) {
-    throw new Error("Failed to load persona details.");
+    throw new Error("Failed to load userProfile details.");
   }
 
   const data = await response.json();
-  renderPersonaEditor(data);
+  renderUserProfileEditor(data);
 }
 
-async function createPersona() {
-  const payload = buildPersonaPayload();
+async function createUserProfile() {
+  const payload = buildUserProfilePayload();
 
   if (
     !payload.name ||
@@ -4816,11 +4867,11 @@ async function createPersona() {
     !payload.preferences ||
     !payload.additionalInstructions
   ) {
-    alert("All persona fields are required.");
+    alert("All userProfile fields are required.");
     return;
   }
 
-  const response = await fetch("/api/personas", {
+  const response = await fetch("/api/user-profiles", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -4830,24 +4881,27 @@ async function createPersona() {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to create persona. ${text}`);
+    throw new Error(`Failed to create userProfile. ${text}`);
   }
 
   const created = await response.json();
-  await loadPersonas();
-  state.selectedPersonaId = created.id;
-  personaSelect.value = created.id;
-  await loadPersonaDetail(created.id);
-  setStatus("Persona created");
+  await loadUserProfiles();
+  state.selectedUserProfileId = created.id;
+  userProfileSelect.value = created.id;
+  await loadUserProfileDetail(created.id);
+  setStatus("UserProfile created");
 }
 
-async function saveCurrentPersona() {
-  if (state.personaEditorMode === "create" || !state.selectedPersonaId) {
-    await createPersona();
+async function saveCurrentUserProfile() {
+  if (
+    state.userProfileEditorMode === "create" ||
+    !state.selectedUserProfileId
+  ) {
+    await createUserProfile();
     return;
   }
 
-  const payload = buildPersonaPayload();
+  const payload = buildUserProfilePayload();
 
   if (
     !payload.name ||
@@ -4857,58 +4911,66 @@ async function saveCurrentPersona() {
     !payload.preferences ||
     !payload.additionalInstructions
   ) {
-    alert("All persona fields are required.");
+    alert("All userProfile fields are required.");
     return;
   }
 
-  const response = await fetch(`/api/personas/${state.selectedPersonaId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
+  const response = await fetch(
+    `/api/user-profiles/${state.selectedUserProfileId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-  });
+  );
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to save persona. ${text}`);
+    throw new Error(`Failed to save userProfile. ${text}`);
   }
 
   const updated = await response.json();
-  await loadPersonas();
-  state.selectedPersonaId = updated.id;
-  personaSelect.value = updated.id;
-  await loadPersonaDetail(updated.id);
-  setStatus("Persona saved");
+  await loadUserProfiles();
+  state.selectedUserProfileId = updated.id;
+  userProfileSelect.value = updated.id;
+  await loadUserProfileDetail(updated.id);
+  setStatus("UserProfile saved");
 }
 
-async function deleteCurrentPersona() {
-  if (!state.selectedPersonaId || state.personaEditorMode === "create") {
-    alert("Select an existing persona first.");
+async function deleteCurrentUserProfile() {
+  if (
+    !state.selectedUserProfileId ||
+    state.userProfileEditorMode === "create"
+  ) {
+    alert("Select an existing userProfile first.");
     return;
   }
 
-  const deleted = await deletePersonaWithPreview(state.selectedPersonaId);
+  const deleted = await deleteUserProfileWithPreview(
+    state.selectedUserProfileId,
+  );
   if (!deleted) {
     return;
   }
 
-  state.selectedPersonaId = null;
-  await loadPersonas();
+  state.selectedUserProfileId = null;
+  await loadUserProfiles();
   await loadAppRuntimeDefaults();
-  clearPersonaEditor();
-  setStatus("Persona deleted");
+  clearUserProfileEditor();
+  setStatus("UserProfile deleted");
 }
 
 async function loadConversations() {
-  if (!state.selectedCharacterId) {
+  if (!state.selectedAgentId) {
     state.conversations = [];
     renderConversationList();
     return;
   }
 
   const response = await fetch(
-    `/api/conversations/by-character/${state.selectedCharacterId}`,
+    `/api/conversations/by-agent/${state.selectedAgentId}`,
   );
   if (!response.ok) {
     throw new Error("Failed to load conversations.");
@@ -4919,7 +4981,7 @@ async function loadConversations() {
 }
 
 async function loadMemories() {
-  if (!state.selectedCharacterId) {
+  if (!state.selectedAgentId) {
     state.memories = [];
     renderMemoryList();
     return;
@@ -4932,7 +4994,7 @@ async function loadMemories() {
       : "";
 
   const response = await fetch(
-    `/api/memory/by-character/${state.selectedCharacterId}${query}`,
+    `/api/memory/by-agent/${state.selectedAgentId}${query}`,
   );
   if (!response.ok) {
     throw new Error("Failed to load memory items.");
@@ -4953,7 +5015,7 @@ async function loadProposals() {
   }
 
   const response = await fetch(
-    `/api/memory/proposals/by-character/${state.selectedCharacterId}?conversationId=${encodeURIComponent(state.activeConversationId)}`,
+    `/api/memory/proposals/by-agent/${state.selectedAgentId}?conversationId=${encodeURIComponent(state.activeConversationId)}`,
   );
   if (!response.ok) {
     throw new Error("Failed to load memory proposals.");
@@ -5153,9 +5215,9 @@ async function refreshMemoryViews() {
     }
   }
 
-  if (typeof loadSceneStateInspection === "function") {
+  if (typeof loadSessionStateInspection === "function") {
     try {
-      await loadSceneStateInspection();
+      await loadSessionStateInspection();
     } catch (error) {
       console.error(error);
     }
@@ -5170,54 +5232,64 @@ async function refreshMemoryViews() {
   }
 }
 
-async function loadSceneStateInspection() {
-  if (!sceneStateInspectionMeta || !sceneStateActiveList || !sceneStateReplacementHistoryList || !sceneStateFamilyCollisionList) {
+async function loadSessionStateInspection() {
+  if (
+    !sessionStateInspectionMeta ||
+    !sessionStateActiveList ||
+    !sessionStateReplacementHistoryList ||
+    !sessionStateFamilyCollisionList
+  ) {
     return;
   }
 
   if (!state.activeConversationId) {
-    sceneStateInspectionMeta.textContent =
-      "Open a conversation to inspect scene-state.";
-    sceneStateActiveList.innerHTML = "";
-    sceneStateReplacementHistoryList.innerHTML = "";
-    sceneStateFamilyCollisionList.innerHTML = "";
+    sessionStateInspectionMeta.textContent =
+      "Open a conversation to inspect session-state.";
+    sessionStateActiveList.innerHTML = "";
+    sessionStateReplacementHistoryList.innerHTML = "";
+    sessionStateFamilyCollisionList.innerHTML = "";
     return;
   }
 
   const response = await fetch(
-    `/api/inspection/scene-state/conversations/${state.activeConversationId}`,
+    `/api/inspection/session-state/conversations/${state.activeConversationId}`,
   );
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to load scene-state inspection. ${text}`);
+    throw new Error(`Failed to load session-state inspection. ${text}`);
   }
 
   const data = await response.json();
-  renderSceneStateInspection(data);
+  renderSessionStateInspection(data);
 }
 
-function renderSceneStateInspection(data) {
-  if (!sceneStateInspectionMeta || !sceneStateActiveList || !sceneStateReplacementHistoryList || !sceneStateFamilyCollisionList) {
+function renderSessionStateInspection(data) {
+  if (
+    !sessionStateInspectionMeta ||
+    !sessionStateActiveList ||
+    !sessionStateReplacementHistoryList ||
+    !sessionStateFamilyCollisionList
+  ) {
     return;
   }
 
-  sceneStateActiveList.innerHTML = "";
-  sceneStateReplacementHistoryList.innerHTML = "";
-  sceneStateFamilyCollisionList.innerHTML = "";
+  sessionStateActiveList.innerHTML = "";
+  sessionStateReplacementHistoryList.innerHTML = "";
+  sessionStateFamilyCollisionList.innerHTML = "";
 
-  sceneStateInspectionMeta.textContent =
-    `Active families: ${data.activeSceneState?.length || 0} • ` +
+  sessionStateInspectionMeta.textContent =
+    `Active families: ${data.activeSessionState?.length || 0} • ` +
     `Replacements: ${data.replacementHistory?.length || 0} • ` +
     `Family collisions: ${data.familyCollisions?.length || 0}`;
 
-  if (!data.activeSceneState || data.activeSceneState.length === 0) {
+  if (!data.activeSessionState || data.activeSessionState.length === 0) {
     const empty = document.createElement("div");
     empty.className = "muted-text";
-    empty.textContent = "No active scene-state.";
-    sceneStateActiveList.appendChild(empty);
+    empty.textContent = "No active session-state.";
+    sessionStateActiveList.appendChild(empty);
   } else {
-    for (const item of data.activeSceneState) {
+    for (const item of data.activeSessionState) {
       const el = document.createElement("div");
       el.className = "proposal-card";
       el.innerHTML = `
@@ -5227,7 +5299,7 @@ function renderSceneStateInspection(data) {
         <div><strong>Expires:</strong> ${escapeHtml(formatDateTime(item.expiresAt))}</div>
         <div><strong>Updated:</strong> ${escapeHtml(formatDateTime(item.updatedAt))}</div>
       `;
-      sceneStateActiveList.appendChild(el);
+      sessionStateActiveList.appendChild(el);
     }
   }
 
@@ -5235,7 +5307,7 @@ function renderSceneStateInspection(data) {
     const empty = document.createElement("div");
     empty.className = "muted-text";
     empty.textContent = "No replacement history.";
-    sceneStateReplacementHistoryList.appendChild(empty);
+    sessionStateReplacementHistoryList.appendChild(empty);
   } else {
     for (const item of data.replacementHistory) {
       const el = document.createElement("div");
@@ -5249,7 +5321,7 @@ function renderSceneStateInspection(data) {
         <div><strong>Notes:</strong> ${escapeHtml(item.notes || "—")}</div>
         <div><strong>At:</strong> ${escapeHtml(formatDateTime(item.createdAt))}</div>
       `;
-      sceneStateReplacementHistoryList.appendChild(el);
+      sessionStateReplacementHistoryList.appendChild(el);
     }
   }
 
@@ -5257,7 +5329,7 @@ function renderSceneStateInspection(data) {
     const empty = document.createElement("div");
     empty.className = "muted-text";
     empty.textContent = "No family collisions detected.";
-    sceneStateFamilyCollisionList.appendChild(empty);
+    sessionStateFamilyCollisionList.appendChild(empty);
   } else {
     for (const item of data.familyCollisions) {
       const el = document.createElement("div");
@@ -5269,7 +5341,7 @@ function renderSceneStateInspection(data) {
         <div><strong>Notes:</strong> ${escapeHtml(item.notes || "—")}</div>
         <div><strong>At:</strong> ${escapeHtml(formatDateTime(item.createdAt))}</div>
       `;
-      sceneStateFamilyCollisionList.appendChild(el);
+      sessionStateFamilyCollisionList.appendChild(el);
     }
   }
 }
@@ -5309,7 +5381,7 @@ function renderMemoryExtractionAudit(data) {
   memoryExtractionAuditMeta.textContent =
     `Events: ${data.totalEventCount} • ` +
     `Durable: ${data.durableEventCount} • ` +
-    `Scene-state: ${data.sceneStateEventCount}`;
+    `Session-state: ${data.sessionStateEventCount}`;
 
   if (!data.events || data.events.length === 0) {
     const empty = document.createElement("div");
@@ -5339,24 +5411,28 @@ function renderMemoryExtractionAudit(data) {
   }
 }
 
-function renderPromptSceneStateDebug(data) {
-  if (!promptSceneStateDebugMeta || !promptSceneStateSelectedList || !promptSceneStateSuppressedList) {
+function renderPromptSessionStateDebug(data) {
+  if (
+    !promptSessionStateDebugMeta ||
+    !promptSessionStateSelectedList ||
+    !promptSessionStateSuppressedList
+  ) {
     return;
   }
 
-  promptSceneStateSelectedList.innerHTML = "";
-  promptSceneStateSuppressedList.innerHTML = "";
+  promptSessionStateSelectedList.innerHTML = "";
+  promptSessionStateSuppressedList.innerHTML = "";
 
-  const selected = data.selectedSceneState || [];
-  const suppressed = data.suppressedSceneState || [];
+  const selected = data.selectedSessionState || [];
+  const suppressed = data.suppressedSessionState || [];
 
-  promptSceneStateDebugMeta.textContent = `Selected families: ${selected.length} • Suppressed families: ${suppressed.length}`;
+  promptSessionStateDebugMeta.textContent = `Selected families: ${selected.length} • Suppressed families: ${suppressed.length}`;
 
   if (selected.length === 0) {
     const empty = document.createElement("div");
     empty.className = "muted-text";
-    empty.textContent = "No selected scene-state prompt entries.";
-    promptSceneStateSelectedList.appendChild(empty);
+    empty.textContent = "No selected session-state prompt entries.";
+    promptSessionStateSelectedList.appendChild(empty);
   } else {
     for (const item of selected) {
       const el = document.createElement("div");
@@ -5367,15 +5443,15 @@ function renderPromptSceneStateDebug(data) {
         <div><strong>Memory:</strong> ${escapeHtml(item.content)}</div>
         <div><strong>Prompt Content:</strong> ${escapeHtml(item.promptContent)}</div>
       `;
-      promptSceneStateSelectedList.appendChild(el);
+      promptSessionStateSelectedList.appendChild(el);
     }
   }
 
   if (suppressed.length === 0) {
     const empty = document.createElement("div");
     empty.className = "muted-text";
-    empty.textContent = "No suppressed scene-state prompt entries.";
-    promptSceneStateSuppressedList.appendChild(empty);
+    empty.textContent = "No suppressed session-state prompt entries.";
+    promptSessionStateSuppressedList.appendChild(empty);
   } else {
     for (const item of suppressed) {
       const el = document.createElement("div");
@@ -5385,13 +5461,17 @@ function renderPromptSceneStateDebug(data) {
         <div><strong>Memory:</strong> ${escapeHtml(item.content)}</div>
         <div><strong>Reason:</strong> ${escapeHtml(item.reason)}</div>
       `;
-      promptSceneStateSuppressedList.appendChild(el);
+      promptSessionStateSuppressedList.appendChild(el);
     }
   }
 }
 
 function renderPromptDurableMemoryDebug(data) {
-  if (!promptDurableMemoryDebugMeta || !promptDurableMemorySelectedList || !promptDurableMemorySuppressedList) {
+  if (
+    !promptDurableMemoryDebugMeta ||
+    !promptDurableMemorySelectedList ||
+    !promptDurableMemorySuppressedList
+  ) {
     return;
   }
 
@@ -5482,9 +5562,9 @@ function exportMemoryExtractionAudit() {
   window.location.href = `/api/admin/maintenance/audit/memory-extraction/export/conversations/${state.activeConversationId}?maxCount=250`;
 }
 
-async function pruneStaleSceneState() {
+async function pruneStaleSessionState() {
   const response = await fetch(
-    "/api/admin/maintenance/memory/prune-stale-scene-state",
+    "/api/admin/maintenance/memory/prune-stale-session-state",
     {
       method: "POST",
     },
@@ -5492,7 +5572,7 @@ async function pruneStaleSceneState() {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to prune stale scene-state. ${text}`);
+    throw new Error(`Failed to prune stale session-state. ${text}`);
   }
 
   const result = await response.json();
@@ -5502,7 +5582,7 @@ async function pruneStaleSceneState() {
     .join(", ");
 
   maintenanceResult.textContent =
-    `Scene-state cleanup • succeeded: ${result.succeeded ? "yes" : "no"} • ` +
+    `Session-state cleanup • succeeded: ${result.succeeded ? "yes" : "no"} • ` +
     `scanned: ${result.scannedCount} • ` +
     `removed: ${result.removedCount} • ` +
     `families: ${familyText || "—"} • ` +
@@ -5555,22 +5635,22 @@ async function reindexAllRetrieval() {
   return result;
 }
 
-async function loadLorebooks() {
-  if (!state.selectedCharacterId) {
-    state.lorebooks = [];
-    renderLorebooks();
+async function loadKnowledgeBases() {
+  if (!state.selectedAgentId) {
+    state.knowledgeBases = [];
+    renderKnowledgeBases();
     return;
   }
 
   const response = await fetch(
-    `/api/lorebooks?characterId=${encodeURIComponent(state.selectedCharacterId)}`,
+    `/api/knowledge-bases?agentId=${encodeURIComponent(state.selectedAgentId)}`,
   );
   if (!response.ok) {
-    throw new Error("Failed to load lorebooks.");
+    throw new Error("Failed to load knowledgeBases.");
   }
 
-  state.lorebooks = await response.json();
-  renderLorebooks();
+  state.knowledgeBases = await response.json();
+  renderKnowledgeBases();
 }
 
 async function executeSlashCommand(commandText) {
@@ -5580,9 +5660,9 @@ async function executeSlashCommand(commandText) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
+      agentId: state.selectedAgentId,
       conversationId: state.activeConversationId,
-      commandText
+      commandText,
     }),
   });
 
@@ -5626,20 +5706,20 @@ async function openConversation(conversationId) {
 
   const conversation = await response.json();
   state.activeConversationId = conversation.id;
-  await loadActiveCharacterDetail();
+  await loadActiveAgentDetail();
 
-  const characterDefaults = getActiveCharacterVisualDefaults();
+  const agentDefaults = getActiveAgentVisualDefaults();
   populateImageStylePresetSelect(
     imageStylePresetSelect,
-    characterDefaults.defaultVisualStylePreset || "none",
+    agentDefaults.defaultVisualStylePreset || "none",
   );
 
-  state.selectedPersonaId = conversation.userPersonaId ?? null;
-  personaSelect.value = state.selectedPersonaId ?? "";
-  if (state.selectedPersonaId) {
-    await loadPersonaDetail(state.selectedPersonaId);
+  state.selectedUserProfileId = conversation.userProfileId ?? null;
+  userProfileSelect.value = state.selectedUserProfileId ?? "";
+  if (state.selectedUserProfileId) {
+    await loadUserProfileDetail(state.selectedUserProfileId);
   } else {
-    clearPersonaEditor();
+    clearUserProfileEditor();
   }
   applyConversationSettingsToUi(conversation);
 
@@ -5657,15 +5737,15 @@ async function openConversation(conversationId) {
   renderActiveConversationRuntime(state.messages || []);
   renderInspectionRuntimeBadges();
   renderConversationList();
-    if (contextualImagePromptPreview) {
-      contextualImagePromptPreview.textContent =
-        "Build a prompt from the active conversation to preview scene summary and unknowns.";
-    }
-    if (suggestedUserMessageMeta) {
-      suggestedUserMessageMeta.textContent =
-        "Suggest a reply from the current conversation context.";
-    }
-    await loadMemories();
+  if (contextualImagePromptPreview) {
+    contextualImagePromptPreview.textContent =
+      "Build a prompt from the active conversation to preview scene summary and unknowns.";
+  }
+  if (suggestedUserMessageMeta) {
+    suggestedUserMessageMeta.textContent =
+      "Suggest a reply from the current conversation context.";
+  }
+  await loadMemories();
   await loadProposals();
   try {
     await loadMemoryConflicts();
@@ -5673,7 +5753,7 @@ async function openConversation(conversationId) {
     console.error(error);
   }
   try {
-    await loadSceneStateInspection();
+    await loadSessionStateInspection();
   } catch (error) {
     console.error(error);
   }
@@ -5688,8 +5768,8 @@ async function openConversation(conversationId) {
 }
 
 async function createConversation() {
-  if (!state.selectedCharacterId) {
-    alert("No character selected.");
+  if (!state.selectedAgentId) {
+    alert("No agent selected.");
     return;
   }
 
@@ -5699,8 +5779,8 @@ async function createConversation() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
-      userPersonaId: state.selectedPersonaId,
+      agentId: state.selectedAgentId,
+      userProfileId: state.selectedUserProfileId,
       title: "New Conversation",
     }),
   });
@@ -5713,7 +5793,9 @@ async function createConversation() {
   const created = await response.json();
   const createdConversationId = created?.conversationId || created?.id || null;
   if (!createdConversationId) {
-    throw new Error("Conversation created, but no conversation id was returned.");
+    throw new Error(
+      "Conversation created, but no conversation id was returned.",
+    );
   }
 
   await loadConversations();
@@ -5732,12 +5814,12 @@ function startNewConversation() {
   renderConversationList();
   applyConversationSettingsToUi(null);
   clearConversationRuntimeOverrideUi();
-  if (conversationPersonaSelect) {
-    conversationPersonaSelect.value = "";
+  if (conversationUserProfileSelect) {
+    conversationUserProfileSelect.value = "";
   }
   loadMemories().catch(console.error);
   loadProposals().catch(console.error);
-  loadSceneStateInspection().catch(console.error);
+  loadSessionStateInspection().catch(console.error);
   loadMemoryExtractionAudit().catch(console.error);
   promptAuthoringSummary.innerHTML = `<div class="empty-state">Run a prompt inspection to see authoring sections clearly separated.</div>`;
   retrievalInspectionResults.innerHTML = `<div class="empty-state">Run an inspection to see why memory or lore would be included.</div>`;
@@ -5791,15 +5873,15 @@ function startNewConversation() {
   if (promptSuppressedDurableList) {
     promptSuppressedDurableList.innerHTML = "";
   }
-  if (promptSceneStateDebugMeta) {
-    promptSceneStateDebugMeta.textContent =
-      "No prompt scene-state debug data loaded yet.";
+  if (promptSessionStateDebugMeta) {
+    promptSessionStateDebugMeta.textContent =
+      "No prompt session-state debug data loaded yet.";
   }
-  if (promptSceneStateSelectedList) {
-    promptSceneStateSelectedList.innerHTML = "";
+  if (promptSessionStateSelectedList) {
+    promptSessionStateSelectedList.innerHTML = "";
   }
-  if (promptSceneStateSuppressedList) {
-    promptSceneStateSuppressedList.innerHTML = "";
+  if (promptSessionStateSuppressedList) {
+    promptSessionStateSuppressedList.innerHTML = "";
   }
   if (promptDurableMemoryDebugMeta) {
     promptDurableMemoryDebugMeta.textContent =
@@ -5923,8 +6005,8 @@ async function sendMessage() {
     return;
   }
 
-  if (!state.selectedCharacterId) {
-    alert("No character selected.");
+  if (!state.selectedAgentId) {
+    alert("No agent selected.");
     return;
   }
 
@@ -5950,11 +6032,11 @@ async function sendMessage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        characterId: state.selectedCharacterId,
+        agentId: state.selectedAgentId,
         conversationId: state.activeConversationId,
-        userPersonaId: state.activeConversationId
+        userProfileId: state.activeConversationId
           ? null
-          : state.selectedPersonaId,
+          : state.selectedUserProfileId,
         message,
       }),
     });
@@ -6070,8 +6152,8 @@ async function suggestUserMessage() {
 }
 
 async function createMemory() {
-  if (!state.selectedCharacterId) {
-    alert("No character selected.");
+  if (!state.selectedAgentId) {
+    alert("No agent selected.");
     return;
   }
 
@@ -6099,7 +6181,7 @@ async function createMemory() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
+      agentId: state.selectedAgentId,
       conversationId,
       category: memoryCategorySelect.value,
       content,
@@ -6140,8 +6222,8 @@ async function updateAcceptedMemoryPin(memoryId, isPinned) {
   setStatus("Memory updated");
 }
 
-async function promoteMemoryToCharacter(memoryId) {
-  const response = await fetch(`/api/memory/${memoryId}/promote-to-character`, {
+async function promoteMemoryToAgent(memoryId) {
+  const response = await fetch(`/api/memory/${memoryId}/promote-to-agent`, {
     method: "POST",
   });
 
@@ -6151,7 +6233,7 @@ async function promoteMemoryToCharacter(memoryId) {
   }
 
   await refreshMemoryViews();
-  setStatus("Memory promoted to character scope");
+  setStatus("Memory promoted to agent scope");
 }
 
 async function demoteMemoryToConversation(memoryId) {
@@ -6378,10 +6460,10 @@ function renderBackgroundWorkTriggerResult(result) {
   }
 
   if (
-    result.autoSavedSceneStateCount !== null &&
-    result.autoSavedSceneStateCount !== undefined
+    result.autoSavedSessionStateCount !== null &&
+    result.autoSavedSessionStateCount !== undefined
   ) {
-    parts.push(`Auto scene-state: ${result.autoSavedSceneStateCount}`);
+    parts.push(`Auto session-state: ${result.autoSavedSessionStateCount}`);
   }
 
   if (
@@ -6470,27 +6552,27 @@ async function runBackgroundProposalNow() {
   setStatus("Background proposal run complete");
 }
 
-async function createLorebook() {
-  if (!state.selectedCharacterId) {
-    alert("No character selected.");
+async function createKnowledgeBase() {
+  if (!state.selectedAgentId) {
+    alert("No agent selected.");
     return;
   }
 
-  const name = lorebookNameInput.value.trim();
-  const description = lorebookDescriptionInput.value.trim();
+  const name = knowledgeBaseNameInput.value.trim();
+  const description = knowledgeBaseDescriptionInput.value.trim();
 
   if (!name || !description) {
-    alert("Lorebook name and description are required.");
+    alert("KnowledgeBase name and description are required.");
     return;
   }
 
-  const response = await fetch("/api/lorebooks", {
+  const response = await fetch("/api/knowledge-bases", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
+      agentId: state.selectedAgentId,
       name,
       description,
     }),
@@ -6498,22 +6580,22 @@ async function createLorebook() {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to create lorebook. ${text}`);
+    throw new Error(`Failed to create knowledgeBase. ${text}`);
   }
 
-  lorebookNameInput.value = "";
-  lorebookDescriptionInput.value = "";
-  await loadLorebooks();
-  setStatus("Lorebook created");
+  knowledgeBaseNameInput.value = "";
+  knowledgeBaseDescriptionInput.value = "";
+  await loadKnowledgeBases();
+  setStatus("KnowledgeBase created");
 }
 
 async function createLoreEntry() {
-  const lorebookId = lorebookSelect.value;
+  const knowledgeBaseId = knowledgeBaseSelect.value;
   const title = loreEntryTitleInput.value.trim();
   const content = loreEntryContentInput.value.trim();
 
-  if (!lorebookId) {
-    alert("Select a lorebook.");
+  if (!knowledgeBaseId) {
+    alert("Select a knowledgeBase.");
     return;
   }
 
@@ -6522,13 +6604,13 @@ async function createLoreEntry() {
     return;
   }
 
-  const response = await fetch("/api/lorebooks/entries", {
+  const response = await fetch("/api/knowledge-bases/entries", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      lorebookId,
+      knowledgeBaseId,
       title,
       content,
       isEnabled: loreEntryEnabledInput.checked,
@@ -6543,12 +6625,12 @@ async function createLoreEntry() {
   loreEntryTitleInput.value = "";
   loreEntryContentInput.value = "";
   loreEntryEnabledInput.checked = true;
-  await loadLorebooks();
+  await loadKnowledgeBases();
   setStatus("Lore entry created");
 }
 
 async function updateLoreEntry(entry, isEnabled) {
-  const response = await fetch(`/api/lorebooks/entries/${entry.id}`, {
+  const response = await fetch(`/api/knowledge-bases/entries/${entry.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -6565,13 +6647,13 @@ async function updateLoreEntry(entry, isEnabled) {
     throw new Error(`Failed to update lore entry. ${text}`);
   }
 
-  await loadLorebooks();
+  await loadKnowledgeBases();
   setStatus("Lore entry updated");
 }
 
 async function inspectRetrieval() {
-  if (!state.selectedCharacterId) {
-    alert("No character selected.");
+  if (!state.selectedAgentId) {
+    alert("No agent selected.");
     return;
   }
 
@@ -6587,7 +6669,7 @@ async function inspectRetrieval() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
+      agentId: state.selectedAgentId,
       conversationId: state.activeConversationId,
       query,
     }),
@@ -6604,7 +6686,7 @@ async function inspectRetrieval() {
 }
 
 async function loadRetrievalInspection() {
-  if (!state.selectedCharacterId) {
+  if (!state.selectedAgentId) {
     return;
   }
 
@@ -6619,7 +6701,7 @@ async function loadRetrievalInspection() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
+      agentId: state.selectedAgentId,
       conversationId: state.activeConversationId,
       query,
     }),
@@ -6635,8 +6717,8 @@ async function loadRetrievalInspection() {
 }
 
 async function inspectPrompt() {
-  if (!state.selectedCharacterId) {
-    alert("No character selected.");
+  if (!state.selectedAgentId) {
+    alert("No agent selected.");
     return;
   }
 
@@ -6652,11 +6734,11 @@ async function inspectPrompt() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
+      agentId: state.selectedAgentId,
       conversationId: state.activeConversationId,
-      userPersonaId: state.activeConversationId
+      userProfileId: state.activeConversationId
         ? null
-        : state.selectedPersonaId,
+        : state.selectedUserProfileId,
       query,
     }),
   });
@@ -6672,8 +6754,8 @@ async function inspectPrompt() {
 }
 
 async function inspectSummary() {
-  if (!state.selectedCharacterId) {
-    alert("No character selected.");
+  if (!state.selectedAgentId) {
+    alert("No agent selected.");
     return;
   }
 
@@ -6693,7 +6775,7 @@ async function inspectSummary() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      characterId: state.selectedCharacterId,
+      agentId: state.selectedAgentId,
       conversationId: state.activeConversationId,
       query,
     }),
@@ -6708,35 +6790,35 @@ async function inspectSummary() {
   renderSummaryInspection(data);
   setStatus("Summary inspected");
 }
-async function exportCurrentCharacter() {
-  if (!state.selectedCharacterId || state.characterEditorMode === "create") {
-    alert("Select an existing character first.");
+async function exportCurrentAgent() {
+  if (!state.selectedAgentId || state.agentEditorMode === "create") {
+    alert("Select an existing agent first.");
     return;
   }
 
   const response = await fetch(
-    `/api/import-export/characters/${state.selectedCharacterId}`,
+    `/api/import-export/agents/${state.selectedAgentId}`,
   );
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to export character. ${text}`);
+    throw new Error(`Failed to export agent. ${text}`);
   }
 
   const data = await response.json();
-  downloadJson(`${data.name || "character"}.character.json`, data);
-  setStatus("Character exported");
+  downloadJson(`${data.name || "agent"}.agent.json`, data);
+  setStatus("Agent exported");
 }
 
-async function importCharacter() {
-  const raw = characterImportJsonInput.value.trim();
+async function importAgent() {
+  const raw = agentImportJsonInput.value.trim();
   if (!raw) {
-    alert("Paste character JSON first.");
+    alert("Paste agent JSON first.");
     return;
   }
 
   const payload = JSON.parse(raw);
 
-  const response = await fetch("/api/import-export/characters", {
+  const response = await fetch("/api/import-export/agents", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -6746,53 +6828,56 @@ async function importCharacter() {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to import character. ${text}`);
+    throw new Error(`Failed to import agent. ${text}`);
   }
 
   const created = await response.json();
-  characterImportJsonInput.value = "";
+  agentImportJsonInput.value = "";
 
-  await loadCharacters();
-  state.selectedCharacterId = created.id;
-  characterSelect.value = created.id;
-  await loadCharacterDetail(created.id);
+  await loadAgents();
+  state.selectedAgentId = created.id;
+  agentSelect.value = created.id;
+  await loadAgentDetail(created.id);
   await loadConversations();
   await loadMemories();
   await loadProposals();
-  await loadLorebooks();
+  await loadKnowledgeBases();
   startNewConversation();
-  setStatus("Character imported");
+  setStatus("Agent imported");
 }
 
-async function exportCurrentPersona() {
-  if (!state.selectedPersonaId || state.personaEditorMode === "create") {
-    alert("Select an existing persona first.");
+async function exportCurrentUserProfile() {
+  if (
+    !state.selectedUserProfileId ||
+    state.userProfileEditorMode === "create"
+  ) {
+    alert("Select an existing userProfile first.");
     return;
   }
 
   const response = await fetch(
-    `/api/import-export/personas/${state.selectedPersonaId}`,
+    `/api/import-export/userProfiles/${state.selectedUserProfileId}`,
   );
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to export persona. ${text}`);
+    throw new Error(`Failed to export userProfile. ${text}`);
   }
 
   const data = await response.json();
-  downloadJson(`${data.name || "persona"}.persona.json`, data);
-  setStatus("Persona exported");
+  downloadJson(`${data.name || "userProfile"}.userProfile.json`, data);
+  setStatus("UserProfile exported");
 }
 
-async function importPersona() {
-  const raw = personaImportJsonInput.value.trim();
+async function importUserProfile() {
+  const raw = userProfileImportJsonInput.value.trim();
   if (!raw) {
-    alert("Paste persona JSON first.");
+    alert("Paste userProfile JSON first.");
     return;
   }
 
   const payload = JSON.parse(raw);
 
-  const response = await fetch("/api/import-export/personas", {
+  const response = await fetch("/api/import-export/userProfiles", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -6802,48 +6887,48 @@ async function importPersona() {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to import persona. ${text}`);
+    throw new Error(`Failed to import userProfile. ${text}`);
   }
 
   const created = await response.json();
-  personaImportJsonInput.value = "";
+  userProfileImportJsonInput.value = "";
 
-  await loadPersonas();
-  state.selectedPersonaId = created.id;
-  personaSelect.value = created.id;
-  await loadPersonaDetail(created.id);
-  setStatus("Persona imported");
+  await loadUserProfiles();
+  state.selectedUserProfileId = created.id;
+  userProfileSelect.value = created.id;
+  await loadUserProfileDetail(created.id);
+  setStatus("UserProfile imported");
 }
 
-async function assignPersonaToActiveConversation() {
+async function assignUserProfileToActiveConversation() {
   if (!state.activeConversationId) {
     alert("Open an active conversation first.");
     return;
   }
 
   const response = await fetch(
-    `/api/conversations/${state.activeConversationId}/persona`,
+    `/api/conversations/${state.activeConversationId}/userProfile`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userPersonaId: state.selectedPersonaId || null,
+        userProfileId: state.selectedUserProfileId || null,
       }),
     },
   );
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to update conversation persona. ${text}`);
+    throw new Error(`Failed to update conversation userProfile. ${text}`);
   }
 
   await loadConversations();
   setStatus(
-    state.selectedPersonaId
-      ? "Conversation persona updated"
-      : "Conversation persona cleared",
+    state.selectedUserProfileId
+      ? "Conversation userProfile updated"
+      : "Conversation userProfile cleared",
   );
 }
 
@@ -6852,33 +6937,33 @@ function renderPromptAuthoringSummary(data) {
 
   const cards = [
     {
-      title: "Character Definition",
-      content: data.characterDefinitionSection
+      title: "Agent Definition",
+      content: data.agentDefinitionSection,
     },
     {
-      title: "Character Scenario",
-      content: data.characterScenarioSection
+      title: "Agent Scenario",
+      content: data.agentScenarioSection,
     },
     {
       title: "Sample Dialogue",
-      content: data.sampleDialogueSection
+      content: data.sampleDialogueSection,
     },
     {
-      title: "User Persona",
-      content: data.userPersonaSection
+      title: "User Profile",
+      content: data.userProfileSection,
     },
     {
       title: "Director Instructions",
-      content: data.directorSection
+      content: data.directorSection,
     },
     {
       title: "Scene Context",
-      content: data.sceneContextSection
+      content: data.sceneContextSection,
     },
     {
       title: "OOC Mode",
-      content: data.oocModeSection
-    }
+      content: data.oocModeSection,
+    },
   ].filter((x) => x.content && x.content.trim().length > 0);
 
   if (!cards.length) {
@@ -6928,9 +7013,10 @@ function renderContextualImagePromptPreview(result) {
     }
   }
 
-  contextualImagePromptPreview.textContent = lines.length > 0
-    ? lines.join("\n")
-    : "Prompt drafted from conversation context.";
+  contextualImagePromptPreview.textContent =
+    lines.length > 0
+      ? lines.join("\n")
+      : "Prompt drafted from conversation context.";
 }
 
 async function buildImagePromptFromConversation() {
@@ -6939,7 +7025,7 @@ async function buildImagePromptFromConversation() {
     return;
   }
 
-  await loadActiveCharacterDetail();
+  await loadActiveAgentDetail();
 
   setStatus("Building image prompt from conversation...");
 
@@ -6992,12 +7078,14 @@ function renderGeneratedImages(jobs) {
     wrapper.className = "generated-image-job";
 
     const assetsHtml = (job.assets || [])
-      .map(asset => `
+      .map(
+        (asset) => `
         <div>
           <img src="${asset.url}" alt="Generated image" />
           <div class="generated-image-meta">${escapeHtml(asset.fileName)}</div>
         </div>
-      `)
+      `,
+      )
       .join("");
 
     wrapper.innerHTML = `
@@ -7019,7 +7107,9 @@ async function loadGeneratedImages() {
     return;
   }
 
-  const response = await fetch(`/api/images/conversations/${state.activeConversationId}`);
+  const response = await fetch(
+    `/api/images/conversations/${state.activeConversationId}`,
+  );
   if (!response.ok) {
     if (response.status === 404) {
       generatedImagesGallery.innerHTML = `<div class="empty-state">Image generation endpoint is not available.</div>`;
@@ -7050,7 +7140,7 @@ async function generateConversationImage() {
   const response = await fetch("/api/images/generate", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       conversationId: state.activeConversationId,
@@ -7060,8 +7150,8 @@ async function generateConversationImage() {
       height: Number.parseInt(imageHeightInput.value || "1024", 10),
       steps: Number.parseInt(imageStepsInput.value || "28", 10),
       cfg: Number.parseFloat(imageCfgInput.value || "7"),
-      seed: Number.parseInt(imageSeedInput.value || "-1", 10)
-    })
+      seed: Number.parseInt(imageSeedInput.value || "-1", 10),
+    }),
   });
 
   if (!response.ok) {
@@ -7081,7 +7171,7 @@ async function synthesizeMessageSpeech(messageId) {
   const payload = {
     voice: ttsVoiceOverrideInput.value.trim() || null,
     modelIdentifier: null,
-    speed: Number.isNaN(speedValue) ? 1.0 : speedValue
+    speed: Number.isNaN(speedValue) ? 1.0 : speedValue,
   };
 
   setStatus("Generating speech...");
@@ -7089,9 +7179,9 @@ async function synthesizeMessageSpeech(messageId) {
   const response = await fetch(`/api/tts/messages/${messageId}/synthesize`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -7399,84 +7489,84 @@ async function cycleSwipe(messages, messageId, direction) {
   await selectMessageVariant(messageId, nextVariantIndex);
 }
 
-characterSelect.addEventListener("change", async (event) => {
-  state.selectedCharacterId = event.target.value;
+agentSelect.addEventListener("change", async (event) => {
+  state.selectedAgentId = event.target.value;
   state.activeConversationId = null;
-  await loadCharacterDetail(state.selectedCharacterId);
+  await loadAgentDetail(state.selectedAgentId);
   await loadConversations();
   await loadMemories();
   await loadProposals();
-  await loadLorebooks();
+  await loadKnowledgeBases();
   startNewConversation();
 });
 
-refreshCharactersBtn.addEventListener("click", async () => {
-  await loadCharacters();
-  if (state.selectedCharacterId) {
-    characterSelect.value = state.selectedCharacterId;
-    await loadCharacterDetail(state.selectedCharacterId);
+refreshAgentsBtn.addEventListener("click", async () => {
+  await loadAgents();
+  if (state.selectedAgentId) {
+    agentSelect.value = state.selectedAgentId;
+    await loadAgentDetail(state.selectedAgentId);
   }
-  setStatus("Characters refreshed");
+  setStatus("Agents refreshed");
 });
 
-newCharacterBtn.addEventListener("click", () => {
-  clearCharacterEditor();
-  setStatus("Creating new character");
+newAgentBtn.addEventListener("click", () => {
+  clearAgentEditor();
+  setStatus("Creating new agent");
 });
 
-saveCharacterBtn.addEventListener("click", async () => {
+saveAgentBtn.addEventListener("click", async () => {
   try {
-    await saveCurrentCharacter();
+    await saveCurrentAgent();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to save character.");
+    alert(error.message || "Failed to save agent.");
   }
 });
 
-if (uploadCharacterImageBtn) {
-  uploadCharacterImageBtn.addEventListener("click", async () => {
+if (uploadAgentImageBtn) {
+  uploadAgentImageBtn.addEventListener("click", async () => {
     try {
-      if (characterImageStatus) {
-        characterImageStatus.textContent = "Uploading character image...";
+      if (agentImageStatus) {
+        agentImageStatus.textContent = "Uploading agent image...";
       }
-      await uploadCharacterImage();
-      setStatus("Character image uploaded");
+      await uploadAgentImage();
+      setStatus("Agent image uploaded");
     } catch (error) {
       console.error(error);
-      if (characterImageStatus) {
-        characterImageStatus.textContent =
-          error.message || "Character image upload failed.";
+      if (agentImageStatus) {
+        agentImageStatus.textContent =
+          error.message || "Agent image upload failed.";
       }
-      setStatus("Character image upload failed");
+      setStatus("Agent image upload failed");
     }
   });
 }
 
-if (removeCharacterImageBtn) {
-  removeCharacterImageBtn.addEventListener("click", async () => {
+if (removeAgentImageBtn) {
+  removeAgentImageBtn.addEventListener("click", async () => {
     try {
-      if (characterImageStatus) {
-        characterImageStatus.textContent = "Removing character image...";
+      if (agentImageStatus) {
+        agentImageStatus.textContent = "Removing agent image...";
       }
-      await removeCharacterImage();
-      setStatus("Character image removed");
+      await removeAgentImage();
+      setStatus("Agent image removed");
     } catch (error) {
       console.error(error);
-      if (characterImageStatus) {
-        characterImageStatus.textContent =
-          error.message || "Character image removal failed.";
+      if (agentImageStatus) {
+        agentImageStatus.textContent =
+          error.message || "Agent image removal failed.";
       }
-      setStatus("Character image removal failed");
+      setStatus("Agent image removal failed");
     }
   });
 }
 
-deleteCharacterBtn.addEventListener("click", async () => {
+deleteAgentBtn.addEventListener("click", async () => {
   try {
-    await deleteCurrentCharacter();
+    await deleteCurrentAgent();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to delete character.");
+    alert(error.message || "Failed to delete agent.");
   }
 });
 
@@ -7489,52 +7579,52 @@ addSampleDialogueBtn.addEventListener("click", () => {
   renderSampleDialogueEditor(current);
 });
 
-personaSelect.addEventListener("change", async (event) => {
+userProfileSelect.addEventListener("change", async (event) => {
   const value = event.target.value;
-  state.selectedPersonaId = value || null;
+  state.selectedUserProfileId = value || null;
 
-  if (state.selectedPersonaId) {
-    await loadPersonaDetail(state.selectedPersonaId);
+  if (state.selectedUserProfileId) {
+    await loadUserProfileDetail(state.selectedUserProfileId);
   } else {
-    clearPersonaEditor();
+    clearUserProfileEditor();
   }
 
-  setStatus("Persona selection updated");
+  setStatus("UserProfile selection updated");
 });
 
-refreshPersonasBtn.addEventListener("click", async () => {
-  await loadPersonas();
-  if (state.selectedPersonaId) {
-    personaSelect.value = state.selectedPersonaId;
-    await loadPersonaDetail(state.selectedPersonaId);
+refreshUserProfilesBtn.addEventListener("click", async () => {
+  await loadUserProfiles();
+  if (state.selectedUserProfileId) {
+    userProfileSelect.value = state.selectedUserProfileId;
+    await loadUserProfileDetail(state.selectedUserProfileId);
   } else {
-    clearPersonaEditor();
+    clearUserProfileEditor();
   }
-  setStatus("Personas refreshed");
+  setStatus("UserProfiles refreshed");
 });
 
-newPersonaBtn.addEventListener("click", () => {
-  state.selectedPersonaId = null;
-  personaSelect.value = "";
-  clearPersonaEditor();
-  setStatus("Creating new persona");
+newUserProfileBtn.addEventListener("click", () => {
+  state.selectedUserProfileId = null;
+  userProfileSelect.value = "";
+  clearUserProfileEditor();
+  setStatus("Creating new userProfile");
 });
 
-savePersonaBtn.addEventListener("click", async () => {
+saveUserProfileBtn.addEventListener("click", async () => {
   try {
-    await saveCurrentPersona();
+    await saveCurrentUserProfile();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to save persona.");
+    alert(error.message || "Failed to save userProfile.");
   }
 });
 
-deletePersonaBtn.addEventListener("click", async () => {
+deleteUserProfileBtn.addEventListener("click", async () => {
   try {
-    await deleteCurrentPersona();
+    await deleteCurrentUserProfile();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to delete persona.");
+    alert(error.message || "Failed to delete userProfile.");
   }
 });
 
@@ -7752,7 +7842,8 @@ if (rebuildMemoryKeysBtn) {
       }
     } catch (error) {
       console.error(error);
-      maintenanceResult.textContent = error.message || "Memory key rebuild failed.";
+      maintenanceResult.textContent =
+        error.message || "Memory key rebuild failed.";
       setStatus("Memory key rebuild failed");
     }
   });
@@ -7810,19 +7901,19 @@ if (exportMemoryExtractionAuditBtn) {
   });
 }
 
-if (pruneStaleSceneStateBtn) {
-  pruneStaleSceneStateBtn.addEventListener("click", async () => {
+if (pruneStaleSessionStateBtn) {
+  pruneStaleSessionStateBtn.addEventListener("click", async () => {
     try {
-      setStatus("Pruning stale scene-state...");
-      await pruneStaleSceneState();
-      setStatus("Stale scene-state pruned");
+      setStatus("Pruning stale session-state...");
+      await pruneStaleSessionState();
+      setStatus("Stale session-state pruned");
 
       if (typeof refreshMemoryViews === "function") {
         await refreshMemoryViews();
       }
 
-      if (typeof loadSceneStateInspection === "function") {
-        await loadSceneStateInspection();
+      if (typeof loadSessionStateInspection === "function") {
+        await loadSessionStateInspection();
       }
 
       if (typeof loadPromptInspection === "function") {
@@ -7835,22 +7926,22 @@ if (pruneStaleSceneStateBtn) {
     } catch (error) {
       console.error(error);
       maintenanceResult.textContent =
-        error.message || "Scene-state cleanup failed.";
-      setStatus("Scene-state cleanup failed");
+        error.message || "Session-state cleanup failed.";
+      setStatus("Session-state cleanup failed");
     }
   });
 }
 
-if (refreshSceneStateInspectionBtn) {
-  refreshSceneStateInspectionBtn.addEventListener("click", async () => {
+if (refreshSessionStateInspectionBtn) {
+  refreshSessionStateInspectionBtn.addEventListener("click", async () => {
     try {
-      await loadSceneStateInspection();
-      setStatus("Scene-state inspection loaded");
+      await loadSessionStateInspection();
+      setStatus("Session-state inspection loaded");
     } catch (error) {
       console.error(error);
-      sceneStateInspectionMeta.textContent =
-        error.message || "Scene-state inspection failed.";
-      setStatus("Scene-state inspection failed");
+      sessionStateInspectionMeta.textContent =
+        error.message || "Session-state inspection failed.";
+      setStatus("Session-state inspection failed");
     }
   });
 }
@@ -7971,9 +8062,9 @@ inspectSummaryBtn.addEventListener("click", async () => {
   }
 });
 
-refreshLorebooksBtn.addEventListener("click", async () => {
+refreshKnowledgeBasesBtn.addEventListener("click", async () => {
   try {
-    await loadLorebooks();
+    await loadKnowledgeBases();
 
     try {
       await loadAuthoringStarterPacks();
@@ -7984,19 +8075,19 @@ refreshLorebooksBtn.addEventListener("click", async () => {
           error.message || "Failed to load starter packs.";
       }
     }
-    setStatus("Lorebooks refreshed");
+    setStatus("KnowledgeBases refreshed");
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to load lorebooks.");
+    alert(error.message || "Failed to load knowledgeBases.");
   }
 });
 
-createLorebookBtn.addEventListener("click", async () => {
+createKnowledgeBaseBtn.addEventListener("click", async () => {
   try {
-    await createLorebook();
+    await createKnowledgeBase();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to create lorebook.");
+    alert(error.message || "Failed to create knowledgeBase.");
   }
 });
 
@@ -8298,7 +8389,8 @@ if (exportMemoryDatasetBtn) {
     } catch (error) {
       console.error(error);
       if (memoryExportStatus) {
-        memoryExportStatus.textContent = error.message || "Memory export failed.";
+        memoryExportStatus.textContent =
+          error.message || "Memory export failed.";
       }
       setStatus("Memory export failed");
     }
@@ -8356,68 +8448,68 @@ messageInput.addEventListener("keydown", async (event) => {
   }
 });
 
-exportCharacterBtn.addEventListener("click", async () => {
+exportAgentBtn.addEventListener("click", async () => {
   try {
-    await exportCurrentCharacter();
+    await exportCurrentAgent();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to export character.");
+    alert(error.message || "Failed to export agent.");
   }
 });
 
-importCharacterBtn.addEventListener("click", async () => {
+importAgentBtn.addEventListener("click", async () => {
   try {
-    await importCharacter();
+    await importAgent();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to import character.");
+    alert(error.message || "Failed to import agent.");
   }
 });
 
-assignPersonaToConversationBtn.addEventListener("click", async () => {
+assignUserProfileToConversationBtn.addEventListener("click", async () => {
   try {
-    await assignPersonaToActiveConversation();
+    await assignUserProfileToActiveConversation();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to update conversation persona.");
+    alert(error.message || "Failed to update conversation userProfile.");
   }
 });
 
-if (setDefaultPersonaBtn) {
-  setDefaultPersonaBtn.addEventListener("click", async () => {
+if (setDefaultUserProfileBtn) {
+  setDefaultUserProfileBtn.addEventListener("click", async () => {
     try {
-      if (!state.selectedPersonaId) {
-        throw new Error("Select a persona first.");
+      if (!state.selectedUserProfileId) {
+        throw new Error("Select a userProfile first.");
       }
 
-      await setDefaultPersona(state.selectedPersonaId);
-      await loadPersonas();
+      await setDefaultUserProfile(state.selectedUserProfileId);
+      await loadUserProfiles();
       await loadAppRuntimeDefaults();
-      personaSelect.value = state.selectedPersonaId;
-      setStatus("Default persona updated");
+      userProfileSelect.value = state.selectedUserProfileId;
+      setStatus("Default userProfile updated");
     } catch (error) {
       console.error(error);
-      alert(error.message || "Failed to set default persona.");
-      setStatus("Failed to set default persona");
+      alert(error.message || "Failed to set default userProfile.");
+      setStatus("Failed to set default userProfile");
     }
   });
 }
 
-exportPersonaBtn.addEventListener("click", async () => {
+exportUserProfileBtn.addEventListener("click", async () => {
   try {
-    await exportCurrentPersona();
+    await exportCurrentUserProfile();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to export persona.");
+    alert(error.message || "Failed to export userProfile.");
   }
 });
 
-importPersonaBtn.addEventListener("click", async () => {
+importUserProfileBtn.addEventListener("click", async () => {
   try {
-    await importPersona();
+    await importUserProfile();
   } catch (error) {
     console.error(error);
-    alert(error.message || "Failed to import persona.");
+    alert(error.message || "Failed to import userProfile.");
   }
 });
 
@@ -8439,10 +8531,7 @@ async function bootstrap() {
       authoringConsistencyList.innerHTML = "";
     }
     populateImageStylePresetSelect(imageStylePresetSelect, "none");
-    populateImageStylePresetSelect(
-      characterDefaultVisualStylePresetSelect,
-      "none",
-    );
+    populateImageStylePresetSelect(agentDefaultVisualStylePresetSelect, "none");
     if (pendingMemoryProposalsEl) {
       pendingMemoryProposalsEl.innerHTML = `<div class="empty-state">Open a conversation to review proposals.</div>`;
     }
@@ -8490,18 +8579,18 @@ async function bootstrap() {
     if (promptSuppressedDurableList) {
       promptSuppressedDurableList.innerHTML = "";
     }
-    if (sceneStateInspectionMeta) {
-      sceneStateInspectionMeta.textContent =
-        "No scene-state inspection loaded yet.";
+    if (sessionStateInspectionMeta) {
+      sessionStateInspectionMeta.textContent =
+        "No session-state inspection loaded yet.";
     }
-    if (sceneStateActiveList) {
-      sceneStateActiveList.innerHTML = "";
+    if (sessionStateActiveList) {
+      sessionStateActiveList.innerHTML = "";
     }
-    if (sceneStateReplacementHistoryList) {
-      sceneStateReplacementHistoryList.innerHTML = "";
+    if (sessionStateReplacementHistoryList) {
+      sessionStateReplacementHistoryList.innerHTML = "";
     }
-    if (sceneStateFamilyCollisionList) {
-      sceneStateFamilyCollisionList.innerHTML = "";
+    if (sessionStateFamilyCollisionList) {
+      sessionStateFamilyCollisionList.innerHTML = "";
     }
     if (memoryExtractionAuditMeta) {
       memoryExtractionAuditMeta.textContent =
@@ -8510,15 +8599,15 @@ async function bootstrap() {
     if (memoryExtractionAuditList) {
       memoryExtractionAuditList.innerHTML = "";
     }
-    if (promptSceneStateDebugMeta) {
-      promptSceneStateDebugMeta.textContent =
-        "No prompt scene-state debug data loaded yet.";
+    if (promptSessionStateDebugMeta) {
+      promptSessionStateDebugMeta.textContent =
+        "No prompt session-state debug data loaded yet.";
     }
-    if (promptSceneStateSelectedList) {
-      promptSceneStateSelectedList.innerHTML = "";
+    if (promptSessionStateSelectedList) {
+      promptSessionStateSelectedList.innerHTML = "";
     }
-    if (promptSceneStateSuppressedList) {
-      promptSceneStateSuppressedList.innerHTML = "";
+    if (promptSessionStateSuppressedList) {
+      promptSessionStateSuppressedList.innerHTML = "";
     }
     if (promptDurableMemoryDebugMeta) {
       promptDurableMemoryDebugMeta.textContent =
@@ -8561,20 +8650,20 @@ async function bootstrap() {
       clearGenerationPresetEditor();
     }
 
-    await loadCharacters();
-    if (state.selectedCharacterId) {
-      characterSelect.value = state.selectedCharacterId;
-      await loadCharacterDetail(state.selectedCharacterId);
+    await loadAgents();
+    if (state.selectedAgentId) {
+      agentSelect.value = state.selectedAgentId;
+      await loadAgentDetail(state.selectedAgentId);
     } else {
-      clearCharacterEditor();
+      clearAgentEditor();
     }
 
-    await loadPersonas();
-    if (state.selectedPersonaId) {
-      personaSelect.value = state.selectedPersonaId;
-      await loadPersonaDetail(state.selectedPersonaId);
+    await loadUserProfiles();
+    if (state.selectedUserProfileId) {
+      userProfileSelect.value = state.selectedUserProfileId;
+      await loadUserProfileDetail(state.selectedUserProfileId);
     } else {
-      clearPersonaEditor();
+      clearUserProfileEditor();
     }
 
     try {
@@ -8595,7 +8684,7 @@ async function bootstrap() {
     } catch (error) {
       console.error(error);
     }
-    await loadLorebooks();
+    await loadKnowledgeBases();
 
     try {
       await loadAuthoringStarterPacks();
@@ -8636,18 +8725,18 @@ async function bootstrap() {
     if (promptSuppressedDurableList) {
       promptSuppressedDurableList.innerHTML = "";
     }
-    if (sceneStateInspectionMeta) {
-      sceneStateInspectionMeta.textContent =
-        "No scene-state inspection loaded yet.";
+    if (sessionStateInspectionMeta) {
+      sessionStateInspectionMeta.textContent =
+        "No session-state inspection loaded yet.";
     }
-    if (sceneStateActiveList) {
-      sceneStateActiveList.innerHTML = "";
+    if (sessionStateActiveList) {
+      sessionStateActiveList.innerHTML = "";
     }
-    if (sceneStateReplacementHistoryList) {
-      sceneStateReplacementHistoryList.innerHTML = "";
+    if (sessionStateReplacementHistoryList) {
+      sessionStateReplacementHistoryList.innerHTML = "";
     }
-    if (sceneStateFamilyCollisionList) {
-      sceneStateFamilyCollisionList.innerHTML = "";
+    if (sessionStateFamilyCollisionList) {
+      sessionStateFamilyCollisionList.innerHTML = "";
     }
     if (memoryExtractionAuditMeta) {
       memoryExtractionAuditMeta.textContent =
@@ -8656,15 +8745,15 @@ async function bootstrap() {
     if (memoryExtractionAuditList) {
       memoryExtractionAuditList.innerHTML = "";
     }
-    if (promptSceneStateDebugMeta) {
-      promptSceneStateDebugMeta.textContent =
-        "No prompt scene-state debug data loaded yet.";
+    if (promptSessionStateDebugMeta) {
+      promptSessionStateDebugMeta.textContent =
+        "No prompt session-state debug data loaded yet.";
     }
-    if (promptSceneStateSelectedList) {
-      promptSceneStateSelectedList.innerHTML = "";
+    if (promptSessionStateSelectedList) {
+      promptSessionStateSelectedList.innerHTML = "";
     }
-    if (promptSceneStateSuppressedList) {
-      promptSceneStateSuppressedList.innerHTML = "";
+    if (promptSessionStateSuppressedList) {
+      promptSessionStateSuppressedList.innerHTML = "";
     }
     if (promptDurableMemoryDebugMeta) {
       promptDurableMemoryDebugMeta.textContent =
@@ -8731,21 +8820,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -36,7 +36,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DefaultPersonaId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    DefaultUserProfileId = table.Column<Guid>(type: "TEXT", nullable: true),
                     DefaultModelProfileId = table.Column<Guid>(type: "TEXT", nullable: true),
                     DefaultGenerationPresetId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),

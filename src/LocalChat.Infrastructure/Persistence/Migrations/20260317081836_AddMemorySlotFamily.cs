@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -18,9 +18,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 defaultValue: "None");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MemoryItems_CharacterId_ConversationId_Kind_SlotFamily",
+                name: "IX_MemoryItems_AgentId_ConversationId_Kind_SlotFamily",
                 table: "MemoryItems",
-                columns: new[] { "CharacterId", "ConversationId", "Kind", "SlotFamily" });
+                columns: new[] { "AgentId", "ConversationId", "Kind", "SlotFamily" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_MemoryItems_SlotFamily",
@@ -32,7 +32,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_MemoryItems_CharacterId_ConversationId_Kind_SlotFamily",
+                name: "IX_MemoryItems_AgentId_ConversationId_Kind_SlotFamily",
                 table: "MemoryItems");
 
             migrationBuilder.DropIndex(

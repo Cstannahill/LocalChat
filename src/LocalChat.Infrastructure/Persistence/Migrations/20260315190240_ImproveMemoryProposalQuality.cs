@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -20,7 +20,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 table: "MemoryItems");
 
             migrationBuilder.AlterColumn<Guid>(
-                name: "CharacterId",
+                name: "AgentId",
                 table: "MemoryItems",
                 type: "TEXT",
                 nullable: true,
@@ -91,7 +91,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 table: "MemoryItems");
 
             migrationBuilder.AlterColumn<Guid>(
-                name: "CharacterId",
+                name: "AgentId",
                 table: "MemoryItems",
                 type: "TEXT",
                 nullable: false,

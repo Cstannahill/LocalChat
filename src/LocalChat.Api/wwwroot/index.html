@@ -11,145 +11,145 @@
       <aside class="sidebar">
         <div class="sidebar-section">
           <div class="sidebar-section-header">
-            <h2>Character</h2>
-            <button id="refreshCharactersBtn" type="button">Refresh</button>
+            <h2>Agent</h2>
+            <button id="refreshAgentsBtn" type="button">Refresh</button>
           </div>
-          <select id="characterSelect"></select>
+          <select id="agentSelect"></select>
           <div class="sidebar-actions">
-            <button id="exportCharacterBtn" type="button">
-              Export Character
+            <button id="exportAgentBtn" type="button">
+              Export Agent
             </button>
-            <button id="importCharacterBtn" type="button">
-              Import Character
+            <button id="importAgentBtn" type="button">
+              Import Agent
             </button>
           </div>
         </div>
 
         <div class="sidebar-section">
-          <h2>Character Editor</h2>
+          <h2>Agent Editor</h2>
           <div class="sidebar-actions">
-            <button id="newCharacterBtn" type="button">New Character</button>
-            <button id="saveCharacterBtn" type="button">Save Character</button>
-            <button id="deleteCharacterBtn" type="button">
-              Delete Character
+            <button id="newAgentBtn" type="button">New Agent</button>
+            <button id="saveAgentBtn" type="button">Save Agent</button>
+            <button id="deleteAgentBtn" type="button">
+              Delete Agent
             </button>
           </div>
-          <label class="memory-label" for="characterImportJsonInput"
-            >Character Import JSON</label
+          <label class="memory-label" for="agentImportJsonInput"
+            >Agent Import JSON</label
           >
           <textarea
-            id="characterImportJsonInput"
+            id="agentImportJsonInput"
             rows="6"
-            placeholder="Paste exported character JSON here"
+            placeholder="Paste exported agent JSON here"
           ></textarea>
-          <label class="memory-label" for="characterNameInput">Name</label>
+          <label class="memory-label" for="agentNameInput">Name</label>
           <input
-            id="characterNameInput"
+            id="agentNameInput"
             type="text"
-            placeholder="Character name"
+            placeholder="Agent name"
           />
 
-          <label class="memory-label" for="characterDescriptionInput"
+          <label class="memory-label" for="agentDescriptionInput"
             >Description</label
           >
           <textarea
-            id="characterDescriptionInput"
+            id="agentDescriptionInput"
             rows="3"
-            placeholder="Short character description"
+            placeholder="Short agent description"
           ></textarea>
 
-          <label class="memory-label" for="characterGreetingInput"
+          <label class="memory-label" for="agentGreetingInput"
             >Greeting</label
           >
           <textarea
-            id="characterGreetingInput"
+            id="agentGreetingInput"
             rows="3"
             placeholder="Default greeting"
           ></textarea>
 
-          <label class="memory-label" for="characterScenarioInput"
+          <label class="memory-label" for="agentScenarioInput"
             >Scenario</label
           >
           <textarea
-            id="characterScenarioInput"
+            id="agentScenarioInput"
             rows="4"
             placeholder="Scenario / setting"
           ></textarea>
 
-          <label class="memory-label" for="characterModelProfileSelect"
+          <label class="memory-label" for="agentModelProfileSelect"
             >Default Model Profile</label
           >
-          <select id="characterModelProfileSelect"></select>
+          <select id="agentModelProfileSelect"></select>
 
-          <label class="memory-label" for="characterGenerationPresetSelect"
+          <label class="memory-label" for="agentGenerationPresetSelect"
             >Default Generation Preset</label
           >
-          <select id="characterGenerationPresetSelect"></select>
+          <select id="agentGenerationPresetSelect"></select>
 
-          <label class="memory-label" for="characterDefaultTtsVoiceInput"
+          <label class="memory-label" for="agentDefaultTtsVoiceInput"
             >Default TTS Voice</label
           >
           <input
-            id="characterDefaultTtsVoiceInput"
+            id="agentDefaultTtsVoiceInput"
             type="text"
             placeholder="af_heart"
           />
 
-          <label class="memory-label" for="characterImageFileInput"
-            >Character Image</label
+          <label class="memory-label" for="agentImageFileInput"
+            >Agent Image</label
           >
           <input
-            id="characterImageFileInput"
+            id="agentImageFileInput"
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
           />
           <div class="message-actions">
-            <button id="uploadCharacterImageBtn" type="button">
-              Upload Character Image
+            <button id="uploadAgentImageBtn" type="button">
+              Upload Agent Image
             </button>
-            <button id="removeCharacterImageBtn" type="button">
-              Remove Character Image
+            <button id="removeAgentImageBtn" type="button">
+              Remove Agent Image
             </button>
           </div>
-          <div id="characterImageStatus" class="muted-text">
+          <div id="agentImageStatus" class="muted-text">
             No image uploaded.
           </div>
-          <div id="characterImagePreview"></div>
+          <div id="agentImagePreview"></div>
 
           <label
             class="memory-label"
-            for="characterDefaultVisualStylePresetSelect"
+            for="agentDefaultVisualStylePresetSelect"
             >Default Visual Style Preset</label
           >
-          <select id="characterDefaultVisualStylePresetSelect"></select>
+          <select id="agentDefaultVisualStylePresetSelect"></select>
 
           <label
             class="memory-label"
-            for="characterDefaultVisualPromptPrefixInput"
+            for="agentDefaultVisualPromptPrefixInput"
             >Default Visual Prompt Prefix</label
           >
           <textarea
-            id="characterDefaultVisualPromptPrefixInput"
+            id="agentDefaultVisualPromptPrefixInput"
             rows="3"
             placeholder="soft cinematic lighting, flowing yellow sundress, warm romantic framing"
           ></textarea>
 
           <label
             class="memory-label"
-            for="characterDefaultVisualNegativePromptInput"
+            for="agentDefaultVisualNegativePromptInput"
             >Default Visual Negative Prompt</label
           >
           <textarea
-            id="characterDefaultVisualNegativePromptInput"
+            id="agentDefaultVisualNegativePromptInput"
             rows="3"
             placeholder="extra limbs, distorted anatomy, low quality"
           ></textarea>
 
-          <label class="memory-label" for="characterPersonalityInput"
+          <label class="memory-label" for="agentPersonalityInput"
             >Personality Definition</label
           >
           <textarea
-            id="characterPersonalityInput"
+            id="agentPersonalityInput"
             rows="6"
             placeholder="Personality / behavior instructions"
           ></textarea>
@@ -162,92 +162,92 @@
           </div>
 
           <div
-            id="characterSampleDialogueList"
+            id="agentSampleDialogueList"
             class="sample-dialogue-list"
           ></div>
         </div>
 
         <div class="sidebar-section">
           <div class="sidebar-section-header">
-            <h2>Persona</h2>
-            <button id="refreshPersonasBtn" type="button">Refresh</button>
+            <h2>UserProfile</h2>
+            <button id="refreshUserProfilesBtn" type="button">Refresh</button>
           </div>
-          <select id="personaSelect"></select>
+          <select id="userProfileSelect"></select>
           <div class="sidebar-actions">
-            <button id="assignPersonaToConversationBtn" type="button">
-              Apply Persona To Active Conversation
+            <button id="assignUserProfileToConversationBtn" type="button">
+              Apply UserProfile To Active Conversation
             </button>
-            <button id="setDefaultPersonaBtn" type="button">
+            <button id="setDefaultUserProfileBtn" type="button">
               Set Selected As Default
             </button>
-            <button id="exportPersonaBtn" type="button">Export Persona</button>
-            <button id="importPersonaBtn" type="button">Import Persona</button>
+            <button id="exportUserProfileBtn" type="button">Export UserProfile</button>
+            <button id="importUserProfileBtn" type="button">Import UserProfile</button>
           </div>
         </div>
 
         <div class="sidebar-section">
-          <h2>Persona Editor</h2>
+          <h2>UserProfile Editor</h2>
           <div class="sidebar-actions">
-            <button id="newPersonaBtn" type="button">New Persona</button>
-            <button id="savePersonaBtn" type="button">Save Persona</button>
-            <button id="deletePersonaBtn" type="button">Delete Persona</button>
+            <button id="newUserProfileBtn" type="button">New UserProfile</button>
+            <button id="saveUserProfileBtn" type="button">Save UserProfile</button>
+            <button id="deleteUserProfileBtn" type="button">Delete UserProfile</button>
           </div>
-          <label class="memory-label" for="personaImportJsonInput"
-            >Persona Import JSON</label
+          <label class="memory-label" for="userProfileImportJsonInput"
+            >UserProfile Import JSON</label
           >
           <textarea
-            id="personaImportJsonInput"
+            id="userProfileImportJsonInput"
             rows="6"
-            placeholder="Paste exported persona JSON here"
+            placeholder="Paste exported userProfile JSON here"
           ></textarea>
-          <label class="memory-label" for="personaNameInput">Name</label>
+          <label class="memory-label" for="userProfileNameInput">Name</label>
           <input
-            id="personaNameInput"
+            id="userProfileNameInput"
             type="text"
-            placeholder="Internal persona name"
+            placeholder="Internal userProfile name"
           />
 
-          <label class="memory-label" for="personaDisplayNameInput"
+          <label class="memory-label" for="userProfileDisplayNameInput"
             >Display Name</label
           >
           <input
-            id="personaDisplayNameInput"
+            id="userProfileDisplayNameInput"
             type="text"
             placeholder="How the user should be referred to"
           />
 
-          <label class="memory-label" for="personaDescriptionInput"
+          <label class="memory-label" for="userProfileDescriptionInput"
             >Description</label
           >
           <textarea
-            id="personaDescriptionInput"
+            id="userProfileDescriptionInput"
             rows="3"
             placeholder="Short user description"
           ></textarea>
 
-          <label class="memory-label" for="personaTraitsInput">Traits</label>
+          <label class="memory-label" for="userProfileTraitsInput">Traits</label>
           <textarea
-            id="personaTraitsInput"
+            id="userProfileTraitsInput"
             rows="3"
             placeholder="Key traits"
           ></textarea>
 
-          <label class="memory-label" for="personaPreferencesInput"
+          <label class="memory-label" for="userProfilePreferencesInput"
             >Preferences</label
           >
           <textarea
-            id="personaPreferencesInput"
+            id="userProfilePreferencesInput"
             rows="3"
             placeholder="Preferences, working style, tastes"
           ></textarea>
 
-          <label class="memory-label" for="personaInstructionsInput"
+          <label class="memory-label" for="userProfileInstructionsInput"
             >Additional Instructions</label
           >
           <textarea
-            id="personaInstructionsInput"
+            id="userProfileInstructionsInput"
             rows="4"
-            placeholder="Extra persona instructions"
+            placeholder="Extra userProfile instructions"
           ></textarea>
         </div>
 
@@ -299,7 +299,7 @@
         </div>
 
         <div class="sidebar-section">
-          <h2>Generate Full Character + Persona Bundle</h2>
+          <h2>Generate Full Agent + UserProfile Bundle</h2>
 
           <label for="bundleConceptInput">Concept</label>
           <textarea
@@ -342,51 +342,51 @@
             No generated bundle loaded yet.
           </div>
 
-          <label for="generatedCharacterNameInput">Generated Character Name</label>
-          <input id="generatedCharacterNameInput" type="text" />
+          <label for="generatedAgentNameInput">Generated Agent Name</label>
+          <input id="generatedAgentNameInput" type="text" />
 
-          <label for="generatedCharacterDescriptionInput"
-            >Generated Character Description</label
+          <label for="generatedAgentDescriptionInput"
+            >Generated Agent Description</label
           >
-          <textarea id="generatedCharacterDescriptionInput"></textarea>
+          <textarea id="generatedAgentDescriptionInput"></textarea>
 
-          <label for="generatedCharacterPersonalityInput"
-            >Generated Character Personality</label
+          <label for="generatedAgentPersonalityInput"
+            >Generated Agent Personality</label
           >
-          <textarea id="generatedCharacterPersonalityInput"></textarea>
+          <textarea id="generatedAgentPersonalityInput"></textarea>
 
-          <label for="generatedCharacterScenarioInput"
-            >Generated Character Scenario</label
+          <label for="generatedAgentScenarioInput"
+            >Generated Agent Scenario</label
           >
-          <textarea id="generatedCharacterScenarioInput"></textarea>
+          <textarea id="generatedAgentScenarioInput"></textarea>
 
-          <label for="generatedCharacterGreetingInput"
-            >Generated Character Greeting</label
+          <label for="generatedAgentGreetingInput"
+            >Generated Agent Greeting</label
           >
-          <textarea id="generatedCharacterGreetingInput"></textarea>
+          <textarea id="generatedAgentGreetingInput"></textarea>
 
-          <label for="generatedPersonaDisplayNameInput"
-            >Generated Persona Display Name</label
+          <label for="generatedUserProfileDisplayNameInput"
+            >Generated UserProfile Display Name</label
           >
-          <input id="generatedPersonaDisplayNameInput" type="text" />
+          <input id="generatedUserProfileDisplayNameInput" type="text" />
 
-          <label for="generatedPersonaDescriptionInput"
-            >Generated Persona Description</label
+          <label for="generatedUserProfileDescriptionInput"
+            >Generated UserProfile Description</label
           >
-          <textarea id="generatedPersonaDescriptionInput"></textarea>
+          <textarea id="generatedUserProfileDescriptionInput"></textarea>
 
-          <label for="generatedPersonaTraitsInput">Generated Persona Traits</label>
-          <textarea id="generatedPersonaTraitsInput"></textarea>
+          <label for="generatedUserProfileTraitsInput">Generated UserProfile Traits</label>
+          <textarea id="generatedUserProfileTraitsInput"></textarea>
 
-          <label for="generatedPersonaPreferencesInput"
-            >Generated Persona Preferences</label
+          <label for="generatedUserProfilePreferencesInput"
+            >Generated UserProfile Preferences</label
           >
-          <textarea id="generatedPersonaPreferencesInput"></textarea>
+          <textarea id="generatedUserProfilePreferencesInput"></textarea>
 
-          <label for="generatedPersonaAdditionalInstructionsInput"
-            >Generated Persona Additional Instructions</label
+          <label for="generatedUserProfileAdditionalInstructionsInput"
+            >Generated UserProfile Additional Instructions</label
           >
-          <textarea id="generatedPersonaAdditionalInstructionsInput"></textarea>
+          <textarea id="generatedUserProfileAdditionalInstructionsInput"></textarea>
 
           <div id="bundleGenerationRationale" class="muted-text"></div>
 
@@ -403,7 +403,7 @@
 
           <div class="message-actions">
             <button id="checkAuthoringConsistencyBtn" type="button">
-              Check Character + Persona Consistency
+              Check Agent + UserProfile Consistency
             </button>
           </div>
 
@@ -570,7 +570,7 @@
           <input
             id="ttsVoiceOverrideInput"
             type="text"
-            placeholder="Leave blank to use character default"
+            placeholder="Leave blank to use agent default"
           />
 
           <label class="memory-label" for="ttsSpeedInput">Speed</label>
@@ -735,8 +735,8 @@
                   <h3>Conversation Sticky Runtime Override</h3>
                 </div>
 
-                <label for="conversationPersonaSelect">Persona</label>
-                <select id="conversationPersonaSelect"></select>
+                <label for="conversationUserProfileSelect">UserProfile</label>
+                <select id="conversationUserProfileSelect"></select>
 
                 <label for="conversationModelProfileOverrideSelect"
                   >Model Profile Override</label
@@ -767,8 +767,8 @@
                   <h3>App Defaults</h3>
                 </div>
 
-                <label for="defaultPersonaSelect">Default Persona</label>
-                <select id="defaultPersonaSelect"></select>
+                <label for="defaultUserProfileSelect">Default UserProfile</label>
+                <select id="defaultUserProfileSelect"></select>
 
                 <label for="defaultModelProfileSelect">Default Model Profile</label>
                 <select id="defaultModelProfileSelect"></select>
@@ -816,7 +816,7 @@
                 <option value="UserFact">UserFact</option>
                 <option value="RelationshipFact">RelationshipFact</option>
                 <option value="WorldFact">WorldFact</option>
-                <option value="CharacterFact">CharacterFact</option>
+                <option value="AgentFact">AgentFact</option>
               </select>
 
               <label class="memory-label" for="memoryContentInput"
@@ -931,8 +931,8 @@
                 <button id="exportMemoryExtractionAuditBtn" type="button">
                   Export Active Conversation Audit
                 </button>
-                <button id="pruneStaleSceneStateBtn" type="button">
-                  Prune Stale Scene-State
+                <button id="pruneStaleSessionStateBtn" type="button">
+                  Prune Stale Session-State
                 </button>
               </div>
 
@@ -1136,14 +1136,14 @@
               <select id="memoryExportScopeInput">
                 <option value="">(any)</option>
                 <option value="Conversation">Conversation</option>
-                <option value="Character">Character</option>
+                <option value="Agent">Agent</option>
               </select>
 
               <label for="memoryExportKindInput">Kind</label>
               <select id="memoryExportKindInput">
                 <option value="">(any)</option>
                 <option value="DurableFact">Durable</option>
-                <option value="SceneState">SceneState</option>
+                <option value="SessionState">SessionState</option>
               </select>
 
               <label for="memoryExportCategoryContainsInput">Category contains</label>
@@ -1254,24 +1254,24 @@
 
             <div class="memory-panel-section">
               <div class="panel-section-header">
-                <h3>Scene-State Inspection</h3>
-                <button id="refreshSceneStateInspectionBtn" type="button">
+                <h3>Session-State Inspection</h3>
+                <button id="refreshSessionStateInspectionBtn" type="button">
                   Refresh
                 </button>
               </div>
 
-              <div id="sceneStateInspectionMeta" class="muted-text">
-                No scene-state inspection loaded yet.
+              <div id="sessionStateInspectionMeta" class="muted-text">
+                No session-state inspection loaded yet.
               </div>
 
-              <h4>Active Scene-State By Family</h4>
-              <div id="sceneStateActiveList" class="stack-sm"></div>
+              <h4>Active Session-State By Family</h4>
+              <div id="sessionStateActiveList" class="stack-sm"></div>
 
-              <h4>Replaced Scene-State History</h4>
-              <div id="sceneStateReplacementHistoryList" class="stack-sm"></div>
+              <h4>Replaced Session-State History</h4>
+              <div id="sessionStateReplacementHistoryList" class="stack-sm"></div>
 
               <h4>Family Collisions</h4>
-              <div id="sceneStateFamilyCollisionList" class="stack-sm"></div>
+              <div id="sessionStateFamilyCollisionList" class="stack-sm"></div>
             </div>
 
             <div class="memory-panel-section">
@@ -1290,18 +1290,18 @@
 
             <div class="memory-panel-section">
               <div class="panel-section-header">
-                <h3>Prompt Scene-State Debug</h3>
+                <h3>Prompt Session-State Debug</h3>
               </div>
 
-              <div id="promptSceneStateDebugMeta" class="muted-text">
-                No prompt scene-state debug data loaded yet.
+              <div id="promptSessionStateDebugMeta" class="muted-text">
+                No prompt session-state debug data loaded yet.
               </div>
 
               <h4>Selected Families</h4>
-              <div id="promptSceneStateSelectedList" class="stack-sm"></div>
+              <div id="promptSessionStateSelectedList" class="stack-sm"></div>
 
               <h4>Suppressed Families</h4>
-              <div id="promptSceneStateSuppressedList" class="stack-sm"></div>
+              <div id="promptSessionStateSuppressedList" class="stack-sm"></div>
             </div>
 
             <div class="memory-panel-section">
@@ -1421,38 +1421,38 @@
 
             <div class="memory-panel-section">
               <div class="memory-panel-header">
-                <h2>Lorebooks</h2>
-                <button id="refreshLorebooksBtn" type="button">Refresh</button>
+                <h2>KnowledgeBases</h2>
+                <button id="refreshKnowledgeBasesBtn" type="button">Refresh</button>
               </div>
 
-              <label class="memory-label" for="lorebookNameInput"
-                >Lorebook Name</label
+              <label class="memory-label" for="knowledgeBaseNameInput"
+                >KnowledgeBase Name</label
               >
               <input
-                id="lorebookNameInput"
+                id="knowledgeBaseNameInput"
                 type="text"
                 placeholder="World Rules"
               />
 
-              <label class="memory-label" for="lorebookDescriptionInput"
+              <label class="memory-label" for="knowledgeBaseDescriptionInput"
                 >Description</label
               >
               <textarea
-                id="lorebookDescriptionInput"
+                id="knowledgeBaseDescriptionInput"
                 rows="3"
-                placeholder="Core lore for this character"
+                placeholder="Core lore for this agent"
               ></textarea>
 
-              <button id="createLorebookBtn" type="button">
-                Create Lorebook
+              <button id="createKnowledgeBaseBtn" type="button">
+                Create KnowledgeBase
               </button>
             </div>
 
             <div class="memory-panel-section">
               <h3>Create Lore Entry</h3>
 
-              <label class="memory-label" for="lorebookSelect">Lorebook</label>
-              <select id="lorebookSelect"></select>
+              <label class="memory-label" for="knowledgeBaseSelect">KnowledgeBase</label>
+              <select id="knowledgeBaseSelect"></select>
 
               <label class="memory-label" for="loreEntryTitleInput"
                 >Entry Title</label
@@ -1485,8 +1485,8 @@
             </div>
 
             <div class="memory-panel-section">
-              <h3>Lorebook Entries</h3>
-              <div id="lorebookList" class="memory-list"></div>
+              <h3>KnowledgeBase Entries</h3>
+              <div id="knowledgeBaseList" class="memory-list"></div>
             </div>
           </aside>
         </div>

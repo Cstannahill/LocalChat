@@ -8,7 +8,7 @@ On application startup, `Program.cs` performs:
 
 1. SQLite DB initialization and migration history compatibility check
 2. `Database.MigrateAsync()` to apply pending EF Core migrations
-3. default seeding for model profiles, generation presets, and assistant profiles (stored as characters in the current schema)
+3. default seeding for model profiles, generation presets, and assistant profiles (stored as agents in the current schema)
 
 ## Run Modes
 
@@ -33,7 +33,7 @@ Relative to API content root (`src/LocalChat.Api` when run via `dotnet run --pro
 - request flow log: `App_Data/Logs/request-flow.ndjson`
 - generated audio: `wwwroot/generated/audio/YYYY/MM/...`
 - generated images: `wwwroot/generated/images/YYYY/MM/...`
-- uploaded character images: `wwwroot/uploads/characters/<characterId>/...`
+- uploaded agent images: `wwwroot/uploads/agents/<agentId>/...`
 
 ## Backups
 
@@ -41,7 +41,7 @@ Minimum backup set:
 
 1. `App_Data/localchat.db`
 2. generated assets in `wwwroot/generated/`
-3. uploaded character images in `wwwroot/uploads/characters/`
+3. uploaded agent images in `wwwroot/uploads/agents/`
 
 If you can only back up one item, prioritize the DB.
 
@@ -67,7 +67,7 @@ Use carefully in controlled operations windows:
 
 - `/api/admin/maintenance/memory/rebuild-keys`
 - `/api/admin/maintenance/retrieval/reindex-all`
-- `/api/admin/maintenance/memory/prune-stale-scene-state`
+- `/api/admin/maintenance/memory/prune-stale-session-state`
 - `/api/admin/maintenance/audit/memory-extraction/prune?olderThanDays=30`
 - `/api/admin/maintenance/audit/memory-extraction/export/conversations/{conversationId}`
 

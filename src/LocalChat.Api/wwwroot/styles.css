@@ -278,7 +278,7 @@ button:hover {
   margin: 0.2em 0;
 }
 
-.character-avatar {
+.agent-avatar {
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
@@ -288,7 +288,7 @@ button:hover {
   flex-shrink: 0;
 }
 
-.character-avatar--large {
+.agent-avatar--large {
   width: 3rem;
   height: 3rem;
 }
@@ -300,11 +300,11 @@ button:hover {
   margin-bottom: 0.35rem;
 }
 
-.character-image-preview {
+.agent-image-preview {
   margin-top: 0.5rem;
 }
 
-.character-image-preview img {
+.agent-image-preview img {
   max-width: 180px;
   max-height: 180px;
   border-radius: 0.75rem;
@@ -427,23 +427,23 @@ button:hover {
   border-color: var(--danger);
 }
 
-.lorebook-block {
+.knowledgeBase-block {
   background: var(--panel-2);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px;
 }
 
-.lorebook-block + .lorebook-block {
+.knowledgeBase-block + .knowledgeBase-block {
   margin-top: 10px;
 }
 
-.lorebook-title {
+.knowledgeBase-title {
   font-weight: bold;
   margin-bottom: 4px;
 }
 
-.lorebook-description {
+.knowledgeBase-description {
   color: var(--muted);
   font-size: 12px;
   margin-bottom: 10px;

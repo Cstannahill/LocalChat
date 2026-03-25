@@ -23,15 +23,15 @@ Global utility endpoints:
 - `/api/conversations`
   - create/list/get/update message content
   - delete/branch/select message variants
-  - update persona and runtime settings on conversation
+  - update userProfile and runtime settings on conversation
 
 ## Assistant/Agent and User Profile Management (Current Route Names)
 
-- `/api/characters`
+- `/api/agents`
   - list/detail/create/update/delete
-  - upload/delete character image
-- `/api/personas`
-  - list/detail/create/update/delete/default persona handling
+  - upload/delete agent image
+- `/api/user-profiles`
+  - list/detail/create/update/delete/default userProfile handling
 
 ## Model and Runtime Defaults
 
@@ -45,10 +45,10 @@ These define provider+model routing and generation defaults at app/profile/sessi
 
 - `/api/memory`
   - memory CRUD/review, conflict workflows, merge/promote/demote, import/export
-- `/api/lorebooks`
+- `/api/knowledge-bases`
 - `/api/inspection`
   - prompt and retrieval inspection
-- `/api/inspection/scene-state`
+- `/api/inspection/session-state`
 - `/api/inspection/memory-extraction`
 
 ## Media
@@ -70,20 +70,20 @@ These define provider+model routing and generation defaults at app/profile/sessi
   - memory key rebuild
   - full retrieval reindex
   - prune/export extraction audits
-  - prune stale scene-state memory
+  - prune stale session-state memory
 - `/api/admin/background-work`
   - status and manual trigger of conversation background work tasks
 
 ## Import/Export
 
 - `/api/import-export`
-  - character import/export
-  - persona import/export
+  - agent import/export
+  - userProfile import/export
 
 ## Terminology Mapping
 
-- `character` corresponds to an assistant/agent profile
-- `persona` corresponds to an end-user profile
+- `agent` corresponds to an assistant/agent profile
+- `userProfile` corresponds to an end-user profile
 - `conversation` corresponds to an interaction session
 
 ## Streaming Chat Example
@@ -92,9 +92,9 @@ These define provider+model routing and generation defaults at app/profile/sessi
 curl -N -X POST "http://localhost:5170/api/chat/send/stream" \
   -H "Content-Type: application/json" \
   -d '{
-    "characterId":"00000000-0000-0000-0000-000000000000",
+    "agentId":"00000000-0000-0000-0000-000000000000",
     "conversationId":null,
-    "userPersonaId":null,
+    "userProfileId":null,
     "message":"Hello there"
   }'
 ```

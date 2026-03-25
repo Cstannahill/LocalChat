@@ -76,7 +76,7 @@ If a feature is called without a reachable provider, API endpoints return errors
 - `KeepRecentMessageCount`
 - `MinMessagesToSummarize`
 - `MaxMessagesPerPass`
-- `MaxSummaryCharacters`
+- `MaxSummaryAgents`
 
 ## `Retrieval`
 
@@ -86,9 +86,9 @@ If a feature is called without a reachable provider, API endpoints return errors
 ## `MemoryProposals`
 
 - confidence and extraction limits (`MinConfidenceScore`, `MaxCandidatesPerRun`, etc.)
-- auto-accept and scene-state TTL policy values
+- auto-accept and session-state TTL policy values
 
-## `SceneStateCleanup`
+## `SessionStateCleanup`
 
 - `Enabled`
 - `PreservePinned`
@@ -164,4 +164,3 @@ If a feature is called without a reachable provider, API endpoints return errors
 3. Keep provider-specific timeouts explicit for your network.
 4. Disable optional telemetry in high-throughput environments unless needed.
 5. Restrict network access to this API if running without auth middleware.
-

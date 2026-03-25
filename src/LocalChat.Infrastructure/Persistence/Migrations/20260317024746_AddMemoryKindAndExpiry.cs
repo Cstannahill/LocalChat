@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -12,7 +12,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_MemoryItems_Characters_CharacterId",
+                name: "FK_MemoryItems_Agents_AgentId",
                 table: "MemoryItems");
 
             migrationBuilder.DropForeignKey(
@@ -50,9 +50,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 defaultValue: "DurableFact");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MemoryItems_CharacterId_ConversationId_Kind_NormalizedKey",
+                name: "IX_MemoryItems_AgentId_ConversationId_Kind_NormalizedKey",
                 table: "MemoryItems",
-                columns: new[] { "CharacterId", "ConversationId", "Kind", "NormalizedKey" });
+                columns: new[] { "AgentId", "ConversationId", "Kind", "NormalizedKey" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_MemoryItems_ConflictsWithMemoryItemId",
@@ -70,10 +70,10 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "Kind");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_MemoryItems_Characters_CharacterId",
+                name: "FK_MemoryItems_Agents_AgentId",
                 table: "MemoryItems",
-                column: "CharacterId",
-                principalTable: "Characters",
+                column: "AgentId",
+                principalTable: "Agents",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
@@ -96,7 +96,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_MemoryItems_Characters_CharacterId",
+                name: "FK_MemoryItems_Agents_AgentId",
                 table: "MemoryItems");
 
             migrationBuilder.DropForeignKey(
@@ -108,7 +108,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 table: "MemoryItems");
 
             migrationBuilder.DropIndex(
-                name: "IX_MemoryItems_CharacterId_ConversationId_Kind_NormalizedKey",
+                name: "IX_MemoryItems_AgentId_ConversationId_Kind_NormalizedKey",
                 table: "MemoryItems");
 
             migrationBuilder.DropIndex(
@@ -151,10 +151,10 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "NormalizedKey");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_MemoryItems_Characters_CharacterId",
+                name: "FK_MemoryItems_Agents_AgentId",
                 table: "MemoryItems",
-                column: "CharacterId",
-                principalTable: "Characters",
+                column: "AgentId",
+                principalTable: "Agents",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 

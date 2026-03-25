@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -17,7 +17,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Category = table.Column<string>(type: "TEXT", nullable: false),
                     Kind = table.Column<string>(type: "TEXT", nullable: false),
                     SlotFamily = table.Column<string>(type: "TEXT", nullable: false),
@@ -42,9 +42,9 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 column: "Action");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MemoryExtractionAuditEvents_CharacterId",
+                name: "IX_MemoryExtractionAuditEvents_AgentId",
                 table: "MemoryExtractionAuditEvents",
-                column: "CharacterId");
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MemoryExtractionAuditEvents_ConversationId",

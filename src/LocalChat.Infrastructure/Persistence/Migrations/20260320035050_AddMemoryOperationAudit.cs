@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -21,7 +21,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                     TargetMemoryItemId = table.Column<Guid>(type: "TEXT", nullable: true),
                     OperationType = table.Column<string>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: true),
                     MessageSequenceNumber = table.Column<int>(type: "INTEGER", nullable: true),
                     BeforeStateJson = table.Column<string>(type: "TEXT", nullable: true),
                     AfterStateJson = table.Column<string>(type: "TEXT", nullable: true),

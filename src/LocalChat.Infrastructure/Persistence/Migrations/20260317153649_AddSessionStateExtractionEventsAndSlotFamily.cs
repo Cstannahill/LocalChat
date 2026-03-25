@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,18 +6,18 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LocalChat.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSceneStateExtractionEventsAndSlotFamily : Migration
+    public partial class AddSessionStateExtractionEventsAndSlotFamily : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "SceneStateExtractionEvents",
+                name: "SessionStateExtractionEvents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CharacterId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AgentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     SlotFamily = table.Column<string>(type: "TEXT", nullable: false),
                     SlotKey = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CandidateContent = table.Column<string>(type: "TEXT", nullable: false),
@@ -31,32 +31,32 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SceneStateExtractionEvents", x => x.Id);
+                    table.PrimaryKey("PK_SessionStateExtractionEvents", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SceneStateExtractionEvents_Action",
-                table: "SceneStateExtractionEvents",
+                name: "IX_SessionStateExtractionEvents_Action",
+                table: "SessionStateExtractionEvents",
                 column: "Action");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SceneStateExtractionEvents_CharacterId",
-                table: "SceneStateExtractionEvents",
-                column: "CharacterId");
+                name: "IX_SessionStateExtractionEvents_AgentId",
+                table: "SessionStateExtractionEvents",
+                column: "AgentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SceneStateExtractionEvents_ConversationId",
-                table: "SceneStateExtractionEvents",
+                name: "IX_SessionStateExtractionEvents_ConversationId",
+                table: "SessionStateExtractionEvents",
                 column: "ConversationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SceneStateExtractionEvents_CreatedAt",
-                table: "SceneStateExtractionEvents",
+                name: "IX_SessionStateExtractionEvents_CreatedAt",
+                table: "SessionStateExtractionEvents",
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SceneStateExtractionEvents_SlotFamily",
-                table: "SceneStateExtractionEvents",
+                name: "IX_SessionStateExtractionEvents_SlotFamily",
+                table: "SessionStateExtractionEvents",
                 column: "SlotFamily");
         }
 
@@ -64,7 +64,7 @@ namespace LocalChat.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SceneStateExtractionEvents");
+                name: "SessionStateExtractionEvents");
         }
     }
 }

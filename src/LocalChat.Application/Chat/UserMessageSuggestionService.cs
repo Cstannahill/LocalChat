@@ -83,7 +83,7 @@ public sealed class UserMessageSuggestionService
 
             var retrievalStopwatch = Stopwatch.StartNew();
             var retrieval = await _retrievalService.InspectAsync(
-                conversation.CharacterId,
+                conversation.AgentId,
                 conversation.Id,
                 retrievalQuery,
                 cancellationToken
@@ -111,7 +111,7 @@ public sealed class UserMessageSuggestionService
             var parseStopwatch = Stopwatch.StartNew();
             var parsed = await ParseOrRecoverResponseAsync(
                 raw,
-                conversation.Character?.Name,
+                conversation.Agent?.Name,
                 latestMessage.Content,
                 cancellationToken
             );
@@ -120,10 +120,10 @@ public sealed class UserMessageSuggestionService
             totalStopwatch.Stop();
 
             _logger.LogInformation(
-                "Suggested user message generation completed in {TotalMs} ms. ConversationId={ConversationId}, CharacterId={CharacterId}, MessageCount={MessageCount}, RetrievalMs={RetrievalMs}, PromptBuildMs={PromptBuildMs}, InferenceMs={InferenceMs}, ParseMs={ParseMs}, SuggestedLength={SuggestedLength}",
+                "Suggested user message generation completed in {TotalMs} ms. ConversationId={ConversationId}, AgentId={AgentId}, MessageCount={MessageCount}, RetrievalMs={RetrievalMs}, PromptBuildMs={PromptBuildMs}, InferenceMs={InferenceMs}, ParseMs={ParseMs}, SuggestedLength={SuggestedLength}",
                 totalStopwatch.ElapsedMilliseconds,
                 conversation.Id,
-                conversation.CharacterId,
+                conversation.AgentId,
                 orderedMessages.Count,
                 retrievalStopwatch.ElapsedMilliseconds,
                 promptBuildStopwatch.ElapsedMilliseconds,
@@ -146,10 +146,10 @@ public sealed class UserMessageSuggestionService
 
             _logger.LogError(
                 ex,
-                "Suggested user message generation failed after {ElapsedMs} ms. ConversationId={ConversationId}, CharacterId={CharacterId}, MessageCount={MessageCount}",
+                "Suggested user message generation failed after {ElapsedMs} ms. ConversationId={ConversationId}, AgentId={AgentId}, MessageCount={MessageCount}",
                 totalStopwatch.ElapsedMilliseconds,
                 conversation.Id,
-                conversation.CharacterId,
+                conversation.AgentId,
                 orderedMessages.Count
             );
 
@@ -159,7 +159,7 @@ public sealed class UserMessageSuggestionService
 
     private async Task<ParsedSuggestion> ParseOrRecoverResponseAsync(
         string raw,
-        string? characterName,
+        string? agentName,
         string latestAssistantMessage,
         CancellationToken cancellationToken
     )
@@ -168,7 +168,7 @@ public sealed class UserMessageSuggestionService
         {
             return await EnsureUserPerspectiveAsync(
                 parsed,
-                characterName,
+                agentName,
                 latestAssistantMessage,
                 cancellationToken
             );
@@ -186,7 +186,7 @@ public sealed class UserMessageSuggestionService
         {
             return await EnsureUserPerspectiveAsync(
                 parsed,
-                characterName,
+                agentName,
                 latestAssistantMessage,
                 cancellationToken
             );
@@ -204,7 +204,7 @@ public sealed class UserMessageSuggestionService
                     Tone = null,
                     ReasoningSummary = "Recovered from non-JSON model output.",
                 },
-                characterName,
+                agentName,
                 latestAssistantMessage,
                 cancellationToken
             );
@@ -218,7 +218,7 @@ public sealed class UserMessageSuggestionService
                 ReasoningSummary =
                     "Fallback suggestion used because model output could not be parsed.",
             },
-            characterName,
+            agentName,
             latestAssistantMessage,
             cancellationToken
         );
@@ -233,7 +233,7 @@ public sealed class UserMessageSuggestionService
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("You generate a natural next user reply for a character chat conversation.");
+        sb.AppendLine("You generate a natural next user reply for a agent chat conversation.");
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
         sb.AppendLine("Your goal:");
@@ -242,13 +242,13 @@ public sealed class UserMessageSuggestionService
         sb.AppendLine("- keep it natural, conversational, and coherent with the immediate scene");
         sb.AppendLine("- respect the current tone, relationship, and emotional context");
         sb.AppendLine("- do not write for the assistant");
-        sb.AppendLine("- do not roleplay as the character");
+        sb.AppendLine("- do not roleplay as the agent");
         sb.AppendLine("- do not narrate future events outside the user's message");
         sb.AppendLine("- do not include the prefix 'User:'");
         sb.AppendLine("- keep it to one concise message, usually 1–3 sentences");
         sb.AppendLine("- if the assistant asked a question, prefer answering or responding to it");
         sb.AppendLine(
-            "- if the scene is emotional or intimate, keep the reply grounded and in-character for the user"
+            "- if the scene is emotional or intimate, keep the reply grounded and in-agent for the user"
         );
         sb.AppendLine(
             "- avoid stage-direction narration for the assistant (no writing the assistant's actions)"
@@ -270,23 +270,23 @@ public sealed class UserMessageSuggestionService
         );
         sb.AppendLine();
 
-        sb.AppendLine("Character:");
-        sb.AppendLine($"Name: {conversation.Character?.Name}");
-        sb.AppendLine($"Description: {conversation.Character?.Description}");
-        sb.AppendLine($"Scenario: {conversation.Character?.Scenario}");
-        sb.AppendLine($"Personality: {conversation.Character?.PersonalityDefinition}");
+        sb.AppendLine("Agent:");
+        sb.AppendLine($"Name: {conversation.Agent?.Name}");
+        sb.AppendLine($"Description: {conversation.Agent?.Description}");
+        sb.AppendLine($"Scenario: {conversation.Agent?.Scenario}");
+        sb.AppendLine($"Personality: {conversation.Agent?.PersonalityDefinition}");
         sb.AppendLine();
 
-        if (conversation.UserPersona is not null)
+        if (conversation.UserProfile is not null)
         {
-            sb.AppendLine("User Persona:");
-            sb.AppendLine($"Name: {conversation.UserPersona.Name}");
-            sb.AppendLine($"Display Name: {conversation.UserPersona.DisplayName}");
-            sb.AppendLine($"Description: {conversation.UserPersona.Description}");
-            sb.AppendLine($"Traits: {conversation.UserPersona.Traits}");
-            sb.AppendLine($"Preferences: {conversation.UserPersona.Preferences}");
+            sb.AppendLine("User Profile:");
+            sb.AppendLine($"Name: {conversation.UserProfile.Name}");
+            sb.AppendLine($"Display Name: {conversation.UserProfile.DisplayName}");
+            sb.AppendLine($"Description: {conversation.UserProfile.Description}");
+            sb.AppendLine($"Traits: {conversation.UserProfile.Traits}");
+            sb.AppendLine($"Preferences: {conversation.UserProfile.Preferences}");
             sb.AppendLine(
-                $"Additional Instructions: {conversation.UserPersona.AdditionalInstructions}"
+                $"Additional Instructions: {conversation.UserProfile.AdditionalInstructions}"
             );
             sb.AppendLine();
         }
@@ -425,7 +425,7 @@ Return valid JSON only with this exact shape:
 Rules:
 - suggestedMessage must be a single plausible next user message (2-4 sentences).
 - Do not include "User:" prefix.
-- Must be from the USER perspective, not assistant/character perspective.
+- Must be from the USER perspective, not assistant/agent perspective.
 - No markdown, no extra text.
 
 Input:
@@ -435,14 +435,14 @@ Input:
 
     private async Task<ParsedSuggestion> EnsureUserPerspectiveAsync(
         ParsedSuggestion parsed,
-        string? characterName,
+        string? agentName,
         string latestAssistantMessage,
         CancellationToken cancellationToken
     )
     {
-        var normalizedMessage = NormalizeSuggestedMessage(parsed.SuggestedMessage, characterName);
+        var normalizedMessage = NormalizeSuggestedMessage(parsed.SuggestedMessage, agentName);
 
-        if (!IsLikelyAssistantPerspective(normalizedMessage, characterName, latestAssistantMessage))
+        if (!IsLikelyAssistantPerspective(normalizedMessage, agentName, latestAssistantMessage))
         {
             return new ParsedSuggestion
             {
@@ -454,7 +454,7 @@ Input:
 
         var correctionPrompt = BuildPerspectiveCorrectionPrompt(
             normalizedMessage,
-            characterName,
+            agentName,
             latestAssistantMessage
         );
 
@@ -471,8 +471,8 @@ Input:
             correctedText = normalizedMessage;
         }
 
-        correctedText = NormalizeSuggestedMessage(correctedText, characterName);
-        if (IsLikelyAssistantPerspective(correctedText, characterName, latestAssistantMessage))
+        correctedText = NormalizeSuggestedMessage(correctedText, agentName);
+        if (IsLikelyAssistantPerspective(correctedText, agentName, latestAssistantMessage))
         {
             correctedText = "Can you tell me more about that?";
         }
@@ -487,7 +487,7 @@ Input:
 
     private static string BuildPerspectiveCorrectionPrompt(
         string candidateMessage,
-        string? characterName,
+        string? agentName,
         string latestAssistantMessage
     )
     {
@@ -497,10 +497,10 @@ Return plain text only (no JSON, no markdown, no labels), 2-4 sentences.
 
 Rules:
 - Must be from user perspective.
-- Must NOT speak as the assistant/character.
+- Must NOT speak as the assistant/agent.
 - Must NOT include "User:" or "Assistant:".
 
-Character name (assistant): {{characterName ?? "Unknown"}}
+Agent name (assistant): {{agentName ?? "Unknown"}}
 Latest assistant message:
 {{latestAssistantMessage}}
 
@@ -511,7 +511,7 @@ Candidate message:
 
     private static bool IsLikelyAssistantPerspective(
         string message,
-        string? characterName,
+        string? agentName,
         string latestAssistantMessage
     )
     {
@@ -527,8 +527,8 @@ Candidate message:
         }
 
         if (
-            !string.IsNullOrWhiteSpace(characterName)
-            && trimmed.StartsWith($"{characterName}:", StringComparison.OrdinalIgnoreCase)
+            !string.IsNullOrWhiteSpace(agentName)
+            && trimmed.StartsWith($"{agentName}:", StringComparison.OrdinalIgnoreCase)
         )
         {
             return true;
@@ -542,16 +542,16 @@ Candidate message:
         return false;
     }
 
-    private static string NormalizeSuggestedMessage(string message, string? characterName)
+    private static string NormalizeSuggestedMessage(string message, string? agentName)
     {
         var normalized = StripSpeakerPrefix(message);
 
         if (
-            !string.IsNullOrWhiteSpace(characterName)
-            && normalized.StartsWith($"{characterName}:", StringComparison.OrdinalIgnoreCase)
+            !string.IsNullOrWhiteSpace(agentName)
+            && normalized.StartsWith($"{agentName}:", StringComparison.OrdinalIgnoreCase)
         )
         {
-            normalized = normalized[(characterName.Length + 1)..].Trim();
+            normalized = normalized[(agentName.Length + 1)..].Trim();
         }
 
         return normalized.Trim();

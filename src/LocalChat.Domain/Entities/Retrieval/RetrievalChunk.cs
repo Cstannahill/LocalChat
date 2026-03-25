@@ -4,7 +4,7 @@ public sealed class RetrievalChunk
 {
     public Guid Id { get; set; }
 
-    public Guid CharacterId { get; set; }
+    public Guid AgentId { get; set; }
 
     public Guid? ConversationId { get; set; }
 

@@ -6,7 +6,7 @@ public sealed class VectorDocument
 
     public required string SourceType { get; init; }
 
-    public Guid? CharacterId { get; init; }
+    public Guid? AgentId { get; init; }
 
     public Guid? ConversationId { get; init; }
 

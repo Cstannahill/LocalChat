@@ -63,7 +63,7 @@ public sealed class AssistantTurnGenerationService : IAssistantTurnGenerationSer
                 .Select(x => $"{x.Role}: {x.Content}"));
 
         var retrieval = await _retrievalService.InspectAsync(
-            conversation.CharacterId,
+            conversation.AgentId,
             conversation.Id,
             retrievalQuery,
             cancellationToken);
@@ -79,10 +79,10 @@ public sealed class AssistantTurnGenerationService : IAssistantTurnGenerationSer
 
         var prompt = _promptComposer.Compose(new PromptCompositionContext
         {
-            Character = conversation.Character
-                        ?? throw new InvalidOperationException("Conversation character was not loaded."),
+            Agent = conversation.Agent
+                        ?? throw new InvalidOperationException("Conversation agent was not loaded."),
             Conversation = conversation,
-            UserPersona = conversation.UserPersona,
+            UserProfile = conversation.UserProfile,
             ExplicitMemories = retrieval.SelectedMemories,
             RelevantLoreEntries = retrieval.SelectedLoreEntries,
             RollingSummary = rollingSummary,
@@ -124,8 +124,8 @@ public sealed class AssistantTurnGenerationService : IAssistantTurnGenerationSer
         await _conversationRepository.AddMessageAsync(assistantMessage, cancellationToken);
 
         var runtimeSelection = await ResolveRuntimeSelectionAsync(
-            conversation.Character?.DefaultModelProfileId,
-            conversation.Character?.DefaultGenerationPresetId,
+            conversation.Agent?.DefaultModelProfileId,
+            conversation.Agent?.DefaultGenerationPresetId,
             cancellationToken);
 
         var provenance = AssistantGenerationProvenance.Create(

@@ -1,7 +1,7 @@
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Models;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Domain.Entities.UserProfiles;
 
 namespace LocalChat.Domain.Entities.Conversations;
 
@@ -9,9 +9,9 @@ public sealed class Conversation
 {
     public Guid Id { get; set; }
 
-    public Guid CharacterId { get; set; }
+    public Guid AgentId { get; set; }
 
-    public Guid? UserPersonaId { get; set; }
+    public Guid? UserProfileId { get; set; }
 
     public Guid? ParentConversationId { get; set; }
 
@@ -37,9 +37,9 @@ public sealed class Conversation
 
     public DateTime UpdatedAt { get; set; }
 
-    public Character? Character { get; set; }
+    public Agent? Agent { get; set; }
 
-    public UserPersona? UserPersona { get; set; }
+    public UserProfile? UserProfile { get; set; }
 
     public ModelProfile? RuntimeModelProfileOverride { get; set; }
 

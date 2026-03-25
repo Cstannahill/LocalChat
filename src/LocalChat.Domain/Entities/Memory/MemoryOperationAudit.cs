@@ -16,7 +16,7 @@ public sealed class MemoryOperationAudit
 
     public Guid? ConversationId { get; set; }
 
-    public Guid? CharacterId { get; set; }
+    public Guid? AgentId { get; set; }
 
     public int? MessageSequenceNumber { get; set; }
 

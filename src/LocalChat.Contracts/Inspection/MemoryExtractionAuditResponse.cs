@@ -8,7 +8,7 @@ public sealed class MemoryExtractionAuditResponse
 
     public required int DurableEventCount { get; init; }
 
-    public required int SceneStateEventCount { get; init; }
+    public required int SessionStateEventCount { get; init; }
 
     public required IReadOnlyList<MemoryExtractionAuditItemResponse> Events { get; init; }
 }

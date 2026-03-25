@@ -6,11 +6,11 @@ public sealed class VectorSearchQuery
 
     public IReadOnlyList<string> SourceTypes { get; init; } = Array.Empty<string>();
 
-    public Guid? CharacterId { get; init; }
+    public Guid? AgentId { get; init; }
 
     public Guid? ConversationId { get; init; }
 
-    public bool IncludeGlobalCharacterItems { get; init; } = true;
+    public bool IncludeGlobalAgentItems { get; init; } = true;
 
     public bool IncludeGlobalConversationItems { get; init; } = true;
 

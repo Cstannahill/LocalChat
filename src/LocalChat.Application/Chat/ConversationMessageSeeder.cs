@@ -12,7 +12,7 @@ public static class ConversationMessageSeeder
             throw new ArgumentNullException(nameof(conversation));
         }
 
-        var greeting = conversation.Character?.Greeting?.Trim();
+        var greeting = conversation.Agent?.Greeting?.Trim();
         if (string.IsNullOrWhiteSpace(greeting))
         {
             return false;

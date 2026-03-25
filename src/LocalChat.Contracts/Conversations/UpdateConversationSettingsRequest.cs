@@ -2,7 +2,7 @@ namespace LocalChat.Contracts.Conversations;
 
 public sealed class UpdateConversationSettingsRequest
 {
-    public Guid? UserPersonaId { get; init; }
+    public Guid? UserProfileId { get; init; }
 
     public Guid? RuntimeModelProfileOverrideId { get; init; }
 

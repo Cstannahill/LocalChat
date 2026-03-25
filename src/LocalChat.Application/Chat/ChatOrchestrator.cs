@@ -9,21 +9,21 @@ using LocalChat.Application.Features.Chat.SendChatMessage;
 using LocalChat.Application.Features.Summaries;
 using LocalChat.Application.Prompting.Composition;
 using LocalChat.Application.Runtime;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Entities.Generation;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Models;
-using LocalChat.Domain.Entities.Personas;
+using LocalChat.Domain.Entities.UserProfiles;
 using LocalChat.Domain.Enums;
 
 namespace LocalChat.Application.Chat;
 
 public sealed class ChatOrchestrator
 {
-    private readonly ICharacterRepository _characterRepository;
-    private readonly IUserPersonaRepository _userPersonaRepository;
+    private readonly IAgentRepository _agentRepository;
+    private readonly IUserProfileRepository _userProfileRepository;
     private readonly IModelProfileRepository _modelProfileRepository;
     private readonly IGenerationPresetRepository _generationPresetRepository;
     private readonly IConversationRepository _conversationRepository;
@@ -40,8 +40,8 @@ public sealed class ChatOrchestrator
     private readonly IRequestFlowTiming _requestFlowTiming;
 
     public ChatOrchestrator(
-        ICharacterRepository characterRepository,
-        IUserPersonaRepository userPersonaRepository,
+        IAgentRepository agentRepository,
+        IUserProfileRepository userProfileRepository,
         IModelProfileRepository modelProfileRepository,
         IGenerationPresetRepository generationPresetRepository,
         IConversationRepository conversationRepository,
@@ -55,10 +55,11 @@ public sealed class ChatOrchestrator
         SummaryOptions summaryOptions,
         IRuntimeSelectionResolver? runtimeSelectionResolver = null,
         IGenerationPromptSnapshotRepository? generationPromptSnapshotRepository = null,
-        IRequestFlowTiming? requestFlowTiming = null)
+        IRequestFlowTiming? requestFlowTiming = null
+    )
     {
-        _characterRepository = characterRepository;
-        _userPersonaRepository = userPersonaRepository;
+        _agentRepository = agentRepository;
+        _userProfileRepository = userProfileRepository;
         _modelProfileRepository = modelProfileRepository;
         _generationPresetRepository = generationPresetRepository;
         _conversationRepository = conversationRepository;
@@ -80,63 +81,74 @@ public sealed class ChatOrchestrator
         Func<string, CancellationToken, Task> onDelta,
         string? overrideProvider = null,
         string? overrideModelIdentifier = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         if (string.IsNullOrWhiteSpace(command.Message))
         {
             throw new ArgumentException("Message cannot be empty.", nameof(command));
         }
 
-        _requestFlowTiming.AddTag("characterId", command.CharacterId.ToString());
+        _requestFlowTiming.AddTag("agentId", command.AgentId.ToString());
 
-        Character character;
-        using (_requestFlowTiming.BeginStage("chat.resolve_character"))
+        Agent agent;
+        using (_requestFlowTiming.BeginStage("chat.resolve_agent"))
         {
-            character = await _characterRepository.GetByIdAsync(command.CharacterId, cancellationToken)
-                ?? throw new InvalidOperationException($"Character '{command.CharacterId}' was not found.");
+            agent =
+                await _agentRepository.GetByIdAsync(command.AgentId, cancellationToken)
+                ?? throw new InvalidOperationException($"Agent '{command.AgentId}' was not found.");
         }
 
         var conversationCreated = false;
         Conversation conversation;
-        UserPersona? userPersona = null;
+        UserProfile? userProfile = null;
 
         using (_requestFlowTiming.BeginStage("chat.resolve_conversation"))
         {
             if (command.ConversationId.HasValue)
             {
-                conversation = await _conversationRepository.GetByIdWithMessagesAsync(
-                                   command.ConversationId.Value,
-                                   cancellationToken)
-                               ?? throw new InvalidOperationException(
-                                   $"Conversation '{command.ConversationId.Value}' was not found.");
+                conversation =
+                    await _conversationRepository.GetByIdWithMessagesAsync(
+                        command.ConversationId.Value,
+                        cancellationToken
+                    )
+                    ?? throw new InvalidOperationException(
+                        $"Conversation '{command.ConversationId.Value}' was not found."
+                    );
 
-                if (conversation.CharacterId != command.CharacterId)
+                if (conversation.AgentId != command.AgentId)
                 {
                     throw new InvalidOperationException(
-                        "Conversation does not belong to the requested character.");
+                        "Conversation does not belong to the requested agent."
+                    );
                 }
 
-                userPersona = conversation.UserPersona;
+                userProfile = conversation.UserProfile;
             }
             else
             {
-                if (command.UserPersonaId.HasValue)
+                if (command.UserProfileId.HasValue)
                 {
-                    userPersona = await _userPersonaRepository.GetByIdAsync(command.UserPersonaId.Value, cancellationToken)
+                    userProfile =
+                        await _userProfileRepository.GetByIdAsync(
+                            command.UserProfileId.Value,
+                            cancellationToken
+                        )
                         ?? throw new InvalidOperationException(
-                            $"User persona '{command.UserPersonaId.Value}' was not found.");
+                            $"User profile '{command.UserProfileId.Value}' was not found."
+                        );
                 }
 
                 conversation = new Conversation
                 {
                     Id = Guid.NewGuid(),
-                    CharacterId = character.Id,
-                    Character = character,
-                    UserPersonaId = userPersona?.Id,
-                    UserPersona = userPersona,
-                    Title = BuildConversationTitle(command.Message, character.Name),
+                    AgentId = agent.Id,
+                    Agent = agent,
+                    UserProfileId = userProfile?.Id,
+                    UserProfile = userProfile,
+                    Title = BuildConversationTitle(command.Message, agent.Name),
                     CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow,
                 };
 
                 await _conversationRepository.AddAsync(conversation, cancellationToken);
@@ -153,11 +165,12 @@ public sealed class ChatOrchestrator
         using (_requestFlowTiming.BeginStage("chat.resolve_runtime"))
         {
             runtimeSelection = await ResolveRuntimeSelectionAsync(
-                character,
+                agent,
                 conversation,
                 overrideProvider,
                 overrideModelIdentifier,
-                cancellationToken);
+                cancellationToken
+            );
         }
         var resolvedModelIdentifier = runtimeSelection.ModelIdentifier;
         var resolvedModelProfile = runtimeSelection.ModelProfile;
@@ -170,21 +183,22 @@ public sealed class ChatOrchestrator
             contextInfo = await _modelContextService.GetForModelAsync(
                 resolvedModelIdentifier,
                 resolvedModelProfile?.ContextWindow,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
-        var priorMessages = conversation.Messages
-            .OrderBy(x => x.SequenceNumber)
-            .ToList();
+        var priorMessages = conversation.Messages.OrderBy(x => x.SequenceNumber).ToList();
 
-        var retrievalInspection = default(LocalChat.Application.Inspection.RetrievalInspectionResult);
+        var retrievalInspection =
+            default(LocalChat.Application.Inspection.RetrievalInspectionResult);
         using (_requestFlowTiming.BeginStage("chat.retrieval.inspect"))
         {
             retrievalInspection = await _retrievalService.InspectAsync(
-                character.Id,
+                agent.Id,
                 conversation.Id,
                 command.Message,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         var explicitMemories = retrievalInspection.SelectedMemories;
@@ -195,14 +209,15 @@ public sealed class ChatOrchestrator
         {
             latestSummary = await _conversationRepository.GetLatestSummaryAsync(
                 conversation.Id,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         using (_requestFlowTiming.BeginStage("chat.summary.ensure_rolling"))
         {
             latestSummary = await EnsureRollingSummaryIfNeededAsync(
-                character,
-                userPersona,
+                agent,
+                userProfile,
                 conversation,
                 explicitMemories,
                 relevantLoreEntries,
@@ -210,7 +225,8 @@ public sealed class ChatOrchestrator
                 latestSummary,
                 command.Message,
                 contextInfo.MaxPromptTokens,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         var rawMessages = GetRawMessagesAfterSummary(priorMessages, latestSummary);
@@ -219,20 +235,23 @@ public sealed class ChatOrchestrator
         using (_requestFlowTiming.BeginStage("chat.history.trim_to_fit"))
         {
             trimmedRawMessages = TrimRawHistoryToFit(
-                character,
-                userPersona,
-                conversation,
-                explicitMemories,
-                relevantLoreEntries,
-                latestSummary?.SummaryText,
-                rawMessages,
-                command.Message,
-                contextInfo.MaxPromptTokens).ToList();
+                    agent,
+                    userProfile,
+                    conversation,
+                    explicitMemories,
+                    relevantLoreEntries,
+                    latestSummary?.SummaryText,
+                    rawMessages,
+                    command.Message,
+                    contextInfo.MaxPromptTokens
+                )
+                .ToList();
         }
 
-        var userSequenceNumber = conversation.Messages.Count == 0
-            ? 1
-            : conversation.Messages.Max(x => x.SequenceNumber) + 1;
+        var userSequenceNumber =
+            conversation.Messages.Count == 0
+                ? 1
+                : conversation.Messages.Max(x => x.SequenceNumber) + 1;
 
         var userMessageContent = command.Message.Trim();
 
@@ -245,7 +264,7 @@ public sealed class ChatOrchestrator
             Content = userMessageContent,
             SequenceNumber = userSequenceNumber,
             CreatedAt = DateTime.UtcNow,
-            SelectedVariantIndex = null
+            SelectedVariantIndex = null,
         };
 
         using (_requestFlowTiming.BeginStage("chat.persist.user_message"))
@@ -256,17 +275,19 @@ public sealed class ChatOrchestrator
         PromptCompositionResult finalPrompt;
         using (_requestFlowTiming.BeginStage("chat.prompt.compose"))
         {
-            finalPrompt = _promptComposer.Compose(new PromptCompositionContext
-            {
-                Character = character,
-                UserPersona = userPersona,
-                Conversation = conversation,
-                PriorMessages = trimmedRawMessages,
-                CurrentUserMessage = command.Message,
-                RollingSummary = latestSummary?.SummaryText,
-                ExplicitMemories = explicitMemories,
-                RelevantLoreEntries = relevantLoreEntries
-            });
+            finalPrompt = _promptComposer.Compose(
+                new PromptCompositionContext
+                {
+                    Agent = agent,
+                    UserProfile = userProfile,
+                    Conversation = conversation,
+                    PriorMessages = trimmedRawMessages,
+                    CurrentUserMessage = command.Message,
+                    RollingSummary = latestSummary?.SummaryText,
+                    ExplicitMemories = explicitMemories,
+                    RelevantLoreEntries = relevantLoreEntries,
+                }
+            );
         }
 
         var generationStartedAt = DateTime.UtcNow;
@@ -277,7 +298,8 @@ public sealed class ChatOrchestrator
                 finalPrompt.Prompt,
                 onDelta,
                 BuildExecutionSettings(runtimeSelection, resolvedModelIdentifier),
-                cancellationToken);
+                cancellationToken
+            );
         }
         var generationCompletedAt = DateTime.UtcNow;
 
@@ -292,7 +314,7 @@ public sealed class ChatOrchestrator
             Content = assistantText,
             SequenceNumber = userSequenceNumber + 1,
             CreatedAt = DateTime.UtcNow,
-            SelectedVariantIndex = 0
+            SelectedVariantIndex = 0,
         };
 
         using (_requestFlowTiming.BeginStage("chat.persist.assistant_message"))
@@ -305,7 +327,8 @@ public sealed class ChatOrchestrator
             0,
             provenance,
             generationStartedAt,
-            generationCompletedAt);
+            generationCompletedAt
+        );
         initialVariant.MessageId = assistantMessage.Id;
 
         using (_requestFlowTiming.BeginStage("chat.persist.assistant_variant"))
@@ -329,7 +352,8 @@ public sealed class ChatOrchestrator
                 finalPrompt,
                 provenance,
                 contextInfo.EffectiveContextLength,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         using (_requestFlowTiming.BeginStage("chat.background.schedule"))
@@ -338,7 +362,8 @@ public sealed class ChatOrchestrator
                 conversation.Id,
                 ConversationBackgroundWorkType.All,
                 "chat-turn-complete",
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         return new SendChatMessageResult
@@ -347,7 +372,7 @@ public sealed class ChatOrchestrator
             UserMessageId = userMessage.Id,
             AssistantMessageId = assistantMessage.Id,
             AssistantMessage = assistantText,
-            ConversationCreated = conversationCreated
+            ConversationCreated = conversationCreated,
         };
     }
 
@@ -356,46 +381,55 @@ public sealed class ChatOrchestrator
         Guid assistantMessageId,
         string? overrideProvider = null,
         string? overrideModelIdentifier = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         _requestFlowTiming.AddTag("conversationId", conversationId.ToString());
 
         Conversation conversation;
         using (_requestFlowTiming.BeginStage("chat.regenerate.load_conversation"))
         {
-            conversation = await _conversationRepository.GetByIdWithMessagesAsync(conversationId, cancellationToken)
-                ?? throw new InvalidOperationException($"Conversation '{conversationId}' was not found.");
+            conversation =
+                await _conversationRepository.GetByIdWithMessagesAsync(
+                    conversationId,
+                    cancellationToken
+                )
+                ?? throw new InvalidOperationException(
+                    $"Conversation '{conversationId}' was not found."
+                );
         }
 
-        _requestFlowTiming.AddTag("characterId", conversation.CharacterId.ToString());
+        _requestFlowTiming.AddTag("agentId", conversation.AgentId.ToString());
 
-        Character character;
-        using (_requestFlowTiming.BeginStage("chat.regenerate.load_character"))
+        Agent agent;
+        using (_requestFlowTiming.BeginStage("chat.regenerate.load_agent"))
         {
-            character = conversation.Character
-                ?? await _characterRepository.GetByIdAsync(conversation.CharacterId, cancellationToken)
-                ?? throw new InvalidOperationException($"Character '{conversation.CharacterId}' was not found.");
+            agent =
+                conversation.Agent
+                ?? await _agentRepository.GetByIdAsync(conversation.AgentId, cancellationToken)
+                ?? throw new InvalidOperationException(
+                    $"Agent '{conversation.AgentId}' was not found."
+                );
         }
 
-        var userPersona = conversation.UserPersona;
+        var userProfile = conversation.UserProfile;
         ResolvedRuntimeSelection runtimeSelection;
         using (_requestFlowTiming.BeginStage("chat.regenerate.resolve_runtime"))
         {
             runtimeSelection = await ResolveRuntimeSelectionAsync(
-                character,
+                agent,
                 conversation,
                 overrideProvider,
                 overrideModelIdentifier,
-                cancellationToken);
+                cancellationToken
+            );
         }
         var resolvedModelIdentifier = runtimeSelection.ModelIdentifier;
         var resolvedModelProfile = runtimeSelection.ModelProfile;
         _requestFlowTiming.AddTag("provider", runtimeSelection.ProviderType?.ToString());
         _requestFlowTiming.AddTag("modelIdentifier", resolvedModelIdentifier);
 
-        var orderedMessages = conversation.Messages
-            .OrderBy(x => x.SequenceNumber)
-            .ToList();
+        var orderedMessages = conversation.Messages.OrderBy(x => x.SequenceNumber).ToList();
 
         if (orderedMessages.Count == 0)
         {
@@ -405,7 +439,9 @@ public sealed class ChatOrchestrator
         var assistantIndex = orderedMessages.FindIndex(x => x.Id == assistantMessageId);
         if (assistantIndex < 0)
         {
-            throw new InvalidOperationException($"Assistant message '{assistantMessageId}' was not found.");
+            throw new InvalidOperationException(
+                $"Assistant message '{assistantMessageId}' was not found."
+            );
         }
 
         var assistantMessage = orderedMessages[assistantIndex];
@@ -416,17 +452,19 @@ public sealed class ChatOrchestrator
 
         if (assistantIndex != orderedMessages.Count - 1)
         {
-            throw new InvalidOperationException("Only the latest assistant message can be regenerated.");
+            throw new InvalidOperationException(
+                "Only the latest assistant message can be regenerated."
+            );
         }
 
         if (assistantIndex == 0)
         {
-            throw new InvalidOperationException("Assistant message has no preceding context and cannot be regenerated.");
+            throw new InvalidOperationException(
+                "Assistant message has no preceding context and cannot be regenerated."
+            );
         }
 
-        var messagesBeforeAssistant = orderedMessages
-            .Take(assistantIndex)
-            .ToList();
+        var messagesBeforeAssistant = orderedMessages.Take(assistantIndex).ToList();
 
         var precedingMessage = messagesBeforeAssistant[^1];
         var isContinuationRegeneration = precedingMessage.Role == MessageRole.Assistant;
@@ -437,46 +475,56 @@ public sealed class ChatOrchestrator
 
         if (isContinuationRegeneration)
         {
-            var retrievalInspection = default(LocalChat.Application.Inspection.RetrievalInspectionResult);
+            var retrievalInspection =
+                default(LocalChat.Application.Inspection.RetrievalInspectionResult);
             using (_requestFlowTiming.BeginStage("chat.regenerate.retrieval.inspect"))
             {
                 retrievalInspection = await _retrievalService.InspectAsync(
-                    character.Id,
+                    agent.Id,
                     conversation.Id,
                     BuildRetrievalQuery(messagesBeforeAssistant),
-                    cancellationToken);
+                    cancellationToken
+                );
             }
 
             SummaryCheckpoint? latestSummary;
             using (_requestFlowTiming.BeginStage("chat.regenerate.summary.load_latest"))
             {
-                latestSummary = await _conversationRepository.GetLatestSummaryAsync(conversation.Id, cancellationToken);
+                latestSummary = await _conversationRepository.GetLatestSummaryAsync(
+                    conversation.Id,
+                    cancellationToken
+                );
             }
 
             using (_requestFlowTiming.BeginStage("chat.regenerate.prompt.compose"))
             {
-                finalPrompt = _promptComposer.Compose(new PromptCompositionContext
-                {
-                    Character = character,
-                    UserPersona = userPersona,
-                    Conversation = conversation,
-                    PriorMessages = messagesBeforeAssistant.TakeLast(14).ToList(),
-                    CurrentUserMessage = null,
-                    ContinueWithoutUserMessage = true,
-                    RollingSummary = latestSummary?.SummaryText,
-                    ExplicitMemories = retrievalInspection.SelectedMemories,
-                    RelevantLoreEntries = retrievalInspection.SelectedLoreEntries
-                });
+                finalPrompt = _promptComposer.Compose(
+                    new PromptCompositionContext
+                    {
+                        Agent = agent,
+                        UserProfile = userProfile,
+                        Conversation = conversation,
+                        PriorMessages = messagesBeforeAssistant.TakeLast(14).ToList(),
+                        CurrentUserMessage = null,
+                        ContinueWithoutUserMessage = true,
+                        RollingSummary = latestSummary?.SummaryText,
+                        ExplicitMemories = retrievalInspection.SelectedMemories,
+                        RelevantLoreEntries = retrievalInspection.SelectedLoreEntries,
+                    }
+                );
             }
         }
         else
         {
-            var targetUserMessage = messagesBeforeAssistant
-                .LastOrDefault(x => x.Role == MessageRole.User);
+            var targetUserMessage = messagesBeforeAssistant.LastOrDefault(x =>
+                x.Role == MessageRole.User
+            );
 
             if (targetUserMessage is null)
             {
-                throw new InvalidOperationException("Assistant message is not paired with any preceding user message.");
+                throw new InvalidOperationException(
+                    "Assistant message is not paired with any preceding user message."
+                );
             }
 
             ModelContextInfo contextInfo;
@@ -485,18 +533,21 @@ public sealed class ChatOrchestrator
                 contextInfo = await _modelContextService.GetForModelAsync(
                     resolvedModelIdentifier,
                     resolvedModelProfile?.ContextWindow,
-                    cancellationToken);
+                    cancellationToken
+                );
             }
             resolvedContextWindow = contextInfo.EffectiveContextLength;
 
-            var retrievalInspection = default(LocalChat.Application.Inspection.RetrievalInspectionResult);
+            var retrievalInspection =
+                default(LocalChat.Application.Inspection.RetrievalInspectionResult);
             using (_requestFlowTiming.BeginStage("chat.regenerate.retrieval.inspect"))
             {
                 retrievalInspection = await _retrievalService.InspectAsync(
-                    character.Id,
+                    agent.Id,
                     conversation.Id,
                     targetUserMessage.Content,
-                    cancellationToken);
+                    cancellationToken
+                );
             }
 
             var explicitMemories = retrievalInspection.SelectedMemories;
@@ -505,7 +556,10 @@ public sealed class ChatOrchestrator
             SummaryCheckpoint? latestSummary;
             using (_requestFlowTiming.BeginStage("chat.regenerate.summary.load_latest"))
             {
-                latestSummary = await _conversationRepository.GetLatestSummaryAsync(conversation.Id, cancellationToken);
+                latestSummary = await _conversationRepository.GetLatestSummaryAsync(
+                    conversation.Id,
+                    cancellationToken
+                );
             }
 
             var messagesBeforeTargetUser = orderedMessages
@@ -516,29 +570,32 @@ public sealed class ChatOrchestrator
             var rawMessages = GetRawMessagesAfterSummary(messagesBeforeTargetUser, latestSummary);
 
             var trimmedRawMessages = TrimRawHistoryToFit(
-                character,
-                userPersona,
+                agent,
+                userProfile,
                 conversation,
                 explicitMemories,
                 relevantLoreEntries,
                 latestSummary?.SummaryText,
                 rawMessages,
                 targetUserMessage.Content,
-                contextInfo.MaxPromptTokens);
+                contextInfo.MaxPromptTokens
+            );
 
             using (_requestFlowTiming.BeginStage("chat.regenerate.prompt.compose"))
             {
-                finalPrompt = _promptComposer.Compose(new PromptCompositionContext
-                {
-                    Character = character,
-                    UserPersona = userPersona,
-                    Conversation = conversation,
-                    PriorMessages = trimmedRawMessages,
-                    CurrentUserMessage = targetUserMessage.Content,
-                    RollingSummary = latestSummary?.SummaryText,
-                    ExplicitMemories = explicitMemories,
-                    RelevantLoreEntries = relevantLoreEntries
-                });
+                finalPrompt = _promptComposer.Compose(
+                    new PromptCompositionContext
+                    {
+                        Agent = agent,
+                        UserProfile = userProfile,
+                        Conversation = conversation,
+                        PriorMessages = trimmedRawMessages,
+                        CurrentUserMessage = targetUserMessage.Content,
+                        RollingSummary = latestSummary?.SummaryText,
+                        ExplicitMemories = explicitMemories,
+                        RelevantLoreEntries = relevantLoreEntries,
+                    }
+                );
             }
         }
 
@@ -550,18 +607,22 @@ public sealed class ChatOrchestrator
                 finalPrompt.Prompt,
                 static (_, _) => Task.CompletedTask,
                 executionSettings,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         if (string.IsNullOrWhiteSpace(regeneratedText) && executionSettings is not null)
         {
-            using (_requestFlowTiming.BeginStage("chat.regenerate.inference.retry_default_settings"))
+            using (
+                _requestFlowTiming.BeginStage("chat.regenerate.inference.retry_default_settings")
+            )
             {
                 regeneratedText = await _inferenceProvider.StreamCompletionAsync(
                     finalPrompt.Prompt,
                     static (_, _) => Task.CompletedTask,
                     null,
-                    cancellationToken);
+                    cancellationToken
+                );
             }
         }
 
@@ -573,16 +634,18 @@ public sealed class ChatOrchestrator
 
         var provenance = BuildAssistantGenerationProvenance(runtimeSelection);
 
-        var nextVariantIndex = assistantMessage.Variants.Count == 0
-            ? 0
-            : assistantMessage.Variants.Max(x => x.VariantIndex) + 1;
+        var nextVariantIndex =
+            assistantMessage.Variants.Count == 0
+                ? 0
+                : assistantMessage.Variants.Max(x => x.VariantIndex) + 1;
 
         var newVariant = AssistantMessageVariantFactory.Create(
             regeneratedText,
             nextVariantIndex,
             provenance,
             generationStartedAt,
-            generationCompletedAt);
+            generationCompletedAt
+        );
         newVariant.MessageId = assistantMessage.Id;
 
         using (_requestFlowTiming.BeginStage("chat.regenerate.persist.variant"))
@@ -611,7 +674,8 @@ public sealed class ChatOrchestrator
                 finalPrompt,
                 provenance,
                 resolvedContextWindow,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
         return new RegenerateAssistantMessageResult
@@ -620,7 +684,7 @@ public sealed class ChatOrchestrator
             MessageId = assistantMessage.Id,
             AssistantMessage = regeneratedText,
             SelectedVariantIndex = nextVariantIndex,
-            VariantCount = variantCount
+            VariantCount = variantCount,
         };
     }
 
@@ -628,27 +692,38 @@ public sealed class ChatOrchestrator
         Guid conversationId,
         Guid assistantMessageId,
         int variantIndex,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         _requestFlowTiming.AddTag("conversationId", conversationId.ToString());
 
         Conversation conversation;
         using (_requestFlowTiming.BeginStage("chat.select_variant.load_conversation"))
         {
-            conversation = await _conversationRepository.GetByIdWithMessagesAsync(conversationId, cancellationToken)
-                ?? throw new InvalidOperationException($"Conversation '{conversationId}' was not found.");
+            conversation =
+                await _conversationRepository.GetByIdWithMessagesAsync(
+                    conversationId,
+                    cancellationToken
+                )
+                ?? throw new InvalidOperationException(
+                    $"Conversation '{conversationId}' was not found."
+                );
         }
 
-        var assistantMessage = conversation.Messages.FirstOrDefault(x => x.Id == assistantMessageId)
-                               ?? throw new InvalidOperationException($"Assistant message '{assistantMessageId}' was not found.");
+        var assistantMessage =
+            conversation.Messages.FirstOrDefault(x => x.Id == assistantMessageId)
+            ?? throw new InvalidOperationException(
+                $"Assistant message '{assistantMessageId}' was not found."
+            );
 
         if (assistantMessage.Role != MessageRole.Assistant)
         {
             throw new InvalidOperationException("Only assistant messages can select variants.");
         }
 
-        var selectedVariant = assistantMessage.Variants.FirstOrDefault(x => x.VariantIndex == variantIndex)
-                              ?? throw new InvalidOperationException($"Variant '{variantIndex}' was not found.");
+        var selectedVariant =
+            assistantMessage.Variants.FirstOrDefault(x => x.VariantIndex == variantIndex)
+            ?? throw new InvalidOperationException($"Variant '{variantIndex}' was not found.");
 
         assistantMessage.Content = selectedVariant.Content;
         assistantMessage.SelectedVariantIndex = selectedVariant.VariantIndex;
@@ -665,46 +740,55 @@ public sealed class ChatOrchestrator
             MessageId = assistantMessage.Id,
             AssistantMessage = assistantMessage.Content,
             SelectedVariantIndex = selectedVariant.VariantIndex,
-            VariantCount = assistantMessage.Variants.Count
+            VariantCount = assistantMessage.Variants.Count,
         };
     }
 
     private async Task<ResolvedRuntimeSelection> ResolveRuntimeSelectionAsync(
-        Character character,
+        Agent agent,
         Conversation conversation,
         string? overrideProvider,
         string? overrideModelIdentifier,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (_runtimeSelectionResolver is not null)
         {
             return await _runtimeSelectionResolver.ResolveAsync(
-                character,
+                agent,
                 conversation,
                 overrideProvider,
                 overrideModelIdentifier,
-                cancellationToken);
+                cancellationToken
+            );
         }
 
-        var legacy = await ResolveCharacterRuntimeSelectionAsync(character, cancellationToken);
+        var legacy = await ResolveAgentRuntimeSelectionAsync(agent, cancellationToken);
         var resolvedModelIdentifier = legacy.ModelProfile?.ModelIdentifier;
         var turnOverrideModelIdentifier = BuildTurnOverrideModelIdentifier(
             overrideProvider,
-            overrideModelIdentifier);
+            overrideModelIdentifier
+        );
 
-        RuntimeSourceType sourceType = RuntimeSourceType.CharacterDefault;
+        RuntimeSourceType sourceType = RuntimeSourceType.AgentDefault;
         ProviderType? providerType = legacy.ModelProfile?.ProviderType;
         ModelProfile? modelProfile = legacy.ModelProfile;
 
         if (!string.IsNullOrWhiteSpace(turnOverrideModelIdentifier))
         {
             resolvedModelIdentifier = turnOverrideModelIdentifier;
-            providerType = ModelRoute.Parse(turnOverrideModelIdentifier, ProviderType.Ollama).Provider;
+            providerType = ModelRoute
+                .Parse(turnOverrideModelIdentifier, ProviderType.Ollama)
+                .Provider;
             modelProfile = null;
             sourceType = RuntimeSourceType.OneTurnOverride;
         }
 
-        if (legacy.ModelProfile is null && legacy.GenerationPreset is null && sourceType != RuntimeSourceType.OneTurnOverride)
+        if (
+            legacy.ModelProfile is null
+            && legacy.GenerationPreset is null
+            && sourceType != RuntimeSourceType.OneTurnOverride
+        )
         {
             sourceType = RuntimeSourceType.ProviderDefault;
         }
@@ -715,24 +799,31 @@ public sealed class ChatOrchestrator
             ProviderType = providerType,
             ModelIdentifier = resolvedModelIdentifier,
             ModelProfile = modelProfile,
-            GenerationPreset = legacy.GenerationPreset
+            GenerationPreset = legacy.GenerationPreset,
         };
     }
 
-    private async Task<(ModelProfile? ModelProfile, GenerationPreset? GenerationPreset)> ResolveCharacterRuntimeSelectionAsync(
-        Character character,
-        CancellationToken cancellationToken)
+    private async Task<(
+        ModelProfile? ModelProfile,
+        GenerationPreset? GenerationPreset
+    )> ResolveAgentRuntimeSelectionAsync(Agent agent, CancellationToken cancellationToken)
     {
         ModelProfile? modelProfile = null;
-        if (character.DefaultModelProfileId.HasValue)
+        if (agent.DefaultModelProfileId.HasValue)
         {
-            modelProfile = await _modelProfileRepository.GetByIdAsync(character.DefaultModelProfileId.Value, cancellationToken);
+            modelProfile = await _modelProfileRepository.GetByIdAsync(
+                agent.DefaultModelProfileId.Value,
+                cancellationToken
+            );
         }
 
         GenerationPreset? generationPreset = null;
-        if (character.DefaultGenerationPresetId.HasValue)
+        if (agent.DefaultGenerationPresetId.HasValue)
         {
-            generationPreset = await _generationPresetRepository.GetByIdAsync(character.DefaultGenerationPresetId.Value, cancellationToken);
+            generationPreset = await _generationPresetRepository.GetByIdAsync(
+                agent.DefaultGenerationPresetId.Value,
+                cancellationToken
+            );
         }
 
         return (modelProfile, generationPreset);
@@ -740,7 +831,8 @@ public sealed class ChatOrchestrator
 
     private static InferenceExecutionSettings? BuildExecutionSettings(
         ResolvedRuntimeSelection runtimeSelection,
-        string? modelIdentifierOverride = null)
+        string? modelIdentifierOverride = null
+    )
     {
         if (runtimeSelection.ModelProfile is null && runtimeSelection.GenerationPreset is null)
         {
@@ -757,36 +849,42 @@ public sealed class ChatOrchestrator
             Temperature = runtimeSelection.GenerationPreset?.Temperature,
             TopP = runtimeSelection.GenerationPreset?.TopP,
             RepeatPenalty = runtimeSelection.GenerationPreset?.RepeatPenalty,
-            StopSequences = ParseStopSequences(runtimeSelection.GenerationPreset?.StopSequencesText)
+            StopSequences = ParseStopSequences(
+                runtimeSelection.GenerationPreset?.StopSequencesText
+            ),
         };
     }
 
     private static AssistantGenerationProvenance BuildAssistantGenerationProvenance(
-        ResolvedRuntimeSelection runtimeSelection)
+        ResolvedRuntimeSelection runtimeSelection
+    )
     {
         return AssistantGenerationProvenance.Create(
             runtimeSelection.ProviderType,
             runtimeSelection.ModelIdentifier,
             runtimeSelection.ModelProfile?.Id,
             runtimeSelection.GenerationPreset?.Id,
-            runtimeSelection.SourceType);
+            runtimeSelection.SourceType
+        );
     }
 
     private static string BuildPromptSectionsJson(PromptCompositionResult promptCompositionResult)
     {
-        var payload = promptCompositionResult.Sections
-            .Select(x => new PromptSectionSnapshotRecord
+        var payload = promptCompositionResult
+            .Sections.Select(x => new PromptSectionSnapshotRecord
             {
                 Name = x.Name,
                 Content = x.Content,
-                EstimatedTokens = x.EstimatedTokens
+                EstimatedTokens = x.EstimatedTokens,
             })
             .ToList();
 
         return JsonSerializer.Serialize(payload);
     }
 
-    private static int CalculateEstimatedPromptTokens(PromptCompositionResult promptCompositionResult)
+    private static int CalculateEstimatedPromptTokens(
+        PromptCompositionResult promptCompositionResult
+    )
     {
         return promptCompositionResult.Sections.Sum(x => x.EstimatedTokens);
     }
@@ -798,7 +896,8 @@ public sealed class ChatOrchestrator
         PromptCompositionResult promptCompositionResult,
         AssistantGenerationProvenance provenance,
         int? resolvedContextWindow,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (_generationPromptSnapshotRepository is null)
         {
@@ -820,7 +919,7 @@ public sealed class ChatOrchestrator
             ModelProfileId = provenance.ModelProfileId,
             GenerationPresetId = provenance.GenerationPresetId,
             RuntimeSourceType = provenance.RuntimeSourceType,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         await _generationPromptSnapshotRepository.AddAsync(snapshot, cancellationToken);
@@ -829,7 +928,8 @@ public sealed class ChatOrchestrator
 
     private static string? BuildTurnOverrideModelIdentifier(
         string? overrideProvider,
-        string? overrideModelIdentifier)
+        string? overrideModelIdentifier
+    )
     {
         if (string.IsNullOrWhiteSpace(overrideModelIdentifier))
         {
@@ -838,8 +938,10 @@ public sealed class ChatOrchestrator
 
         var defaultProvider = ProviderType.Ollama;
 
-        if (!string.IsNullOrWhiteSpace(overrideProvider)
-            && ModelRoute.TryParseProvider(overrideProvider, out var parsedProvider))
+        if (
+            !string.IsNullOrWhiteSpace(overrideProvider)
+            && ModelRoute.TryParseProvider(overrideProvider, out var parsedProvider)
+        )
         {
             defaultProvider = parsedProvider;
         }
@@ -863,16 +965,18 @@ public sealed class ChatOrchestrator
             return Array.Empty<string>();
         }
 
-        return raw
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        return raw.Split(
+                '\n',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+            )
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct(StringComparer.Ordinal)
             .ToList();
     }
 
     private async Task<SummaryCheckpoint?> EnsureRollingSummaryIfNeededAsync(
-        Character character,
-        UserPersona? userPersona,
+        Agent agent,
+        UserProfile? userProfile,
         Conversation conversation,
         IReadOnlyList<MemoryItem> explicitMemories,
         IReadOnlyList<LoreEntry> relevantLoreEntries,
@@ -880,7 +984,8 @@ public sealed class ChatOrchestrator
         SummaryCheckpoint? latestSummary,
         string currentUserMessage,
         int maxPromptTokens,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         if (!_summaryOptions.Enabled || priorMessages.Count == 0)
         {
@@ -889,17 +994,19 @@ public sealed class ChatOrchestrator
 
         var rawMessages = GetRawMessagesAfterSummary(priorMessages, latestSummary);
 
-        var promptWithCurrentState = _promptComposer.Compose(new PromptCompositionContext
-        {
-            Character = character,
-            UserPersona = userPersona,
-            Conversation = conversation,
-            PriorMessages = rawMessages,
-            CurrentUserMessage = currentUserMessage,
-            RollingSummary = latestSummary?.SummaryText,
-            ExplicitMemories = explicitMemories,
-            RelevantLoreEntries = relevantLoreEntries
-        });
+        var promptWithCurrentState = _promptComposer.Compose(
+            new PromptCompositionContext
+            {
+                Agent = agent,
+                UserProfile = userProfile,
+                Conversation = conversation,
+                PriorMessages = rawMessages,
+                CurrentUserMessage = currentUserMessage,
+                RollingSummary = latestSummary?.SummaryText,
+                ExplicitMemories = explicitMemories,
+                RelevantLoreEntries = relevantLoreEntries,
+            }
+        );
 
         var estimatedTokens = _tokenEstimator.EstimateTokens(promptWithCurrentState.Prompt);
         if (estimatedTokens <= maxPromptTokens)
@@ -914,7 +1021,8 @@ public sealed class ChatOrchestrator
 
         var summarizeCount = Math.Min(
             rawMessages.Count - _summaryOptions.KeepRecentMessageCount,
-            _summaryOptions.MaxMessagesPerPass);
+            _summaryOptions.MaxMessagesPerPass
+        );
 
         if (summarizeCount < _summaryOptions.MinMessagesToSummarize)
         {
@@ -929,17 +1037,19 @@ public sealed class ChatOrchestrator
         var newSummaryText = await _conversationSummaryService.BuildRollingSummaryAsync(
             latestSummary?.SummaryText,
             messagesToSummarize,
-            cancellationToken);
+            cancellationToken
+        );
 
         var newCheckpoint = new SummaryCheckpoint
         {
             Id = Guid.NewGuid(),
             ConversationId = conversation.Id,
-            StartSequenceNumber = latestSummary?.StartSequenceNumber ?? messagesToSummarize.First().SequenceNumber,
+            StartSequenceNumber =
+                latestSummary?.StartSequenceNumber ?? messagesToSummarize.First().SequenceNumber,
             EndSequenceNumber = messagesToSummarize.Last().SequenceNumber,
             SummaryText = newSummaryText,
             CreatedAt = DateTime.UtcNow,
-            ReplacedByCheckpointId = null
+            ReplacedByCheckpointId = null,
         };
 
         await _conversationRepository.AddSummaryCheckpointAsync(newCheckpoint, cancellationToken);
@@ -949,33 +1059,34 @@ public sealed class ChatOrchestrator
     }
 
     private IReadOnlyList<Message> TrimRawHistoryToFit(
-        Character character,
-        UserPersona? userPersona,
+        Agent agent,
+        UserProfile? userProfile,
         Conversation conversation,
         IReadOnlyList<MemoryItem> explicitMemories,
         IReadOnlyList<LoreEntry> relevantLoreEntries,
         string? rollingSummary,
         IReadOnlyList<Message> rawMessages,
         string currentUserMessage,
-        int maxPromptTokens)
+        int maxPromptTokens
+    )
     {
-        var workingMessages = rawMessages
-            .OrderBy(x => x.SequenceNumber)
-            .ToList();
+        var workingMessages = rawMessages.OrderBy(x => x.SequenceNumber).ToList();
 
         while (true)
         {
-            var prompt = _promptComposer.Compose(new PromptCompositionContext
-            {
-                Character = character,
-                UserPersona = userPersona,
-                Conversation = conversation,
-                PriorMessages = workingMessages,
-                CurrentUserMessage = currentUserMessage,
-                RollingSummary = rollingSummary,
-                ExplicitMemories = explicitMemories,
-                RelevantLoreEntries = relevantLoreEntries
-            });
+            var prompt = _promptComposer.Compose(
+                new PromptCompositionContext
+                {
+                    Agent = agent,
+                    UserProfile = userProfile,
+                    Conversation = conversation,
+                    PriorMessages = workingMessages,
+                    CurrentUserMessage = currentUserMessage,
+                    RollingSummary = rollingSummary,
+                    ExplicitMemories = explicitMemories,
+                    RelevantLoreEntries = relevantLoreEntries,
+                }
+            );
 
             var estimatedTokens = _tokenEstimator.EstimateTokens(prompt.Prompt);
 
@@ -987,7 +1098,8 @@ public sealed class ChatOrchestrator
             if (workingMessages.Count == 0)
             {
                 throw new InvalidOperationException(
-                    $"Prompt still exceeds max prompt budget after trimming. Estimated tokens: {estimatedTokens}, max prompt tokens: {maxPromptTokens}.");
+                    $"Prompt still exceeds max prompt budget after trimming. Estimated tokens: {estimatedTokens}, max prompt tokens: {maxPromptTokens}."
+                );
             }
 
             workingMessages.RemoveAt(0);
@@ -996,7 +1108,8 @@ public sealed class ChatOrchestrator
 
     private static List<Message> GetRawMessagesAfterSummary(
         IReadOnlyList<Message> priorMessages,
-        SummaryCheckpoint? latestSummary)
+        SummaryCheckpoint? latestSummary
+    )
     {
         if (latestSummary is null)
         {
@@ -1011,21 +1124,17 @@ public sealed class ChatOrchestrator
 
     private static string BuildRetrievalQuery(IReadOnlyList<Message> orderedMessages)
     {
-        return string.Join(
-            "\n",
-            orderedMessages
-                .TakeLast(6)
-                .Select(x => $"{x.Role}: {x.Content}"));
+        return string.Join("\n", orderedMessages.TakeLast(6).Select(x => $"{x.Role}: {x.Content}"));
     }
 
-    private static string BuildConversationTitle(string message, string characterName)
+    private static string BuildConversationTitle(string message, string agentName)
     {
         var trimmed = message.Trim();
         if (trimmed.Length <= 50)
         {
-            return $"{characterName}: {trimmed}";
+            return $"{agentName}: {trimmed}";
         }
 
-        return $"{characterName}: {trimmed[..50]}...";
+        return $"{agentName}: {trimmed[..50]}...";
     }
 }

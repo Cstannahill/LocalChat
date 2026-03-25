@@ -4,7 +4,7 @@ public sealed class BulkResolveMemoryConflictsRequest
 {
     public Guid? ConversationId { get; init; }
 
-    public Guid? CharacterId { get; init; }
+    public Guid? AgentId { get; init; }
 
     public int MaxCount { get; init; } = 50;
 

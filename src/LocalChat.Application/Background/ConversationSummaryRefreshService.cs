@@ -211,10 +211,10 @@ public sealed class ConversationSummaryRefreshService : IConversationSummaryRefr
         sb.AppendLine("Do not narrate outside the conversation.");
         sb.AppendLine();
 
-        sb.AppendLine("Character:");
-        sb.AppendLine($"Name: {conversation.Character?.Name}");
-        sb.AppendLine($"Description: {conversation.Character?.Description}");
-        sb.AppendLine($"Scenario: {conversation.Character?.Scenario}");
+        sb.AppendLine("Agent:");
+        sb.AppendLine($"Name: {conversation.Agent?.Name}");
+        sb.AppendLine($"Description: {conversation.Agent?.Description}");
+        sb.AppendLine($"Scenario: {conversation.Agent?.Scenario}");
         sb.AppendLine();
 
         if (!string.IsNullOrWhiteSpace(conversation.SceneContext))

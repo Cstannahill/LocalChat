@@ -2,7 +2,7 @@ namespace LocalChat.Contracts.Memory;
 
 public sealed class CreateMemoryItemRequest
 {
-    public required Guid CharacterId { get; init; }
+    public required Guid AgentId { get; init; }
 
     public Guid? ConversationId { get; init; }
 

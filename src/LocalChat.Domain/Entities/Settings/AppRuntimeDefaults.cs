@@ -4,7 +4,7 @@ public sealed class AppRuntimeDefaults
 {
     public Guid Id { get; set; }
 
-    public Guid? DefaultPersonaId { get; set; }
+    public Guid? DefaultUserProfileId { get; set; }
 
     public Guid? DefaultModelProfileId { get; set; }
 

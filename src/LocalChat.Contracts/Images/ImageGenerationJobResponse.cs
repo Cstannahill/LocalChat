@@ -4,7 +4,7 @@ public sealed class ImageGenerationJobResponse
 {
     public required Guid Id { get; init; }
 
-    public required Guid CharacterId { get; init; }
+    public required Guid AgentId { get; init; }
 
     public required Guid ConversationId { get; init; }
 

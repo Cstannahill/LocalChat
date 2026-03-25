@@ -12,7 +12,7 @@ public sealed class MemoryItem
 
     public MemoryScopeType ScopeType { get; set; } = MemoryScopeType.Conversation;
 
-    public Guid? CharacterId { get; set; }
+    public Guid? AgentId { get; set; }
 
     public Guid? ConversationId { get; set; }
 

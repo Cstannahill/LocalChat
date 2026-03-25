@@ -2,7 +2,7 @@ namespace LocalChat.Contracts.Inspection;
 
 public sealed class SummaryInspectionRequest
 {
-    public required Guid CharacterId { get; init; }
+    public required Guid AgentId { get; init; }
 
     public required Guid ConversationId { get; init; }
 

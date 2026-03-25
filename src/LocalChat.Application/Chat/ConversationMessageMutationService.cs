@@ -81,7 +81,7 @@ public sealed class ConversationMessageMutationService
             cancellationToken);
 
         conversation.Title = BuildConversationTitle(
-            conversation.Character?.Name ?? "Conversation",
+            conversation.Agent?.Name ?? "Conversation",
             orderedMessages
                 .Where(x => x.SequenceNumber <= target.SequenceNumber)
                 .Select(x => x.Role == target.Role && x.Id == target.Id
@@ -173,7 +173,7 @@ public sealed class ConversationMessageMutationService
             cancellationToken);
 
         conversation.Title = BuildConversationTitle(
-            conversation.Character?.Name ?? "Conversation",
+            conversation.Agent?.Name ?? "Conversation",
             remainingMessages);
 
         conversation.UpdatedAt = DateTime.UtcNow;
@@ -219,7 +219,7 @@ public sealed class ConversationMessageMutationService
     }
 
     private static string BuildConversationTitle(
-        string characterName,
+        string agentName,
         IReadOnlyList<Message> messages)
     {
         var firstUserMessage = messages
@@ -229,13 +229,13 @@ public sealed class ConversationMessageMutationService
 
         if (firstUserMessage is null || string.IsNullOrWhiteSpace(firstUserMessage.Content))
         {
-            return $"{characterName}: New conversation";
+            return $"{agentName}: New conversation";
         }
 
         var content = firstUserMessage.Content.Trim();
         var preview = content.Length <= 48 ? content : $"{content[..48]}...";
 
-        return $"{characterName}: {preview}";
+        return $"{agentName}: {preview}";
     }
 
     private static Message CloneWithContent(Message message, string newContent)

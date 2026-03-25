@@ -46,7 +46,7 @@ public sealed class ConversationVisualPromptService
                 .Select(x => $"{x.Role}: {x.Content}"));
 
         var retrieval = await _retrievalService.InspectAsync(
-            conversation.CharacterId,
+            conversation.AgentId,
             conversation.Id,
             retrievalQuery,
             cancellationToken);
@@ -83,7 +83,7 @@ public sealed class ConversationVisualPromptService
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("You generate text-to-image prompts from character-chat conversation context.");
+        sb.AppendLine("You generate text-to-image prompts from agent-chat conversation context.");
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
         sb.AppendLine("Your job:");
@@ -106,11 +106,11 @@ public sealed class ConversationVisualPromptService
 """);
         sb.AppendLine();
 
-        sb.AppendLine("Character:");
-        sb.AppendLine($"Name: {conversation.Character?.Name}");
-        sb.AppendLine($"Description: {conversation.Character?.Description}");
-        sb.AppendLine($"Scenario: {conversation.Character?.Scenario}");
-        sb.AppendLine($"Personality: {conversation.Character?.PersonalityDefinition}");
+        sb.AppendLine("Agent:");
+        sb.AppendLine($"Name: {conversation.Agent?.Name}");
+        sb.AppendLine($"Description: {conversation.Agent?.Description}");
+        sb.AppendLine($"Scenario: {conversation.Agent?.Scenario}");
+        sb.AppendLine($"Personality: {conversation.Agent?.PersonalityDefinition}");
         sb.AppendLine();
 
         if (!string.IsNullOrWhiteSpace(conversation.SceneContext))
@@ -149,10 +149,10 @@ public sealed class ConversationVisualPromptService
             sb.AppendLine();
         }
 
-        if (conversation.Character?.SampleDialogues?.Count > 0)
+        if (conversation.Agent?.SampleDialogues?.Count > 0)
         {
             sb.AppendLine("Sample Dialogue Style Hints:");
-            foreach (var example in conversation.Character.SampleDialogues.OrderBy(x => x.SortOrder).Take(3))
+            foreach (var example in conversation.Agent.SampleDialogues.OrderBy(x => x.SortOrder).Take(3))
             {
                 sb.AppendLine($"User: {example.UserMessage}");
                 sb.AppendLine($"Assistant: {example.AssistantMessage}");

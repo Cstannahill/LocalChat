@@ -6,7 +6,7 @@ using LocalChat.Application.Abstractions.Retrieval;
 using LocalChat.Application.Background;
 using LocalChat.Application.Prompting.Composition;
 using LocalChat.Application.Runtime;
-using LocalChat.Domain.Entities.Lorebooks;
+using LocalChat.Domain.Entities.KnowledgeBases;
 using LocalChat.Domain.Entities.Memory;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Entities.Generation;
@@ -76,7 +76,7 @@ public sealed class ConversationContinuationService
 
         var retrievalQuery = BuildRetrievalQuery(orderedMessages);
         var retrieval = await _retrievalService.InspectAsync(
-            conversation.CharacterId,
+            conversation.AgentId,
             conversation.Id,
             retrievalQuery,
             cancellationToken);
@@ -85,13 +85,13 @@ public sealed class ConversationContinuationService
             .OrderByDescending(x => x.EndSequenceNumber)
             .FirstOrDefault()?.SummaryText;
 
-        var character = conversation.Character
-                        ?? throw new InvalidOperationException("Conversation character was not loaded.");
+        var agent = conversation.Agent
+                        ?? throw new InvalidOperationException("Conversation agent was not loaded.");
 
         var streamedAnyToken = false;
         var accumulated = new List<string>();
         var runtimeSelection = await ResolveRuntimeSelectionAsync(
-            character,
+            agent,
             conversation,
             overrideProvider,
             overrideModelIdentifier,
@@ -123,9 +123,9 @@ public sealed class ConversationContinuationService
 
             var prompt = _promptComposer.Compose(new PromptCompositionContext
             {
-                Character = character,
+                Agent = agent,
                 Conversation = conversation,
-                UserPersona = conversation.UserPersona,
+                UserProfile = conversation.UserProfile,
                 ExplicitMemories = attempt.IncludeRetrievalContext ? retrieval.SelectedMemories : Array.Empty<MemoryItem>(),
                 RelevantLoreEntries = attempt.IncludeRetrievalContext ? retrieval.SelectedLoreEntries : Array.Empty<LoreEntry>(),
                 RollingSummary = rollingSummary,
@@ -260,7 +260,7 @@ public sealed class ConversationContinuationService
     }
 
     private async Task<ResolvedRuntimeSelection> ResolveRuntimeSelectionAsync(
-        Domain.Entities.Characters.Character character,
+        Domain.Entities.Agents.Agent agent,
         Conversation conversation,
         string? overrideProvider,
         string? overrideModelIdentifier,
@@ -269,19 +269,19 @@ public sealed class ConversationContinuationService
         if (_runtimeSelectionResolver is not null)
         {
             return await _runtimeSelectionResolver.ResolveAsync(
-                character,
+                agent,
                 conversation,
                 overrideProvider,
                 overrideModelIdentifier,
                 cancellationToken);
         }
 
-        var modelProfile = character.DefaultModelProfileId.HasValue
-            ? await _modelProfileRepository.GetByIdAsync(character.DefaultModelProfileId.Value, cancellationToken)
+        var modelProfile = agent.DefaultModelProfileId.HasValue
+            ? await _modelProfileRepository.GetByIdAsync(agent.DefaultModelProfileId.Value, cancellationToken)
             : null;
 
-        var generationPreset = character.DefaultGenerationPresetId.HasValue
-            ? await _generationPresetRepository.GetByIdAsync(character.DefaultGenerationPresetId.Value, cancellationToken)
+        var generationPreset = agent.DefaultGenerationPresetId.HasValue
+            ? await _generationPresetRepository.GetByIdAsync(agent.DefaultGenerationPresetId.Value, cancellationToken)
             : null;
 
         var resolvedModelIdentifier = modelProfile?.ModelIdentifier;
@@ -289,7 +289,7 @@ public sealed class ConversationContinuationService
             overrideProvider,
             overrideModelIdentifier);
 
-        RuntimeSourceType sourceType = RuntimeSourceType.CharacterDefault;
+        RuntimeSourceType sourceType = RuntimeSourceType.AgentDefault;
         ProviderType? providerType = modelProfile?.ProviderType;
 
         if (!string.IsNullOrWhiteSpace(turnOverrideModelIdentifier))

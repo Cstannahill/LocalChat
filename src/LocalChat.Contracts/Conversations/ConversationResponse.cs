@@ -4,9 +4,9 @@ public sealed class ConversationResponse
 {
     public required Guid Id { get; init; }
 
-    public required Guid CharacterId { get; init; }
+    public required Guid AgentId { get; init; }
 
-    public Guid? UserPersonaId { get; init; }
+    public Guid? UserProfileId { get; init; }
 
     public Guid? RuntimeModelProfileOverrideId { get; init; }
 

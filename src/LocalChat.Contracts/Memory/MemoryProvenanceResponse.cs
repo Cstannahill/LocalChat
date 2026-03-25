@@ -10,7 +10,7 @@ public sealed class MemoryProvenanceResponse
 
     public Guid? ConversationId { get; init; }
 
-    public Guid? CharacterId { get; init; }
+    public Guid? AgentId { get; init; }
 
     public string? Category { get; init; }
 

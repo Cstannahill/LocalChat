@@ -1,4 +1,4 @@
-using LocalChat.Contracts.Lorebooks;
+using LocalChat.Contracts.KnowledgeBases;
 using LocalChat.Contracts.Memory;
 
 namespace LocalChat.Contracts.Inspection;

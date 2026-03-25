@@ -57,7 +57,7 @@ public sealed class SpeechOrchestrator
                 Input = message.Content,
                 Voice = !string.IsNullOrWhiteSpace(voiceOverride)
                     ? voiceOverride.Trim()
-                    : conversation.Character?.DefaultTtsVoice,
+                    : conversation.Agent?.DefaultTtsVoice,
                 ModelIdentifier = string.IsNullOrWhiteSpace(modelOverride)
                     ? null
                     : modelOverride.Trim(),
@@ -74,7 +74,7 @@ public sealed class SpeechOrchestrator
         var clip = new SpeechClip
         {
             Id = Guid.NewGuid(),
-            CharacterId = conversation.CharacterId,
+            AgentId = conversation.AgentId,
             ConversationId = conversation.Id,
             MessageId = message.Id,
             Provider = "Kokoro",

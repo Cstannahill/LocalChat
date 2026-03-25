@@ -20,7 +20,7 @@ public sealed class BackgroundWorkManualTriggerResponse
 
     public int? CreatedProposalCount { get; init; }
 
-    public int? AutoSavedSceneStateCount { get; init; }
+    public int? AutoSavedSessionStateCount { get; init; }
 
     public int? AutoAcceptedDurableCount { get; init; }
 

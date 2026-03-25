@@ -35,7 +35,7 @@ public sealed class MemoryConflictMemorySummaryResponse
 
     public Guid? ConversationId { get; init; }
 
-    public Guid? CharacterId { get; init; }
+    public Guid? AgentId { get; init; }
 
     public int? SourceMessageSequenceNumber { get; init; }
 

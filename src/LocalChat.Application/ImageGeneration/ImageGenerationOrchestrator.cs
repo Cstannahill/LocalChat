@@ -35,7 +35,7 @@ public sealed class ImageGenerationOrchestrator
         var job = new ImageGenerationJob
         {
             Id = Guid.NewGuid(),
-            CharacterId = conversation.CharacterId,
+            AgentId = conversation.AgentId,
             ConversationId = conversation.Id,
             Provider = "ComfyUI",
             PromptText = request.Prompt,

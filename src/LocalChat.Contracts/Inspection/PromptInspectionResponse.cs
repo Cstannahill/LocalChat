@@ -20,13 +20,13 @@ public sealed class PromptInspectionResponse
 
     public required string FinalPrompt { get; init; }
 
-    public string? CharacterDefinitionSection { get; init; }
+    public string? AgentDefinitionSection { get; init; }
 
-    public string? CharacterScenarioSection { get; init; }
+    public string? AgentScenarioSection { get; init; }
 
     public string? SampleDialogueSection { get; init; }
 
-    public string? UserPersonaSection { get; init; }
+    public string? UserProfileSection { get; init; }
 
     public string? DirectorSection { get; init; }
 
@@ -36,9 +36,9 @@ public sealed class PromptInspectionResponse
 
     public IReadOnlyList<PromptSectionResponse> Sections { get; init; } = Array.Empty<PromptSectionResponse>();
 
-    public required IReadOnlyList<PromptSceneStateSelectedDebugResponse> SelectedSceneState { get; init; }
+    public required IReadOnlyList<PromptSessionStateSelectedDebugResponse> SelectedSessionState { get; init; }
 
-    public required IReadOnlyList<PromptSceneStateSuppressedDebugResponse> SuppressedSceneState { get; init; }
+    public required IReadOnlyList<PromptSessionStateSuppressedDebugResponse> SuppressedSessionState { get; init; }
 
     public required IReadOnlyList<PromptDurableMemorySelectedDebugResponse> SelectedDurableMemory { get; init; }
 

@@ -12,68 +12,76 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     [
         new()
         {
-            EntityType = "character",
+            EntityType = "agent",
             FieldName = "description",
-            Title = "Concise Character Overview",
-            Summary = "Short, stable description for who the character is.",
-            Content = "A poised, observant woman with a calm presence and a habit of speaking with measured precision. She carries herself with quiet confidence and rarely wastes words."
+            Title = "Concise Agent Overview",
+            Summary = "Short, stable description for who the agent is.",
+            Content =
+                "A poised, observant woman with a calm presence and a habit of speaking with measured precision. She carries herself with quiet confidence and rarely wastes words.",
         },
         new()
         {
-            EntityType = "character",
+            EntityType = "agent",
             FieldName = "personalityDefinition",
             Title = "Personality Core",
             Summary = "Stable traits, style, values, strengths, and flaws.",
-            Content = "Composed, emotionally perceptive, and quietly intense. She is patient, difficult to rattle, and naturally protective, but she can also be controlling when she feels vulnerable."
+            Content =
+                "Composed, emotionally perceptive, and quietly intense. She is patient, difficult to rattle, and naturally protective, but she can also be controlling when she feels vulnerable.",
         },
         new()
         {
-            EntityType = "character",
+            EntityType = "agent",
             FieldName = "scenario",
             Title = "Relationship + Situation",
             Summary = "Explains the current setup and dynamic with the user.",
-            Content = "The character and the user are alone late at night on a private balcony after a tense social event. The atmosphere is intimate, quiet, and emotionally charged."
+            Content =
+                "The agent and the user are alone late at night on a private balcony after a tense social event. The atmosphere is intimate, quiet, and emotionally charged.",
         },
         new()
         {
-            EntityType = "character",
+            EntityType = "agent",
             FieldName = "greeting",
             Title = "Immersive Opening",
             Summary = "Strong first message that establishes tone immediately.",
-            Content = "*She leans against the balcony railing, glancing at you from the corner of her eye before speaking in a low, steady voice.*\n\n\"You’ve been quiet all evening. Are you finally ready to tell me what’s actually on your mind?\""
+            Content =
+                "*She leans against the balcony railing, glancing at you from the corner of her eye before speaking in a low, steady voice.*\n\n\"You’ve been quiet all evening. Are you finally ready to tell me what’s actually on your mind?\"",
         },
         new()
         {
-            EntityType = "persona",
+            EntityType = "userProfile",
             FieldName = "description",
-            Title = "Persona Snapshot",
+            Title = "User Profile Snapshot",
             Summary = "Who the user is in this roleplay or interaction.",
-            Content = "The user is thoughtful, reserved at first, and more expressive once they feel safe. They respond well to emotional honesty and subtle intimacy."
+            Content =
+                "The user is thoughtful, reserved at first, and more expressive once they feel safe. They respond well to emotional honesty and subtle intimacy.",
         },
         new()
         {
-            EntityType = "persona",
+            EntityType = "userProfile",
             FieldName = "traits",
-            Title = "Persona Traits",
+            Title = "UserProfile Traits",
             Summary = "Stable behavioral traits, not temporary moods.",
-            Content = "Analytical, curious, quietly affectionate, patient, and occasionally stubborn."
+            Content =
+                "Analytical, curious, quietly affectionate, patient, and occasionally stubborn.",
         },
         new()
         {
-            EntityType = "persona",
+            EntityType = "userProfile",
             FieldName = "preferences",
             Title = "Interaction Preferences",
             Summary = "Useful guidance for tone and pacing.",
-            Content = "Prefers emotionally grounded dialogue, gradual escalation, consistent continuity, and responses that feel natural rather than overly theatrical."
+            Content =
+                "Prefers emotionally grounded dialogue, gradual escalation, consistent continuity, and responses that feel natural rather than overly theatrical.",
         },
         new()
         {
-            EntityType = "persona",
+            EntityType = "userProfile",
             FieldName = "additionalInstructions",
             Title = "Additional Guidance",
-            Summary = "Extra constraints or preferences for how the character should respond.",
-            Content = "Keep responses immersive and emotionally intelligent. Avoid repetitive phrasing. Preserve continuity across the scene and relationship dynamic."
-        }
+            Summary = "Extra constraints or preferences for how the agent should respond.",
+            Content =
+                "Keep responses immersive and emotionally intelligent. Avoid repetitive phrasing. Preserve continuity across the scene and relationship dynamic.",
+        },
     ];
 
     private static readonly IReadOnlyList<AuthoringStarterPack> StarterPacks =
@@ -83,71 +91,78 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             Id = "romance",
             Title = "Romance",
             Summary = "Slow-burn emotional intimacy with elegant, immersive tone.",
-            Concept = "A poised, emotionally intense romantic interest who hides vulnerability behind control and composure.",
+            Concept =
+                "A poised, emotionally intense romantic interest who hides vulnerability behind control and composure.",
             Vibe = "intimate, elegant, slow-burn, emotionally charged",
             Relationship = "mutual attraction with unresolved tension",
-            Setting = "private balcony after a formal event"
+            Setting = "private balcony after a formal event",
         },
         new()
         {
             Id = "fantasy",
             Title = "Fantasy",
             Summary = "Noble courts, magical tension, high-stakes intimacy.",
-            Concept = "A powerful court mage or noble protector balancing authority, secrets, and desire.",
+            Concept =
+                "A powerful court mage or noble protector balancing authority, secrets, and desire.",
             Vibe = "regal, mysterious, magical, tense",
             Relationship = "trusted ally with growing emotional dependence",
-            Setting = "moonlit castle corridor or royal chamber"
+            Setting = "moonlit castle corridor or royal chamber",
         },
         new()
         {
             Id = "cyberpunk",
             Title = "Cyberpunk",
             Summary = "Stylish danger, neon atmosphere, morally gray connection.",
-            Concept = "A sharp, capable fixer who navigates danger with charm, precision, and hidden emotional depth.",
+            Concept =
+                "A sharp, capable fixer who navigates danger with charm, precision, and hidden emotional depth.",
             Vibe = "neon, dangerous, stylish, cynical but intimate",
             Relationship = "reluctant partner who gradually becomes protective",
-            Setting = "rain-soaked rooftop overlooking a neon city"
+            Setting = "rain-soaked rooftop overlooking a neon city",
         },
         new()
         {
             Id = "cozy",
             Title = "Cozy",
             Summary = "Warm, safe, emotionally grounded companionship.",
-            Concept = "A gentle, attentive companion whose presence feels steady, comforting, and quietly affectionate.",
+            Concept =
+                "A gentle, attentive companion whose presence feels steady, comforting, and quietly affectionate.",
             Vibe = "warm, soft, comforting, domestic",
             Relationship = "close friend or partner with deep trust",
-            Setting = "quiet apartment, bookstore, café, or rainy cabin evening"
+            Setting = "quiet apartment, bookstore, café, or rainy cabin evening",
         },
         new()
         {
             Id = "horror",
             Title = "Horror",
             Summary = "Unease, obsession, danger, and emotional instability.",
-            Concept = "A compelling but unsettling figure whose affection and danger are impossible to separate.",
+            Concept =
+                "A compelling but unsettling figure whose affection and danger are impossible to separate.",
             Vibe = "dark, obsessive, eerie, intimate, predatory",
             Relationship = "dangerous fixation or forced alliance",
-            Setting = "isolated manor, forest road, or candlelit room at night"
+            Setting = "isolated manor, forest road, or candlelit room at night",
         },
         new()
         {
             Id = "rival",
             Title = "Rival / Enemies-to-Lovers",
             Summary = "Sharp dialogue, friction, chemistry, mutual challenge.",
-            Concept = "A brilliant, competitive rival who masks attraction behind sarcasm, pressure, and relentless pushback.",
+            Concept =
+                "A brilliant, competitive rival who masks attraction behind sarcasm, pressure, and relentless pushback.",
             Vibe = "charged, sharp, witty, competitive, romantic tension",
             Relationship = "rivals with undeniable chemistry",
-            Setting = "after a confrontation, competition, or public clash"
+            Setting = "after a confrontation, competition, or public clash",
         },
         new()
         {
             Id = "mentor",
             Title = "Mentor / Guardian",
             Summary = "Protective, competent, calm authority with emotional depth.",
-            Concept = "A capable mentor or guardian who guides, protects, and quietly struggles with emotional attachment.",
+            Concept =
+                "A capable mentor or guardian who guides, protects, and quietly struggles with emotional attachment.",
             Vibe = "protective, grounded, wise, restrained, emotionally layered",
             Relationship = "mentor-protégé or guardian dynamic with deep trust",
-            Setting = "safehouse, training room, or after surviving a dangerous event"
-        }
+            Setting = "safehouse, training room, or after surviving a dangerous event",
+        },
     ];
 
     public AuthoringAssistantService(IInferenceProvider inferenceProvider)
@@ -158,11 +173,15 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     public Task<IReadOnlyList<AuthoringFieldTemplate>> GetTemplatesAsync(
         string entityType,
         string? fieldName = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var results = Templates
             .Where(x => string.Equals(x.EntityType, entityType, StringComparison.OrdinalIgnoreCase))
-            .Where(x => string.IsNullOrWhiteSpace(fieldName) || string.Equals(x.FieldName, fieldName, StringComparison.OrdinalIgnoreCase))
+            .Where(x =>
+                string.IsNullOrWhiteSpace(fieldName)
+                || string.Equals(x.FieldName, fieldName, StringComparison.OrdinalIgnoreCase)
+            )
             .OrderBy(x => x.FieldName)
             .ThenBy(x => x.Title)
             .ToList();
@@ -171,14 +190,16 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     }
 
     public Task<IReadOnlyList<AuthoringStarterPack>> GetStarterPacksAsync(
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         return Task.FromResult(StarterPacks);
     }
 
     public async Task<AuthoringEnhancementResult> EnhanceAsync(
         AuthoringEnhancementInput input,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var prompt = BuildEnhancementPrompt(input);
 
@@ -186,7 +207,8 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             prompt,
             static (_, _) => Task.CompletedTask,
             BuildExecutionSettings(input.ModelOverride),
-            cancellationToken);
+            cancellationToken
+        );
 
         var parsed = ParseEnhancement(raw);
 
@@ -197,13 +219,14 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             Mode = input.Mode,
             OriginalText = input.CurrentText ?? string.Empty,
             SuggestedText = parsed.SuggestedText,
-            Rationale = parsed.Rationale
+            Rationale = parsed.Rationale,
         };
     }
 
     public async Task<FullAuthoringBundleGenerationResult> GenerateFullBundleFromBriefAsync(
         FullAuthoringBundleGenerationInput input,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var prompt = BuildFullBundlePrompt(input);
 
@@ -211,14 +234,16 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             prompt,
             static (_, _) => Task.CompletedTask,
             BuildExecutionSettings(input.ModelOverride),
-            cancellationToken);
+            cancellationToken
+        );
 
         return ParseFullBundle(raw);
     }
 
     public async Task<AuthoringConsistencyCheckResult> CheckConsistencyAsync(
         AuthoringConsistencyCheckInput input,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var prompt = BuildConsistencyPrompt(input);
 
@@ -226,7 +251,8 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             prompt,
             static (_, _) => Task.CompletedTask,
             BuildExecutionSettings(input.ModelOverride),
-            cancellationToken);
+            cancellationToken
+        );
 
         var parsed = ParseConsistency(raw, input.EntityType);
 
@@ -235,7 +261,8 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
 
     public async Task<AuthoringEnhancementResult> RepairConsistencyIssueAsync(
         ConsistencyIssueRepairInput input,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var prompt = BuildIssueRepairPrompt(input);
 
@@ -243,7 +270,8 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             prompt,
             static (_, _) => Task.CompletedTask,
             BuildExecutionSettings(input.ModelOverride),
-            cancellationToken);
+            cancellationToken
+        );
 
         var parsed = ParseEnhancement(raw);
 
@@ -254,7 +282,7 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             Mode = "repair",
             OriginalText = input.CurrentText ?? string.Empty,
             SuggestedText = parsed.SuggestedText,
-            Rationale = parsed.Rationale
+            Rationale = parsed.Rationale,
         };
     }
 
@@ -265,23 +293,24 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
             return null;
         }
 
-        return new InferenceExecutionSettings
-        {
-            ModelIdentifier = modelOverride.Trim()
-        };
+        return new InferenceExecutionSettings { ModelIdentifier = modelOverride.Trim() };
     }
 
     private static string BuildEnhancementPrompt(AuthoringEnhancementInput input)
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("You are helping improve structured authoring fields for a local character chat application.");
+        sb.AppendLine(
+            "You are helping improve structured authoring fields for a local agent chat application."
+        );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
         sb.AppendLine("Important rules:");
         sb.AppendLine("- Improve structure, clarity, consistency, and prompt efficiency.");
         sb.AppendLine("- Use surrounding field context when useful.");
-        sb.AppendLine("- Do not invent specific facts that are not supported by the provided text/context.");
+        sb.AppendLine(
+            "- Do not invent specific facts that are not supported by the provided text/context."
+        );
         sb.AppendLine("- Do not repeat the same information across fields unnecessarily.");
         sb.AppendLine("- Keep the result appropriate for the requested field only.");
         sb.AppendLine("- Do not add markdown code fences.");
@@ -307,9 +336,13 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         }
         else
         {
-            foreach (var kvp in input.Context
-                         .Where(x => !string.Equals(x.Key, input.FieldName, StringComparison.OrdinalIgnoreCase))
-                         .OrderBy(x => x.Key))
+            foreach (
+                var kvp in input
+                    .Context.Where(x =>
+                        !string.Equals(x.Key, input.FieldName, StringComparison.OrdinalIgnoreCase)
+                    )
+                    .OrderBy(x => x.Key)
+            )
             {
                 if (string.IsNullOrWhiteSpace(kvp.Value))
                 {
@@ -322,12 +355,14 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
 
         sb.AppendLine();
         sb.AppendLine("Return JSON in exactly this shape:");
-        sb.AppendLine("""
+        sb.AppendLine(
+            """
 {
   "suggestedText": "string",
   "rationale": "short string"
 }
-""");
+"""
+        );
 
         return sb.ToString();
     }
@@ -336,20 +371,30 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("You are generating a full structured authoring bundle for a local character chat application.");
+        sb.AppendLine(
+            "You are generating a full structured authoring bundle for a local agent chat application."
+        );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
         sb.AppendLine("Goals:");
-        sb.AppendLine("- Generate both character and persona together from one concept brief.");
+        sb.AppendLine("- Generate both agent and userProfile together from one concept brief.");
         sb.AppendLine("- Keep fields distinct and non-redundant.");
-        sb.AppendLine("- CharacterDescription = stable overview.");
-        sb.AppendLine("- CharacterPersonalityDefinition = stable personality, habits, values, strengths, flaws, speech tendencies.");
-        sb.AppendLine("- CharacterScenario = relationship + current setup with the user.");
-        sb.AppendLine("- CharacterGreeting = immersive opening message.");
-        sb.AppendLine("- PersonaDescription = useful snapshot of the user role in this interaction.");
-        sb.AppendLine("- PersonaTraits = stable user tendencies.");
-        sb.AppendLine("- PersonaPreferences = interaction preferences that improve response quality.");
-        sb.AppendLine("- PersonaAdditionalInstructions = extra useful guidance not already covered.");
+        sb.AppendLine("- AgentDescription = stable overview.");
+        sb.AppendLine(
+            "- AgentPersonalityDefinition = stable personality, habits, values, strengths, flaws, speech tendencies."
+        );
+        sb.AppendLine("- AgentScenario = relationship + current setup with the user.");
+        sb.AppendLine("- AgentGreeting = immersive opening message.");
+        sb.AppendLine(
+            "- UserProfileDescription = useful snapshot of the user role in this interaction."
+        );
+        sb.AppendLine("- UserProfileTraits = stable user tendencies.");
+        sb.AppendLine(
+            "- UserProfilePreferences = interaction preferences that improve response quality."
+        );
+        sb.AppendLine(
+            "- UserProfileAdditionalInstructions = extra useful guidance not already covered."
+        );
         sb.AppendLine("- Make the fields coherent with each other.");
         sb.AppendLine("- Keep them useful for prompting, not bloated.");
         sb.AppendLine("- Do not add code fences.");
@@ -364,7 +409,9 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         sb.AppendLine();
 
         sb.AppendLine("Relationship:");
-        sb.AppendLine(string.IsNullOrWhiteSpace(input.Relationship) ? "(none)" : input.Relationship);
+        sb.AppendLine(
+            string.IsNullOrWhiteSpace(input.Relationship) ? "(none)" : input.Relationship
+        );
         sb.AppendLine();
 
         sb.AppendLine("Setting:");
@@ -391,21 +438,23 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
 
         sb.AppendLine();
         sb.AppendLine("Return JSON in exactly this shape:");
-        sb.AppendLine("""
+        sb.AppendLine(
+            """
 {
-  "characterName": "string",
-  "characterDescription": "string",
-  "characterPersonalityDefinition": "string",
-  "characterScenario": "string",
-  "characterGreeting": "string",
-  "personaDisplayName": "string",
-  "personaDescription": "string",
-  "personaTraits": "string",
-  "personaPreferences": "string",
-  "personaAdditionalInstructions": "string",
+  "agentName": "string",
+  "agentDescription": "string",
+  "agentPersonalityDefinition": "string",
+  "agentScenario": "string",
+  "agentGreeting": "string",
+  "userProfileDisplayName": "string",
+  "userProfileDescription": "string",
+  "userProfileTraits": "string",
+  "userProfilePreferences": "string",
+  "userProfileAdditionalInstructions": "string",
   "rationale": "short string"
 }
-""");
+"""
+        );
 
         return sb.ToString();
     }
@@ -414,14 +463,18 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("You are checking structured authoring fields for consistency in a local character chat application.");
+        sb.AppendLine(
+            "You are checking structured authoring fields for consistency in a local agent chat application."
+        );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
         sb.AppendLine("Goals:");
         sb.AppendLine("- Detect contradiction between fields.");
         sb.AppendLine("- Detect redundancy / repeated information.");
         sb.AppendLine("- Detect misplaced information that belongs in another field.");
-        sb.AppendLine("- Detect weak alignment between character fields and persona fields when persona is present.");
+        sb.AppendLine(
+            "- Detect weak alignment between agent fields and userProfile fields when userProfile is present."
+        );
         sb.AppendLine("- Prefer practical issues over nitpicks.");
         sb.AppendLine("- fieldName values in issues must use the exact field keys provided below.");
         sb.AppendLine("- Do not add code fences.");
@@ -439,7 +492,8 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         }
 
         sb.AppendLine("Return JSON in exactly this shape:");
-        sb.AppendLine("""
+        sb.AppendLine(
+            """
 {
   "summary": "string",
   "issues": [
@@ -452,7 +506,8 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     }
   ]
 }
-""");
+"""
+        );
 
         return sb.ToString();
     }
@@ -461,7 +516,9 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("You are repairing one specific structured authoring field in a local character chat application.");
+        sb.AppendLine(
+            "You are repairing one specific structured authoring field in a local agent chat application."
+        );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
         sb.AppendLine("Important rules:");
@@ -499,9 +556,13 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         }
         else
         {
-            foreach (var kvp in input.Context
-                         .Where(x => !string.Equals(x.Key, input.FieldName, StringComparison.OrdinalIgnoreCase))
-                         .OrderBy(x => x.Key))
+            foreach (
+                var kvp in input
+                    .Context.Where(x =>
+                        !string.Equals(x.Key, input.FieldName, StringComparison.OrdinalIgnoreCase)
+                    )
+                    .OrderBy(x => x.Key)
+            )
             {
                 if (string.IsNullOrWhiteSpace(kvp.Value))
                 {
@@ -514,12 +575,14 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
 
         sb.AppendLine();
         sb.AppendLine("Return JSON in exactly this shape:");
-        sb.AppendLine("""
+        sb.AppendLine(
+            """
 {
   "suggestedText": "string",
   "rationale": "short string"
 }
-""");
+"""
+        );
 
         return sb.ToString();
     }
@@ -530,24 +593,24 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
 
         return key switch
         {
-            "character:description" =>
-                "Describe who the character is at a stable baseline. Keep it concise. Do not dump temporary scene details here.",
-            "character:personalitydefinition" =>
+            "agent:description" =>
+                "Describe who the agent is at a stable baseline. Keep it concise. Do not dump temporary scene details here.",
+            "agent:personalitydefinition" =>
                 "Focus on stable personality, values, habits, speech style, strengths, weaknesses, and behavioral tendencies.",
-            "character:scenario" =>
-                "Describe the current setup, relationship context, and situational framing between the character and the user.",
-            "character:greeting" =>
+            "agent:scenario" =>
+                "Describe the current setup, relationship context, and situational framing between the agent and the user.",
+            "agent:greeting" =>
                 "Write or refine the opening message only. It should establish tone quickly and feel immersive.",
-            "persona:description" =>
-                "Describe the user persona in a compact, useful way that helps the character respond appropriately.",
-            "persona:traits" =>
+            "userProfile:description" =>
+                "Describe the user profile in a compact, useful way that helps the agent respond appropriately.",
+            "userProfile:traits" =>
                 "List stable user traits and tendencies. Avoid temporary moods or repeating full description text.",
-            "persona:preferences" =>
+            "userProfile:preferences" =>
                 "Describe interaction preferences, tone, pacing, or boundaries that improve response quality.",
-            "persona:additionalinstructions" =>
+            "userProfile:additionalinstructions" =>
                 "Add extra guidance that does not belong in description, traits, or preferences.",
             _ =>
-                "Improve the field for clarity, structure, and prompt usefulness without inventing unsupported facts."
+                "Improve the field for clarity, structure, and prompt usefulness without inventing unsupported facts.",
         };
     }
 
@@ -555,15 +618,17 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
     {
         return fieldName.ToLowerInvariant() switch
         {
-            "characterdescription" => "Keep only stable overview information here.",
-            "characterpersonalitydefinition" => "Keep stable personality traits and behavioral tendencies here.",
-            "characterscenario" => "Keep relationship and current situation framing here.",
-            "charactergreeting" => "Keep only the immersive opening message here.",
-            "personadescription" => "Keep compact user-role overview here.",
-            "personatraits" => "Keep stable user traits here.",
-            "personapreferences" => "Keep tone/pacing/interaction preferences here.",
-            "personaadditionalinstructions" => "Keep extra guidance here without duplicating the other persona fields.",
-            _ => "Repair the field so it fits its purpose cleanly."
+            "agentdescription" => "Keep only stable overview information here.",
+            "agentpersonalitydefinition" =>
+                "Keep stable personality traits and behavioral tendencies here.",
+            "agentscenario" => "Keep relationship and current situation framing here.",
+            "agentgreeting" => "Keep only the immersive opening message here.",
+            "userProfiledescription" => "Keep compact user-role overview here.",
+            "userProfiletraits" => "Keep stable user traits here.",
+            "userProfilepreferences" => "Keep tone/pacing/interaction preferences here.",
+            "userProfileadditionalinstructions" =>
+                "Keep extra guidance here without duplicating the other userProfile fields.",
+            _ => "Repair the field so it fits its purpose cleanly.",
         };
     }
 
@@ -575,7 +640,10 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         {
             using var doc = JsonDocument.Parse(cleaned);
 
-            var suggestedText = doc.RootElement.TryGetProperty("suggestedText", out var suggestedProp)
+            var suggestedText = doc.RootElement.TryGetProperty(
+                "suggestedText",
+                out var suggestedProp
+            )
                 ? suggestedProp.GetString()?.Trim()
                 : null;
 
@@ -588,9 +656,7 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
                 return (suggestedText, rationale);
             }
         }
-        catch
-        {
-        }
+        catch { }
 
         return (raw.Trim(), "Model returned non-JSON output, so the raw response was used.");
     }
@@ -610,46 +676,47 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
 
             var result = new FullAuthoringBundleGenerationResult
             {
-                CharacterName = Read("characterName"),
-                CharacterDescription = Read("characterDescription"),
-                CharacterPersonalityDefinition = Read("characterPersonalityDefinition"),
-                CharacterScenario = Read("characterScenario"),
-                CharacterGreeting = Read("characterGreeting"),
-                PersonaDisplayName = Read("personaDisplayName"),
-                PersonaDescription = Read("personaDescription"),
-                PersonaTraits = Read("personaTraits"),
-                PersonaPreferences = Read("personaPreferences"),
-                PersonaAdditionalInstructions = Read("personaAdditionalInstructions"),
+                AgentName = Read("agentName"),
+                AgentDescription = Read("agentDescription"),
+                AgentPersonalityDefinition = Read("agentPersonalityDefinition"),
+                AgentScenario = Read("agentScenario"),
+                AgentGreeting = Read("agentGreeting"),
+                UserProfileDisplayName = Read("userProfileDisplayName"),
+                UserProfileDescription = Read("userProfileDescription"),
+                UserProfileTraits = Read("userProfileTraits"),
+                UserProfilePreferences = Read("userProfilePreferences"),
+                UserProfileAdditionalInstructions = Read("userProfileAdditionalInstructions"),
                 Rationale = doc.RootElement.TryGetProperty("rationale", out var rationaleProp)
                     ? rationaleProp.GetString()?.Trim()
-                    : null
+                    : null,
             };
 
-            if (!string.IsNullOrWhiteSpace(result.CharacterDescription) &&
-                !string.IsNullOrWhiteSpace(result.CharacterPersonalityDefinition) &&
-                !string.IsNullOrWhiteSpace(result.CharacterScenario) &&
-                !string.IsNullOrWhiteSpace(result.CharacterGreeting))
+            if (
+                !string.IsNullOrWhiteSpace(result.AgentDescription)
+                && !string.IsNullOrWhiteSpace(result.AgentPersonalityDefinition)
+                && !string.IsNullOrWhiteSpace(result.AgentScenario)
+                && !string.IsNullOrWhiteSpace(result.AgentGreeting)
+            )
             {
                 return result;
             }
         }
-        catch
-        {
-        }
+        catch { }
 
         return new FullAuthoringBundleGenerationResult
         {
-            CharacterName = string.Empty,
-            CharacterDescription = raw.Trim(),
-            CharacterPersonalityDefinition = string.Empty,
-            CharacterScenario = string.Empty,
-            CharacterGreeting = string.Empty,
-            PersonaDisplayName = string.Empty,
-            PersonaDescription = string.Empty,
-            PersonaTraits = string.Empty,
-            PersonaPreferences = string.Empty,
-            PersonaAdditionalInstructions = string.Empty,
-            Rationale = "Model returned non-JSON output, so the raw response could not be fully structured."
+            AgentName = string.Empty,
+            AgentDescription = raw.Trim(),
+            AgentPersonalityDefinition = string.Empty,
+            AgentScenario = string.Empty,
+            AgentGreeting = string.Empty,
+            UserProfileDisplayName = string.Empty,
+            UserProfileDescription = string.Empty,
+            UserProfileTraits = string.Empty,
+            UserProfilePreferences = string.Empty,
+            UserProfileAdditionalInstructions = string.Empty,
+            Rationale =
+                "Model returned non-JSON output, so the raw response could not be fully structured.",
         };
     }
 
@@ -667,8 +734,10 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
 
             var issues = new List<AuthoringConsistencyIssue>();
 
-            if (doc.RootElement.TryGetProperty("issues", out var issuesProp) &&
-                issuesProp.ValueKind == JsonValueKind.Array)
+            if (
+                doc.RootElement.TryGetProperty("issues", out var issuesProp)
+                && issuesProp.ValueKind == JsonValueKind.Array
+            )
             {
                 foreach (var issue in issuesProp.EnumerateArray())
                 {
@@ -692,22 +761,30 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
                         ? suggestionProp.GetString()?.Trim()
                         : null;
 
-                    issues.Add(new AuthoringConsistencyIssue
-                    {
-                        Severity = string.IsNullOrWhiteSpace(severity) ? "info" : severity,
-                        FieldName = string.IsNullOrWhiteSpace(fieldName) ? "unknown" : fieldName,
-                        IssueType = string.IsNullOrWhiteSpace(issueType) ? "weak" : issueType,
-                        Description = string.IsNullOrWhiteSpace(description) ? "No description provided." : description,
-                        Suggestion = suggestion
-                    });
+                    issues.Add(
+                        new AuthoringConsistencyIssue
+                        {
+                            Severity = string.IsNullOrWhiteSpace(severity) ? "info" : severity,
+                            FieldName = string.IsNullOrWhiteSpace(fieldName)
+                                ? "unknown"
+                                : fieldName,
+                            IssueType = string.IsNullOrWhiteSpace(issueType) ? "weak" : issueType,
+                            Description = string.IsNullOrWhiteSpace(description)
+                                ? "No description provided."
+                                : description,
+                            Suggestion = suggestion,
+                        }
+                    );
                 }
             }
 
             return new AuthoringConsistencyCheckResult
             {
                 EntityType = entityType,
-                Summary = string.IsNullOrWhiteSpace(summary) ? "Consistency analysis completed." : summary,
-                Issues = issues
+                Summary = string.IsNullOrWhiteSpace(summary)
+                    ? "Consistency analysis completed."
+                    : summary,
+                Issues = issues,
             };
         }
         catch
@@ -724,9 +801,9 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
                         FieldName = "general",
                         IssueType = "weak",
                         Description = raw.Trim(),
-                        Suggestion = "Retry the consistency check."
-                    }
-                ]
+                        Suggestion = "Retry the consistency check.",
+                    },
+                ],
             };
         }
     }

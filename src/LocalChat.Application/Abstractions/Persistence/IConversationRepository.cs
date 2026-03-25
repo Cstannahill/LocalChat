@@ -8,7 +8,7 @@ public interface IConversationRepository
 
     Task<Conversation?> GetByMessageIdWithMessagesAsync(Guid messageId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Conversation>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Conversation>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default);
 
     Task<SummaryCheckpoint?> GetLatestSummaryAsync(Guid conversationId, CancellationToken cancellationToken = default);
 

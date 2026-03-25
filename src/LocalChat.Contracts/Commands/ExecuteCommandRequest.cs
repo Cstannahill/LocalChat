@@ -2,7 +2,7 @@ namespace LocalChat.Contracts.Commands;
 
 public sealed class ExecuteCommandRequest
 {
-    public Guid? CharacterId { get; init; }
+    public Guid? AgentId { get; init; }
 
     public Guid? ConversationId { get; init; }
 

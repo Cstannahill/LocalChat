@@ -11,35 +11,35 @@ public interface IMemoryRepository
 
     Task<IReadOnlyList<MemoryItem>> ListByConversationAsync(Guid conversationId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<MemoryItem>> ListByCharacterAsync(Guid characterId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<MemoryItem>> ListByAgentAsync(Guid agentId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<MemoryItem>> ListForProposalComparisonAsync(
-        Guid characterId,
+        Guid agentId,
         Guid conversationId,
         CancellationToken cancellationToken = default);
 
     Task<MemoryItem?> FindActiveByNormalizedKeyAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
         string normalizedKey,
         MemoryKind kind,
         CancellationToken cancellationToken = default);
 
     Task<MemoryItem?> FindTrackedBySlotAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
         string slotKey,
         MemoryKind kind,
         CancellationToken cancellationToken = default);
 
     Task<MemoryItem?> FindTrackedByFamilyAsync(
-        Guid characterId,
+        Guid agentId,
         Guid? conversationId,
         MemorySlotFamily slotFamily,
         MemoryKind kind,
         CancellationToken cancellationToken = default);
 
-    Task<int> DeleteExpiredSceneStateAsync(
+    Task<int> DeleteExpiredSessionStateAsync(
         DateTime utcNow,
         CancellationToken cancellationToken = default);
 

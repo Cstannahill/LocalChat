@@ -4,7 +4,7 @@ public sealed class ChatStreamStartedEvent
 {
     public required string Type { get; init; }
 
-    public required Guid CharacterId { get; init; }
+    public required Guid AgentId { get; init; }
 
     public Guid? ConversationId { get; init; }
 

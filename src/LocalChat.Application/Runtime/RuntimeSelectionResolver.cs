@@ -1,6 +1,6 @@
 using LocalChat.Application.Abstractions.Inference;
 using LocalChat.Application.Abstractions.Persistence;
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 using LocalChat.Domain.Entities.Models;
 using LocalChat.Domain.Enums;
@@ -24,7 +24,7 @@ public sealed class RuntimeSelectionResolver : IRuntimeSelectionResolver
     }
 
     public async Task<ResolvedRuntimeSelection> ResolveAsync(
-        Character character,
+        Agent agent,
         Conversation conversation,
         string? oneTurnOverrideProvider,
         string? oneTurnOverrideModelIdentifier,
@@ -50,7 +50,7 @@ public sealed class RuntimeSelectionResolver : IRuntimeSelectionResolver
 
             var resolvedGenerationPreset = await ResolveGenerationPresetAsync(
                 conversation.RuntimeGenerationPresetOverrideId,
-                character.DefaultGenerationPresetId,
+                agent.DefaultGenerationPresetId,
                 appDefaults.DefaultGenerationPresetId,
                 cancellationToken);
 
@@ -68,8 +68,8 @@ public sealed class RuntimeSelectionResolver : IRuntimeSelectionResolver
             conversation.RuntimeModelProfileOverrideId,
             cancellationToken);
 
-        var characterModelProfile = await ResolveModelProfileAsync(
-            character.DefaultModelProfileId,
+        var agentModelProfile = await ResolveModelProfileAsync(
+            agent.DefaultModelProfileId,
             cancellationToken);
 
         var appDefaultModelProfile = await ResolveModelProfileAsync(
@@ -82,8 +82,8 @@ public sealed class RuntimeSelectionResolver : IRuntimeSelectionResolver
             null,
             cancellationToken);
 
-        var characterGenerationPreset = await ResolveGenerationPresetAsync(
-            character.DefaultGenerationPresetId,
+        var agentGenerationPreset = await ResolveGenerationPresetAsync(
+            agent.DefaultGenerationPresetId,
             null,
             null,
             cancellationToken);
@@ -102,12 +102,12 @@ public sealed class RuntimeSelectionResolver : IRuntimeSelectionResolver
                 conversationGenerationPreset);
         }
 
-        if (characterModelProfile is not null || characterGenerationPreset is not null)
+        if (agentModelProfile is not null || agentGenerationPreset is not null)
         {
             return FromProfileAndPreset(
-                RuntimeSourceType.CharacterDefault,
-                characterModelProfile,
-                characterGenerationPreset);
+                RuntimeSourceType.AgentDefault,
+                agentModelProfile,
+                agentGenerationPreset);
         }
 
         if (appDefaultModelProfile is not null || appDefaultGenerationPreset is not null)

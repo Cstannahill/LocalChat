@@ -1,4 +1,4 @@
-using LocalChat.Domain.Entities.Characters;
+using LocalChat.Domain.Entities.Agents;
 using LocalChat.Domain.Entities.Conversations;
 
 namespace LocalChat.Domain.Entities.Audio;
@@ -7,7 +7,7 @@ public sealed class SpeechClip
 {
     public Guid Id { get; set; }
 
-    public Guid CharacterId { get; set; }
+    public Guid AgentId { get; set; }
 
     public Guid ConversationId { get; set; }
 
@@ -29,7 +29,7 @@ public sealed class SpeechClip
 
     public DateTime CreatedAt { get; set; }
 
-    public Character? Character { get; set; }
+    public Agent? Agent { get; set; }
 
     public Conversation? Conversation { get; set; }
 

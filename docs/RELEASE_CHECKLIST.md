@@ -33,7 +33,6 @@ Use this checklist before shipping a backend release.
 
 - [ ] `README.md` reflects current setup, feature set, and general AI orchestration positioning.
 - [ ] `docs/CONFIGURATION.md` updated for any new options.
-- [ ] `docs/API_OVERVIEW.md` updated for endpoint changes and terminology mapping clarity.
+- [ ] `docs/API_OVERVIEW.md` updated for endpoint changes and route/behavior clarity.
 - [ ] `docs/OPERATIONS.md` updated for new jobs or maintenance tasks.
 - [ ] `SECURITY.md` contact/process current.
-

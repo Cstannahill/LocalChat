@@ -12,16 +12,6 @@ LocalChat is a .NET 9 backend for local-first AI orchestration with:
 
 This repository contains the API plus application/domain/infrastructure layers and automated tests.
 
-## Terminology Note
-
-Some API/domain names are intentionally retained from the current implementation (for example `chat`, `conversations`, `agents`, and `userProfiles`). Functionally, these map to reusable AI orchestration concepts:
-
-- `agent` -> assistant/agent profile
-- `userProfile` -> end-user profile/context
-- `conversation` -> stateful interaction session
-
-Naming alignment is planned toward more generic agent platform terminology while preserving current behavior and data model intent.
-
 ## Tech Stack
 
 - .NET `9.0`
@@ -92,9 +82,9 @@ The platform architecture is adaptable to multiple production AI scenarios:
 - Technical support assistants (domain-specific retrieval over product/code documentation)
 - Multilingual business support experiences (provider/model flexibility for global workloads)
 
-## Demo / What This Proves
+## Implementation Highlights
 
-This project demonstrates production-relevant backend engineering for agent systems:
+This project includes production-relevant backend engineering for agent systems:
 
 - clean layered architecture in .NET (`Api`, `Application`, `Domain`, `Infrastructure`, `Contracts`)
 - provider-agnostic model routing with per-turn overrides
@@ -103,7 +93,7 @@ This project demonstrates production-relevant backend engineering for agent syst
 - streaming token delivery over SSE for real-time UX
 - test-backed behavior across domain/application/infrastructure layers
 
-As a portfolio artifact, it shows practical delivery capability beyond prototypes: system design, implementation discipline, documentation, and operational thinking.
+Taken together, these capabilities show a backend designed for practical delivery beyond prototypes: system design, implementation discipline, documentation, and operational thinking.
 
 ## API Surface
 

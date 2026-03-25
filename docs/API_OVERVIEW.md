@@ -80,12 +80,6 @@ These define provider+model routing and generation defaults at app/profile/sessi
   - agent import/export
   - userProfile import/export
 
-## Terminology Mapping
-
-- `agent` corresponds to an assistant/agent profile
-- `userProfile` corresponds to an end-user profile
-- `conversation` corresponds to an interaction session
-
 ## Streaming Chat Example
 
 ```bash

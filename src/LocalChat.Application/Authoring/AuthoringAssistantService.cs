@@ -301,7 +301,7 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         var sb = new StringBuilder();
 
         sb.AppendLine(
-            "You are helping improve structured authoring fields for a local agent chat application."
+            "You are helping improve structured authoring fields for a local AI chat application."
         );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
@@ -372,7 +372,7 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         var sb = new StringBuilder();
 
         sb.AppendLine(
-            "You are generating a full structured authoring bundle for a local agent chat application."
+            "You are generating a full structured authoring bundle for a local AI chat application."
         );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
@@ -464,7 +464,7 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         var sb = new StringBuilder();
 
         sb.AppendLine(
-            "You are checking structured authoring fields for consistency in a local agent chat application."
+            "You are checking structured authoring fields for consistency in a local AI chat application."
         );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
@@ -517,7 +517,7 @@ public sealed class AuthoringAssistantService : IAuthoringAssistantService
         var sb = new StringBuilder();
 
         sb.AppendLine(
-            "You are repairing one specific structured authoring field in a local agent chat application."
+            "You are repairing one specific structured authoring field in a local AI chat application."
         );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();

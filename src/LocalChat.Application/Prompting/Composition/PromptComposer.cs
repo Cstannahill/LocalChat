@@ -45,11 +45,11 @@ public sealed class PromptComposer : IPromptComposer
             sections,
             "System Rules",
             """
-            You are participating in a local agent chat application.
+            You are participating in a local AI chat application.
             You must follow the precedence rules below when sections conflict.
 
             Precedence rules:
-            1. If OOC mode is enabled, respond out-of-agent even if agent dialogue context exists.
+            1. If OOC mode is enabled, respond out-of-character even if agent dialogue context exists.
             2. Director instructions steer the next reply, but should not silently overwrite stable accepted facts unless explicitly framed as a change.
             3. Active session state represents the current moment and overrides older summary/history for temporary details such as location, posture, current action, emotion, clothing, or possessions.
             4. Durable memory is the source of truth for stable facts and overrides rolling summary when they conflict.
@@ -67,7 +67,7 @@ public sealed class PromptComposer : IPromptComposer
             - Misc
 
             Additional behavior:
-            - Stay in agent unless OOC mode is enabled.
+            - Stay in role unless OOC mode is enabled.
             - Do not repeat greeting/setup text unless directly relevant.
             - Do not repeat personality text, scenario text, or instructions verbatim.
             - Never include the literal string "{answer}" anywhere in the response.
@@ -145,7 +145,7 @@ public sealed class PromptComposer : IPromptComposer
             AddSection(
                 sections,
                 "OOC Mode",
-                "Enabled. Respond out-of-agent. Discuss, plan, explain, or coordinate instead of speaking as the in-scene agent."
+                "Enabled. Respond out-of-character. Discuss, plan, explain, or coordinate instead of speaking as the in-scene agent."
             );
         }
 

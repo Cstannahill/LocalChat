@@ -233,7 +233,9 @@ public sealed class UserMessageSuggestionService
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("You generate a natural next user reply for a agent chat conversation.");
+        sb.AppendLine(
+            "You generate a natural next user reply for a conversation with an AI agent."
+        );
         sb.AppendLine("Return JSON only.");
         sb.AppendLine();
         sb.AppendLine("Your goal:");
@@ -248,7 +250,7 @@ public sealed class UserMessageSuggestionService
         sb.AppendLine("- keep it to one concise message, usually 1–3 sentences");
         sb.AppendLine("- if the assistant asked a question, prefer answering or responding to it");
         sb.AppendLine(
-            "- if the scene is emotional or intimate, keep the reply grounded and in-agent for the user"
+            "- if the scene is emotional or intimate, keep the reply grounded and consistent with the user's established voice"
         );
         sb.AppendLine(
             "- avoid stage-direction narration for the assistant (no writing the assistant's actions)"

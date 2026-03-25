@@ -76,7 +76,7 @@ If a feature is called without a reachable provider, API endpoints return errors
 - `KeepRecentMessageCount`
 - `MinMessagesToSummarize`
 - `MaxMessagesPerPass`
-- `MaxSummaryAgents`
+- `MaxSummaryCharacters`
 
 ## `Retrieval`
 

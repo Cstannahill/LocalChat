@@ -1,0 +1,26 @@
+namespace LocalChat.Contracts.Memory;
+
+public sealed class GenerateMemoryProposalsResponse
+{
+    public required int AttemptedCandidates { get; init; }
+
+    public required int CreatedProposalCount { get; init; }
+
+    public required int AutoSavedSceneStateCount { get; init; }
+
+    public required int AutoAcceptedDurableCount { get; init; }
+
+    public required int SceneStateReplacedCount { get; init; }
+
+    public required int MergedDurableProposalCount { get; init; }
+
+    public required int ConflictingDurableProposalCount { get; init; }
+
+    public required int SkippedLowConfidenceCount { get; init; }
+
+    public required int SkippedDuplicateCount { get; init; }
+
+    public required int ConflictAnnotatedCount { get; init; }
+
+    public required int InvalidCandidateCount { get; init; }
+}

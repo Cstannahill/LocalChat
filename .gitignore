@@ -1,0 +1,114 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options directory
+.vs/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Visual Studio user-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj.user
+
+# ReSharper
+.idea/
+*.DotSettings
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+
+# Local test coverage
+coverage/
+opencover/
+
+# Entity Framework migrations (optional - uncomment if not tracking migrations)
+# Migrations/
+
+# dotnet CLI
+appsettings.Development.json
+appsettings.local.json
+.dotnet/
+.dotnet-home/
+.dotnet_home/
+.codex-dotnet-home/
+dotnet-tools.json
+.tmp-dotnet/
+.tmp-nuget/
+# Local environment files
+.env
+.env.local
+.env.*.local
+
+# OS-specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Architecture documentation
+Arch/
+
+# Temporary files
+*.tmp
+*.temp
+out.txt
+scaffold-localchat.ps1
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Node modules (if applicable)
+node_modules/
+
+# Package lock files (if applicable)
+package-lock.json
+yarn.lock
+
+# IDE plugins
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IntelliJ
+*.iml
+*.iws
+*.ipr
+
+# Local development files
+*.log
+debug.log
+
+# Build artifacts
+publish/
+PublishProfiles/
+
+# Generated files
+src/LocalChat.Api/wwwroot/generated/

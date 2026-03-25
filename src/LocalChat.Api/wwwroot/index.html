@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>LocalChat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <h2>Character</h2>
+            <button id="refreshCharactersBtn" type="button">Refresh</button>
+          </div>
+          <select id="characterSelect"></select>
+          <div class="sidebar-actions">
+            <button id="exportCharacterBtn" type="button">
+              Export Character
+            </button>
+            <button id="importCharacterBtn" type="button">
+              Import Character
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Character Editor</h2>
+          <div class="sidebar-actions">
+            <button id="newCharacterBtn" type="button">New Character</button>
+            <button id="saveCharacterBtn" type="button">Save Character</button>
+            <button id="deleteCharacterBtn" type="button">
+              Delete Character
+            </button>
+          </div>
+          <label class="memory-label" for="characterImportJsonInput"
+            >Character Import JSON</label
+          >
+          <textarea
+            id="characterImportJsonInput"
+            rows="6"
+            placeholder="Paste exported character JSON here"
+          ></textarea>
+          <label class="memory-label" for="characterNameInput">Name</label>
+          <input
+            id="characterNameInput"
+            type="text"
+            placeholder="Character name"
+          />
+
+          <label class="memory-label" for="characterDescriptionInput"
+            >Description</label
+          >
+          <textarea
+            id="characterDescriptionInput"
+            rows="3"
+            placeholder="Short character description"
+          ></textarea>
+
+          <label class="memory-label" for="characterGreetingInput"
+            >Greeting</label
+          >
+          <textarea
+            id="characterGreetingInput"
+            rows="3"
+            placeholder="Default greeting"
+          ></textarea>
+
+          <label class="memory-label" for="characterScenarioInput"
+            >Scenario</label
+          >
+          <textarea
+            id="characterScenarioInput"
+            rows="4"
+            placeholder="Scenario / setting"
+          ></textarea>
+
+          <label class="memory-label" for="characterModelProfileSelect"
+            >Default Model Profile</label
+          >
+          <select id="characterModelProfileSelect"></select>
+
+          <label class="memory-label" for="characterGenerationPresetSelect"
+            >Default Generation Preset</label
+          >
+          <select id="characterGenerationPresetSelect"></select>
+
+          <label class="memory-label" for="characterDefaultTtsVoiceInput"
+            >Default TTS Voice</label
+          >
+          <input
+            id="characterDefaultTtsVoiceInput"
+            type="text"
+            placeholder="af_heart"
+          />
+
+          <label class="memory-label" for="characterImageFileInput"
+            >Character Image</label
+          >
+          <input
+            id="characterImageFileInput"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+          />
+          <div class="message-actions">
+            <button id="uploadCharacterImageBtn" type="button">
+              Upload Character Image
+            </button>
+            <button id="removeCharacterImageBtn" type="button">
+              Remove Character Image
+            </button>
+          </div>
+          <div id="characterImageStatus" class="muted-text">
+            No image uploaded.
+          </div>
+          <div id="characterImagePreview"></div>
+
+          <label
+            class="memory-label"
+            for="characterDefaultVisualStylePresetSelect"
+            >Default Visual Style Preset</label
+          >
+          <select id="characterDefaultVisualStylePresetSelect"></select>
+
+          <label
+            class="memory-label"
+            for="characterDefaultVisualPromptPrefixInput"
+            >Default Visual Prompt Prefix</label
+          >
+          <textarea
+            id="characterDefaultVisualPromptPrefixInput"
+            rows="3"
+            placeholder="soft cinematic lighting, flowing yellow sundress, warm romantic framing"
+          ></textarea>
+
+          <label
+            class="memory-label"
+            for="characterDefaultVisualNegativePromptInput"
+            >Default Visual Negative Prompt</label
+          >
+          <textarea
+            id="characterDefaultVisualNegativePromptInput"
+            rows="3"
+            placeholder="extra limbs, distorted anatomy, low quality"
+          ></textarea>
+
+          <label class="memory-label" for="characterPersonalityInput"
+            >Personality Definition</label
+          >
+          <textarea
+            id="characterPersonalityInput"
+            rows="6"
+            placeholder="Personality / behavior instructions"
+          ></textarea>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <h2>Sample Dialogue</h2>
+            <button id="addSampleDialogueBtn" type="button">Add</button>
+          </div>
+
+          <div
+            id="characterSampleDialogueList"
+            class="sample-dialogue-list"
+          ></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <h2>Persona</h2>
+            <button id="refreshPersonasBtn" type="button">Refresh</button>
+          </div>
+          <select id="personaSelect"></select>
+          <div class="sidebar-actions">
+            <button id="assignPersonaToConversationBtn" type="button">
+              Apply Persona To Active Conversation
+            </button>
+            <button id="setDefaultPersonaBtn" type="button">
+              Set Selected As Default
+            </button>
+            <button id="exportPersonaBtn" type="button">Export Persona</button>
+            <button id="importPersonaBtn" type="button">Import Persona</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Persona Editor</h2>
+          <div class="sidebar-actions">
+            <button id="newPersonaBtn" type="button">New Persona</button>
+            <button id="savePersonaBtn" type="button">Save Persona</button>
+            <button id="deletePersonaBtn" type="button">Delete Persona</button>
+          </div>
+          <label class="memory-label" for="personaImportJsonInput"
+            >Persona Import JSON</label
+          >
+          <textarea
+            id="personaImportJsonInput"
+            rows="6"
+            placeholder="Paste exported persona JSON here"
+          ></textarea>
+          <label class="memory-label" for="personaNameInput">Name</label>
+          <input
+            id="personaNameInput"
+            type="text"
+            placeholder="Internal persona name"
+          />
+
+          <label class="memory-label" for="personaDisplayNameInput"
+            >Display Name</label
+          >
+          <input
+            id="personaDisplayNameInput"
+            type="text"
+            placeholder="How the user should be referred to"
+          />
+
+          <label class="memory-label" for="personaDescriptionInput"
+            >Description</label
+          >
+          <textarea
+            id="personaDescriptionInput"
+            rows="3"
+            placeholder="Short user description"
+          ></textarea>
+
+          <label class="memory-label" for="personaTraitsInput">Traits</label>
+          <textarea
+            id="personaTraitsInput"
+            rows="3"
+            placeholder="Key traits"
+          ></textarea>
+
+          <label class="memory-label" for="personaPreferencesInput"
+            >Preferences</label
+          >
+          <textarea
+            id="personaPreferencesInput"
+            rows="3"
+            placeholder="Preferences, working style, tastes"
+          ></textarea>
+
+          <label class="memory-label" for="personaInstructionsInput"
+            >Additional Instructions</label
+          >
+          <textarea
+            id="personaInstructionsInput"
+            rows="4"
+            placeholder="Extra persona instructions"
+          ></textarea>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Authoring Templates</h2>
+          <div id="authoringTemplatesMeta" class="muted-text">
+            Click "Examples" on a field to load section-specific templates.
+          </div>
+          <div id="authoringTemplatesList" class="stack-sm"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Authoring Enhancement Review</h2>
+
+          <div id="authoringEnhancementMeta" class="muted-text">
+            No enhancement suggestion loaded yet.
+          </div>
+
+          <div class="authoring-review-grid">
+            <div>
+              <h4>Original</h4>
+              <textarea id="authoringOriginalText" readonly></textarea>
+            </div>
+            <div>
+              <h4>Suggested</h4>
+              <textarea id="authoringSuggestedText"></textarea>
+            </div>
+          </div>
+
+          <div id="authoringEnhancementRationale" class="muted-text"></div>
+
+          <div class="message-actions">
+            <button id="applyAuthoringEnhancementBtn" type="button">
+              Apply Suggestion
+            </button>
+            <button id="discardAuthoringEnhancementBtn" type="button">
+              Discard
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Starter Packs</h2>
+
+          <div id="authoringStarterPacksMeta" class="muted-text">
+            Loading starter packs...
+          </div>
+          <div id="authoringStarterPacksList" class="stack-sm"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Generate Full Character + Persona Bundle</h2>
+
+          <label for="bundleConceptInput">Concept</label>
+          <textarea
+            id="bundleConceptInput"
+            placeholder="Example: emotionally intense aristocratic woman who hides vulnerability behind composure"
+          ></textarea>
+
+          <label for="bundleVibeInput">Vibe</label>
+          <input
+            id="bundleVibeInput"
+            type="text"
+            placeholder="Example: elegant, intimate, slow-burn, tense"
+          />
+
+          <label for="bundleRelationshipInput">Relationship</label>
+          <input
+            id="bundleRelationshipInput"
+            type="text"
+            placeholder="Example: guarded romantic interest with unresolved tension"
+          />
+
+          <label for="bundleSettingInput">Setting</label>
+          <input
+            id="bundleSettingInput"
+            type="text"
+            placeholder="Example: private balcony after a formal event"
+          />
+
+          <div class="message-actions">
+            <button id="generateFullBundleBtn" type="button">
+              Generate Full Bundle
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Generated Bundle Review</h2>
+
+          <div id="bundleGenerationMeta" class="muted-text">
+            No generated bundle loaded yet.
+          </div>
+
+          <label for="generatedCharacterNameInput">Generated Character Name</label>
+          <input id="generatedCharacterNameInput" type="text" />
+
+          <label for="generatedCharacterDescriptionInput"
+            >Generated Character Description</label
+          >
+          <textarea id="generatedCharacterDescriptionInput"></textarea>
+
+          <label for="generatedCharacterPersonalityInput"
+            >Generated Character Personality</label
+          >
+          <textarea id="generatedCharacterPersonalityInput"></textarea>
+
+          <label for="generatedCharacterScenarioInput"
+            >Generated Character Scenario</label
+          >
+          <textarea id="generatedCharacterScenarioInput"></textarea>
+
+          <label for="generatedCharacterGreetingInput"
+            >Generated Character Greeting</label
+          >
+          <textarea id="generatedCharacterGreetingInput"></textarea>
+
+          <label for="generatedPersonaDisplayNameInput"
+            >Generated Persona Display Name</label
+          >
+          <input id="generatedPersonaDisplayNameInput" type="text" />
+
+          <label for="generatedPersonaDescriptionInput"
+            >Generated Persona Description</label
+          >
+          <textarea id="generatedPersonaDescriptionInput"></textarea>
+
+          <label for="generatedPersonaTraitsInput">Generated Persona Traits</label>
+          <textarea id="generatedPersonaTraitsInput"></textarea>
+
+          <label for="generatedPersonaPreferencesInput"
+            >Generated Persona Preferences</label
+          >
+          <textarea id="generatedPersonaPreferencesInput"></textarea>
+
+          <label for="generatedPersonaAdditionalInstructionsInput"
+            >Generated Persona Additional Instructions</label
+          >
+          <textarea id="generatedPersonaAdditionalInstructionsInput"></textarea>
+
+          <div id="bundleGenerationRationale" class="muted-text"></div>
+
+          <div class="message-actions">
+            <button id="applyGeneratedBundleBtn" type="button">
+              Apply Generated Bundle
+            </button>
+            <button id="discardGeneratedBundleBtn" type="button">Discard</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Authoring Consistency Check</h2>
+
+          <div class="message-actions">
+            <button id="checkAuthoringConsistencyBtn" type="button">
+              Check Character + Persona Consistency
+            </button>
+          </div>
+
+          <div id="authoringConsistencyMeta" class="muted-text">
+            No consistency check run yet.
+          </div>
+          <div id="authoringConsistencyList" class="stack-sm"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <h2>Model Profile</h2>
+            <button id="refreshModelProfilesBtn" type="button">Refresh</button>
+          </div>
+          <select id="modelProfileSelect"></select>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Model Profile Editor</h2>
+          <div class="sidebar-actions">
+            <button id="newModelProfileBtn" type="button">
+              New Model Profile
+            </button>
+            <button id="saveModelProfileBtn" type="button">
+              Save Model Profile
+            </button>
+            <button id="deleteModelProfileBtn" type="button">
+              Delete Model Profile
+            </button>
+          </div>
+          <label class="memory-label" for="modelProfileNameInput">Name</label>
+          <input
+            id="modelProfileNameInput"
+            type="text"
+            placeholder="Local Qwen Profile"
+          />
+
+          <label class="memory-label" for="modelProfileProviderTypeInput"
+            >Provider Type</label
+          >
+                    <select id="modelProfileProviderTypeInput">
+                      <option value="ollama">Ollama</option>
+                      <option value="openrouter">OpenRouter</option>
+                      <option value="huggingface">Hugging Face</option>
+                      <option value="llama.cpp">LLAMA.CPP</option>
+                    </select>
+
+          <label class="memory-label" for="modelProfileModelIdentifierInput"
+            >Model Identifier</label
+          >
+          <input
+            id="modelProfileModelIdentifierInput"
+            type="text"
+            placeholder="qwen2.5:14b-instruct or anthropic/claude-3.7-sonnet"
+          />
+          <div id="modelProfileModelHelp" class="muted-text"></div>
+
+          <label class="memory-label" for="modelProfileContextWindowInput"
+            >Context Window Override</label
+          >
+          <input
+            id="modelProfileContextWindowInput"
+            type="number"
+            placeholder="Optional"
+          />
+
+          <label class="memory-label" for="modelProfileNotesInput">Notes</label>
+          <textarea
+            id="modelProfileNotesInput"
+            rows="3"
+            placeholder="Optional notes"
+          ></textarea>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <h2>Generation Preset</h2>
+            <button id="refreshGenerationPresetsBtn" type="button">
+              Refresh
+            </button>
+          </div>
+          <select id="generationPresetSelect"></select>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Generation Preset Editor</h2>
+          <div class="sidebar-actions">
+            <button id="newGenerationPresetBtn" type="button">
+              New Generation Preset
+            </button>
+            <button id="saveGenerationPresetBtn" type="button">
+              Save Generation Preset
+            </button>
+            <button id="deleteGenerationPresetBtn" type="button">
+              Delete Generation Preset
+            </button>
+          </div>
+          <label class="memory-label" for="generationPresetNameInput"
+            >Name</label
+          >
+          <input
+            id="generationPresetNameInput"
+            type="text"
+            placeholder="Creative RP Preset"
+          />
+
+          <label class="memory-label" for="generationPresetTemperatureInput"
+            >Temperature</label
+          >
+          <input
+            id="generationPresetTemperatureInput"
+            type="number"
+            step="0.01"
+          />
+
+          <label class="memory-label" for="generationPresetTopPInput"
+            >Top P</label
+          >
+          <input id="generationPresetTopPInput" type="number" step="0.01" />
+
+          <label class="memory-label" for="generationPresetRepeatPenaltyInput"
+            >Repeat Penalty</label
+          >
+          <input
+            id="generationPresetRepeatPenaltyInput"
+            type="number"
+            step="0.01"
+          />
+
+          <label class="memory-label" for="generationPresetMaxOutputTokensInput"
+            >Max Output Tokens</label
+          >
+          <input
+            id="generationPresetMaxOutputTokensInput"
+            type="number"
+            placeholder="Optional"
+          />
+
+          <label class="memory-label" for="generationPresetStopSequencesInput"
+            >Stop Sequences (one per line)</label
+          >
+          <textarea
+            id="generationPresetStopSequencesInput"
+            rows="4"
+            placeholder="Optional"
+          ></textarea>
+
+          <label class="memory-label" for="generationPresetNotesInput"
+            >Notes</label
+          >
+          <textarea
+            id="generationPresetNotesInput"
+            rows="3"
+            placeholder="Optional notes"
+          ></textarea>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>TTS</h2>
+
+          <label class="memory-label" for="ttsVoiceOverrideInput"
+            >Voice Override</label
+          >
+          <input
+            id="ttsVoiceOverrideInput"
+            type="text"
+            placeholder="Leave blank to use character default"
+          />
+
+          <label class="memory-label" for="ttsSpeedInput">Speed</label>
+          <input id="ttsSpeedInput" type="number" step="0.05" value="1.0" />
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Image Generation</h2>
+
+          <button id="buildImagePromptFromContextBtn" type="button">
+            Build Prompt From Conversation
+          </button>
+
+          <label class="memory-label" for="imageStylePresetSelect"
+            >Style Preset</label
+          >
+          <select id="imageStylePresetSelect"></select>
+
+          <button id="buildAndGenerateImageBtn" type="button">
+            Build + Generate
+          </button>
+
+          <label class="memory-label" for="imagePromptInput">Prompt</label>
+          <textarea
+            id="imagePromptInput"
+            rows="4"
+            placeholder="Describe the image to generate"
+          ></textarea>
+
+          <label class="memory-label" for="imageNegativePromptInput"
+            >Negative Prompt</label
+          >
+          <textarea
+            id="imageNegativePromptInput"
+            rows="3"
+            placeholder="Optional negative prompt"
+          ></textarea>
+
+          <div id="contextualImagePromptPreview" class="proposal-meta">
+            Build a prompt from the active conversation to preview scene summary
+            and unknowns.
+          </div>
+
+          <label class="memory-label" for="imageWidthInput">Width</label>
+          <input id="imageWidthInput" type="number" value="1024" />
+
+          <label class="memory-label" for="imageHeightInput">Height</label>
+          <input id="imageHeightInput" type="number" value="1024" />
+
+          <label class="memory-label" for="imageStepsInput">Steps</label>
+          <input id="imageStepsInput" type="number" value="8" />
+
+          <label class="memory-label" for="imageCfgInput">CFG</label>
+          <input id="imageCfgInput" type="number" step="0.1" value="1.0" />
+
+          <label class="memory-label" for="imageSeedInput">Seed</label>
+          <input id="imageSeedInput" type="number" value="-1" />
+
+          <button id="generateImageBtn" type="button">Generate Image</button>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Conversation Images</h2>
+          <div
+            id="generatedImagesGallery"
+            class="generated-images-gallery"
+          ></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="memory-item-meta">
+            Branch from any message. Regenerate is available only on the latest
+            assistant message.
+          </div>
+          <h2>Conversations</h2>
+          <div class="sidebar-actions">
+            <button id="refreshConversationsBtn">Refresh Conversations</button>
+            <button id="newConversationBtn">New Conversation</button>
+          </div>
+          <div id="conversationList" class="conversation-list"></div>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="chat-header">
+          <div>
+            <div class="message-header-with-avatar">
+              <div id="activeConversationHeaderAvatar"></div>
+              <h1 id="conversationTitle">LocalChat</h1>
+            </div>
+            <p id="statusText">Ready</p>
+            <p id="directorStatusText" class="memory-item-meta"></p>
+            <p id="sceneStatusText" class="memory-item-meta"></p>
+            <div id="activeConversationRuntimeBadge" class="message-runtime-row"></div>
+            <p id="activeConversationRuntimeModel" class="memory-item-meta">
+              No assistant runtime metadata yet.
+            </p>
+            <div id="activeConversationRuntimeSource" class="memory-item-meta">
+              No runtime source metadata yet.
+            </div>
+          </div>
+        </header>
+
+        <div class="content-grid">
+          <section class="chat-column">
+            <section id="messages" class="messages"></section>
+
+            <footer class="composer">
+              <textarea
+                id="messageInput"
+                rows="4"
+                placeholder="Type a message..."
+              ></textarea>
+
+              <div class="composer-actions">
+                <button id="suggestUserMessageBtn" type="button">
+                  Suggest Reply
+                </button>
+                <button id="sendBtn">Send</button>
+              </div>
+              <div id="suggestedUserMessageMeta" class="proposal-meta">
+                Suggest a reply from the current conversation context.
+              </div>
+              <div class="memory-item-meta">
+                Slash commands: /help · /director &lt;text&gt; · /director show
+                · /director clear · /scene &lt;text&gt; · /scene show · /scene
+                clear · /ooc on · /ooc off · /ooc toggle · /ooc show · /reroll
+              </div>
+
+              <section class="panel-section">
+                <div class="panel-section-header">
+                  <h3>One-Turn Runtime Override</h3>
+                </div>
+
+                <div class="authoring-assistant-toolbar">
+                    <select id="turnOverrideProviderInput">
+                      <option value="ollama">Ollama</option>
+                      <option value="openrouter">OpenRouter</option>
+                      <option value="huggingface">Hugging Face</option>
+                      <option value="llama.cpp">LLAMA.CPP</option>
+                    </select>
+
+                  <input
+                    id="turnOverrideModelIdentifierInput"
+                    type="text"
+                    placeholder="qwen2.5:14b-instruct or anthropic/claude-3.7-sonnet or Qwen/Qwen2.5-7B-Instruct"
+                  />
+
+                  <button id="activateTurnOverrideBtn" type="button">
+                    Use For Next Reply
+                  </button>
+                  <button id="clearTurnOverrideBtn" type="button">Clear</button>
+                </div>
+
+                <div id="turnOverrideStatus" class="muted-text">
+                  No one-turn runtime override active.
+                </div>
+              </section>
+
+              <section class="panel-section">
+                <div class="panel-section-header">
+                  <h3>Conversation Sticky Runtime Override</h3>
+                </div>
+
+                <label for="conversationPersonaSelect">Persona</label>
+                <select id="conversationPersonaSelect"></select>
+
+                <label for="conversationModelProfileOverrideSelect"
+                  >Model Profile Override</label
+                >
+                <select id="conversationModelProfileOverrideSelect"></select>
+
+                <label for="conversationGenerationPresetOverrideSelect"
+                  >Generation Preset Override</label
+                >
+                <select id="conversationGenerationPresetOverrideSelect"></select>
+
+                <div class="message-actions">
+                  <button id="saveConversationSettingsBtn" type="button">
+                    Save Conversation Settings
+                  </button>
+                  <button id="clearConversationRuntimeOverrideBtn" type="button">
+                    Clear Sticky Override
+                  </button>
+                </div>
+
+                <div id="conversationSettingsStatus" class="muted-text">
+                  No conversation settings saved yet.
+                </div>
+              </section>
+
+              <section class="panel-section">
+                <div class="panel-section-header">
+                  <h3>App Defaults</h3>
+                </div>
+
+                <label for="defaultPersonaSelect">Default Persona</label>
+                <select id="defaultPersonaSelect"></select>
+
+                <label for="defaultModelProfileSelect">Default Model Profile</label>
+                <select id="defaultModelProfileSelect"></select>
+
+                <label for="defaultGenerationPresetSelect"
+                  >Default Generation Preset</label
+                >
+                <select id="defaultGenerationPresetSelect"></select>
+
+                <div class="message-actions">
+                  <button id="saveAppDefaultsBtn" type="button">
+                    Save App Defaults
+                  </button>
+                </div>
+
+                <div id="appDefaultsStatus" class="muted-text">
+                  No app defaults loaded yet.
+                </div>
+              </section>
+            </footer>
+          </section>
+
+          <aside class="memory-panel">
+            <div class="memory-panel-section">
+              <div class="memory-panel-header">
+                <h2>Memory</h2>
+                <button id="refreshMemoryBtn" type="button">Refresh</button>
+              </div>
+
+              <div class="memory-scope">
+                <label>
+                  <input id="memoryUseConversationScope" type="checkbox" />
+                  Show conversation-scoped memory for active chat
+                </label>
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <h3>Create Memory</h3>
+
+              <label class="memory-label" for="memoryCategorySelect"
+                >Category</label
+              >
+              <select id="memoryCategorySelect">
+                <option value="UserFact">UserFact</option>
+                <option value="RelationshipFact">RelationshipFact</option>
+                <option value="WorldFact">WorldFact</option>
+                <option value="CharacterFact">CharacterFact</option>
+              </select>
+
+              <label class="memory-label" for="memoryContentInput"
+                >Content</label
+              >
+              <textarea
+                id="memoryContentInput"
+                rows="4"
+                placeholder="Add an important persistent fact..."
+              ></textarea>
+
+              <div class="memory-flags">
+                <label>
+                  <input id="memoryPinnedInput" type="checkbox" checked />
+                  Pinned
+                </label>
+
+                <label>
+                  <input id="memoryConversationScopedInput" type="checkbox" />
+                  Scope to active conversation
+                </label>
+              </div>
+
+              <button id="createMemoryBtn" type="button">Create Memory</button>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="memory-panel-header">
+                <h3>Memory Proposals</h3>
+                <button id="generateMemoryProposalsBtn" type="button">
+                  Generate Proposals
+                </button>
+              </div>
+              <div id="pendingMemoryProposals"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Memory Conflicts</h3>
+                <button id="refreshMemoryConflictsBtn" type="button">
+                  Refresh
+                </button>
+              </div>
+
+              <div id="memoryConflictsMeta" class="muted-text">
+                No conflict data loaded yet.
+              </div>
+              <div id="memoryConflictsList" class="stack-sm"></div>
+              <div id="memoryConflictActionResult" class="muted-text">
+                No conflict action taken yet.
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <h2>Background Proposal Worker</h2>
+              <div id="backgroundProposalStatusPanel" class="memory-item-meta">
+                Loading background proposal status...
+              </div>
+              <div class="button-row">
+                <button id="refreshBackgroundProposalStatusBtn" type="button">
+                  Refresh Worker Status
+                </button>
+                <button id="runBackgroundProposalNowBtn" type="button">
+                  Run for Active Conversation
+                </button>
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Background Work</h3>
+                <button id="refreshBackgroundWorkBtn" type="button">
+                  Refresh
+                </button>
+              </div>
+
+              <div id="backgroundWorkMeta" class="muted-text">
+                No data loaded yet.
+              </div>
+              <div class="stack-sm">
+                <button id="manualRefreshSummaryBtn" type="button">
+                  Run Summary Refresh
+                </button>
+                <button id="manualExtractMemoryBtn" type="button">
+                  Run Memory Extraction
+                </button>
+                <button id="manualReindexRetrievalBtn" type="button">
+                  Run Retrieval Reindex
+                </button>
+              </div>
+              <div id="backgroundWorkTriggerResult" class="muted-text">
+                No manual trigger run yet.
+              </div>
+              <div id="backgroundWorkPendingList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Maintenance</h3>
+              </div>
+
+              <div class="stack-sm">
+                <button id="rebuildMemoryKeysBtn" type="button">
+                  Rebuild Memory Keys
+                </button>
+                <button id="reindexAllRetrievalBtn" type="button">
+                  Reindex All Retrieval
+                </button>
+                <button id="pruneMemoryExtractionAuditBtn" type="button">
+                  Prune Audit Events
+                </button>
+                <button id="exportMemoryExtractionAuditBtn" type="button">
+                  Export Active Conversation Audit
+                </button>
+                <button id="pruneStaleSceneStateBtn" type="button">
+                  Prune Stale Scene-State
+                </button>
+              </div>
+
+              <div id="maintenanceResult" class="muted-text">
+                No maintenance operation run yet.
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Dataset Export</h3>
+              </div>
+
+              <label>
+                <input
+                  id="datasetExportCurrentConversationOnlyInput"
+                  type="checkbox"
+                />
+                Current conversation only
+              </label>
+
+              <label>
+                <input
+                  id="datasetExportSelectedOnlyInput"
+                  type="checkbox"
+                  checked
+                />
+                Selected variants only
+              </label>
+
+              <label for="datasetExportProviderInput">Provider</label>
+              <select id="datasetExportProviderInput">
+                <option value="">(any)</option>
+                      <option value="ollama">Ollama</option>
+                      <option value="openrouter">OpenRouter</option>
+                      <option value="huggingface">Hugging Face</option>
+                      <option value="llama.cpp">LLAMA.CPP</option>
+                    </select>
+
+              <label for="datasetExportModelContainsInput">Model contains</label>
+              <input
+                id="datasetExportModelContainsInput"
+                type="text"
+                placeholder="Example: qwen or claude or gpt-4.1-mini"
+              />
+
+              <label for="datasetExportCreatedFromInput"
+                >Snapshot created from</label
+              >
+              <input id="datasetExportCreatedFromInput" type="datetime-local" />
+
+              <label for="datasetExportCreatedToInput">Snapshot created to</label>
+              <input id="datasetExportCreatedToInput" type="datetime-local" />
+
+              <label for="datasetExportConversationCreatedFromInput"
+                >Conversation created from</label
+              >
+              <input
+                id="datasetExportConversationCreatedFromInput"
+                type="datetime-local"
+              />
+
+              <label for="datasetExportConversationCreatedToInput"
+                >Conversation created to</label
+              >
+              <input
+                id="datasetExportConversationCreatedToInput"
+                type="datetime-local"
+              />
+
+              <label for="datasetExportMaxCountInput">Max count</label>
+              <input
+                id="datasetExportMaxCountInput"
+                type="number"
+                min="1"
+                max="5000"
+                value="500"
+              />
+
+              <label for="datasetExportFormatInput">Export format</label>
+              <select id="datasetExportFormatInput">
+                <option value="json">Plain JSON</option>
+                <option value="jsonl">JSONL</option>
+                <option value="sharegpt">ShareGPT-style</option>
+                <option value="alpaca">Alpaca-style</option>
+              </select>
+
+              <div class="message-actions">
+                <button id="exportPromptDatasetBtn" type="button">
+                  Export Prompt Dataset
+                </button>
+              </div>
+
+              <div id="datasetExportStatus" class="muted-text">
+                No export started yet.
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Memory Merge / Upsert</h3>
+              </div>
+
+              <label for="memoryMergeSourceIdInput">Source Memory ID</label>
+              <input
+                id="memoryMergeSourceIdInput"
+                type="text"
+                placeholder="Paste source memory id"
+              />
+
+              <label for="memoryMergeTargetIdInput">Target Memory ID</label>
+              <input
+                id="memoryMergeTargetIdInput"
+                type="text"
+                placeholder="Paste target memory id"
+              />
+
+              <label for="memoryMergeStrategyInput">Strategy</label>
+              <select id="memoryMergeStrategyInput">
+                <option value="append_unique">Append unique</option>
+                <option value="replace_target">Replace target</option>
+              </select>
+
+              <div class="message-actions">
+                <button id="previewMergeMemoryItemsBtn" type="button">
+                  Preview Merge
+                </button>
+                <button id="mergeMemoryItemsBtn" type="button">
+                  Merge Memory Items
+                </button>
+              </div>
+
+              <div id="memoryMergePreview" class="muted-text">
+                No merge preview loaded yet.
+              </div>
+              <div id="memoryMergeStatus" class="muted-text">
+                No memory merge started yet.
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Memory Conflict Suggestions</h3>
+              </div>
+
+              <label>
+                <input
+                  id="memorySuggestionConflictsCurrentConversationOnlyInput"
+                  type="checkbox"
+                  checked
+                />
+                Current conversation only
+              </label>
+
+              <label for="memorySuggestionConflictsMaxCountInput">Max count</label>
+              <input
+                id="memorySuggestionConflictsMaxCountInput"
+                type="number"
+                min="1"
+                max="500"
+                value="50"
+              />
+
+              <label for="memoryConflictsStrategyInput"
+                >Bulk merge strategy</label
+              >
+              <select id="memoryConflictsStrategyInput">
+                <option value="append_unique">Append unique</option>
+                <option value="replace_target">Replace target</option>
+              </select>
+
+              <div class="message-actions">
+                <button id="loadMemorySuggestionConflictsBtn" type="button">
+                  Load Memory Conflicts
+                </button>
+                <button id="resolveMemoryConflictsBulkBtn" type="button">
+                  Resolve Suggested Conflicts
+                </button>
+              </div>
+
+              <div id="memorySuggestionConflictsStatus" class="muted-text">
+                No conflict scan started yet.
+              </div>
+              <div id="memorySuggestionConflictsList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Memory Export</h3>
+              </div>
+
+              <label>
+                <input
+                  id="memoryExportCurrentConversationOnlyInput"
+                  type="checkbox"
+                />
+                Current conversation only
+              </label>
+
+              <label for="memoryExportScopeInput">Scope</label>
+              <select id="memoryExportScopeInput">
+                <option value="">(any)</option>
+                <option value="Conversation">Conversation</option>
+                <option value="Character">Character</option>
+              </select>
+
+              <label for="memoryExportKindInput">Kind</label>
+              <select id="memoryExportKindInput">
+                <option value="">(any)</option>
+                <option value="DurableFact">Durable</option>
+                <option value="SceneState">SceneState</option>
+              </select>
+
+              <label for="memoryExportCategoryContainsInput">Category contains</label>
+              <input
+                id="memoryExportCategoryContainsInput"
+                type="text"
+                placeholder="Example: preference or relationship"
+              />
+
+              <label>
+                <input id="memoryExportActiveOnlyInput" type="checkbox" checked />
+                Active only
+              </label>
+
+              <label for="memoryExportCreatedFromInput">Created from</label>
+              <input id="memoryExportCreatedFromInput" type="datetime-local" />
+
+              <label for="memoryExportCreatedToInput">Created to</label>
+              <input id="memoryExportCreatedToInput" type="datetime-local" />
+
+              <label for="memoryExportUpdatedFromInput">Updated from</label>
+              <input id="memoryExportUpdatedFromInput" type="datetime-local" />
+
+              <label for="memoryExportUpdatedToInput">Updated to</label>
+              <input id="memoryExportUpdatedToInput" type="datetime-local" />
+
+              <label for="memoryExportMaxCountInput">Max count</label>
+              <input
+                id="memoryExportMaxCountInput"
+                type="number"
+                min="1"
+                max="5000"
+                value="500"
+              />
+
+              <label for="memoryExportFormatInput">Export format</label>
+              <select id="memoryExportFormatInput">
+                <option value="json">Plain JSON</option>
+                <option value="jsonl">JSONL</option>
+                <option value="sharegpt">
+                  ShareGPT-style memory annotations
+                </option>
+              </select>
+
+              <div class="message-actions">
+                <button id="exportMemoryDatasetBtn" type="button">
+                  Export Memory
+                </button>
+              </div>
+
+              <div id="memoryExportStatus" class="muted-text">
+                No memory export started yet.
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Memory Import</h3>
+              </div>
+
+              <label for="memoryImportFileInput">Import file</label>
+              <input id="memoryImportFileInput" type="file" />
+
+              <label for="memoryImportFormatInput">Import format</label>
+              <select id="memoryImportFormatInput">
+                <option value="json">Plain JSON</option>
+                <option value="jsonl">JSONL</option>
+                <option value="sharegpt">
+                  ShareGPT-style memory annotations
+                </option>
+              </select>
+
+              <label for="memoryImportStrategyInput">Import strategy</label>
+              <select id="memoryImportStrategyInput">
+                <option value="upsert_normalized_key">
+                  Upsert by normalized key
+                </option>
+                <option value="insert_only">Insert only</option>
+              </select>
+
+              <label>
+                <input
+                  id="memoryImportCurrentConversationOverrideInput"
+                  type="checkbox"
+                />
+                Override conversation id with current conversation
+              </label>
+
+              <div class="message-actions">
+                <button id="importMemoryBtn" type="button">Import Memory</button>
+              </div>
+
+              <div id="memoryImportStatus" class="muted-text">
+                No memory import started yet.
+              </div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Memory Provenance</h3>
+              </div>
+
+              <div id="memoryProvenanceStatus" class="muted-text">
+                No memory provenance loaded yet.
+              </div>
+              <div id="memoryProvenanceDetails" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Scene-State Inspection</h3>
+                <button id="refreshSceneStateInspectionBtn" type="button">
+                  Refresh
+                </button>
+              </div>
+
+              <div id="sceneStateInspectionMeta" class="muted-text">
+                No scene-state inspection loaded yet.
+              </div>
+
+              <h4>Active Scene-State By Family</h4>
+              <div id="sceneStateActiveList" class="stack-sm"></div>
+
+              <h4>Replaced Scene-State History</h4>
+              <div id="sceneStateReplacementHistoryList" class="stack-sm"></div>
+
+              <h4>Family Collisions</h4>
+              <div id="sceneStateFamilyCollisionList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Memory Extraction Audit</h3>
+                <button id="refreshMemoryExtractionAuditBtn" type="button">
+                  Refresh
+                </button>
+              </div>
+
+              <div id="memoryExtractionAuditMeta" class="muted-text">
+                No memory extraction audit loaded yet.
+              </div>
+              <div id="memoryExtractionAuditList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Prompt Scene-State Debug</h3>
+              </div>
+
+              <div id="promptSceneStateDebugMeta" class="muted-text">
+                No prompt scene-state debug data loaded yet.
+              </div>
+
+              <h4>Selected Families</h4>
+              <div id="promptSceneStateSelectedList" class="stack-sm"></div>
+
+              <h4>Suppressed Families</h4>
+              <div id="promptSceneStateSuppressedList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Prompt Durable Memory Debug</h3>
+              </div>
+
+              <div id="promptDurableMemoryDebugMeta" class="muted-text">
+                No prompt durable-memory debug data loaded yet.
+              </div>
+
+              <h4>Selected Durable Memory</h4>
+              <div id="promptDurableMemorySelectedList" class="stack-sm"></div>
+
+              <h4>Suppressed Durable Memory</h4>
+              <div id="promptDurableMemorySuppressedList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <h3>Memory Items</h3>
+              <div id="memoryList" class="memory-list"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="memory-panel-header">
+                <h2>Retrieval Inspector</h2>
+                <button id="inspectRetrievalBtn" type="button">Inspect</button>
+              </div>
+              <div id="retrievalInspectionRuntimeRow" class="message-runtime-row"></div>
+              <div id="retrievalInspectionRuntimeMeta" class="muted-text"></div>
+
+              <label class="memory-label" for="retrievalQueryInput"
+                >Inspection Query</label
+              >
+              <textarea
+                id="retrievalQueryInput"
+                rows="3"
+                placeholder="Describe the next user message or current topic..."
+              ></textarea>
+
+              <div id="retrievalInspectionResults" class="memory-list"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Retrieval Memory Explanations</h3>
+              </div>
+
+              <div id="retrievalMemoryExplanationsMeta" class="muted-text">
+                No retrieval explanation data loaded yet.
+              </div>
+              <div id="retrievalMemoryExplanationsList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Retrieval Lore Explanations</h3>
+              </div>
+
+              <div id="retrievalLoreExplanationsMeta" class="muted-text">
+                No lore explanation data loaded yet.
+              </div>
+              <div id="retrievalLoreExplanationsList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Prompt Memory Slot Winners</h3>
+              </div>
+
+              <div id="promptSlotWinnersMeta" class="muted-text">
+                No prompt slot data loaded yet.
+              </div>
+              <div id="promptSlotWinnersList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="panel-section-header">
+                <h3>Prompt Suppressed Durable Memory</h3>
+              </div>
+
+              <div id="promptSuppressedDurableMeta" class="muted-text">
+                No suppressed durable memory data loaded yet.
+              </div>
+              <div id="promptSuppressedDurableList" class="stack-sm"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="memory-panel-header">
+                <h2>Prompt Inspector</h2>
+                <button id="inspectPromptBtn" type="button">
+                  Inspect Prompt
+                </button>
+              </div>
+              <div id="promptInspectionRuntimeRow" class="message-runtime-row"></div>
+              <div id="promptInspectionRuntimeMeta" class="muted-text"></div>
+              <div id="promptAuthoringSummary" class="memory-list"></div>
+
+              <div id="promptInspectionResults" class="memory-list"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="memory-panel-header">
+                <h2>Summary Inspector</h2>
+                <button id="inspectSummaryBtn" type="button">
+                  Inspect Summary
+                </button>
+              </div>
+
+              <div class="memory-item-meta">
+                Uses the current message box text if present; otherwise it
+                simulates the next turn with “Continue the conversation.”
+              </div>
+
+              <div id="summaryInspectionResults" class="memory-list"></div>
+            </div>
+
+            <div class="memory-panel-section">
+              <div class="memory-panel-header">
+                <h2>Lorebooks</h2>
+                <button id="refreshLorebooksBtn" type="button">Refresh</button>
+              </div>
+
+              <label class="memory-label" for="lorebookNameInput"
+                >Lorebook Name</label
+              >
+              <input
+                id="lorebookNameInput"
+                type="text"
+                placeholder="World Rules"
+              />
+
+              <label class="memory-label" for="lorebookDescriptionInput"
+                >Description</label
+              >
+              <textarea
+                id="lorebookDescriptionInput"
+                rows="3"
+                placeholder="Core lore for this character"
+              ></textarea>
+
+              <button id="createLorebookBtn" type="button">
+                Create Lorebook
+              </button>
+            </div>
+
+            <div class="memory-panel-section">
+              <h3>Create Lore Entry</h3>
+
+              <label class="memory-label" for="lorebookSelect">Lorebook</label>
+              <select id="lorebookSelect"></select>
+
+              <label class="memory-label" for="loreEntryTitleInput"
+                >Entry Title</label
+              >
+              <input
+                id="loreEntryTitleInput"
+                type="text"
+                placeholder="Base Setting"
+              />
+
+              <label class="memory-label" for="loreEntryContentInput"
+                >Entry Content</label
+              >
+              <textarea
+                id="loreEntryContentInput"
+                rows="4"
+                placeholder="Describe a world fact..."
+              ></textarea>
+
+              <div class="memory-flags">
+                <label>
+                  <input id="loreEntryEnabledInput" type="checkbox" checked />
+                  Enabled
+                </label>
+              </div>
+
+              <button id="createLoreEntryBtn" type="button">
+                Create Lore Entry
+              </button>
+            </div>
+
+            <div class="memory-panel-section">
+              <h3>Lorebook Entries</h3>
+              <div id="lorebookList" class="memory-list"></div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+    <script src="/app.js?v=20260316-2"></script>
+  </body>
+</html>
+
